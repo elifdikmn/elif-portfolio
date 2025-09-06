@@ -235,7 +235,7 @@ export default function Page() {
             aria-label="Hero"
             className="relative z-20 mx-auto flex min-h-screen max-w-10xl flex-col items-center justify-center px-6 text-center"
           >
-            <h1 className="text-[10rem] mb-3 font-bold font-hero italic tracking-[0.02em]">
+            <h1 className="text-[5rem] mb-3 font-bold font-hero italic tracking-[0.02em]">
               <span className="neon-soft-wrap">
                 {introDone ? (
                   <Typewriter
