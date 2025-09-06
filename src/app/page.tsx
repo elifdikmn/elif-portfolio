@@ -13,6 +13,24 @@ import { Mail, Github, Linkedin, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+const container: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { when: "beforeChildren", staggerChildren: 0.08 },
+  },
+  exit: { opacity: 0 },
+};
+
+const item: Variants = {
+  hidden: { opacity: 0, x: 30, filter: "blur(6px)" as any },
+  show: {
+    opacity: 1,
+    x: 0,
+    filter: "blur(0px)" as any,
+    transition: { duration: 0.55, ease: "easeOut" as Transition["ease"] },
+  },
+};
 
 /* ---------------- Typewriter ---------------- */
 function Typewriter({
