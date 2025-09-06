@@ -234,18 +234,18 @@ export default function Page() {
             aria-label="Hero"
             className="relative z-20 mx-auto flex min-h-[calc(100vh-60px)] max-w-screen-2xl flex-col items-center justify-center px-4 sm:px-6 text-center"
           >
-            <h1 className="mb-4 font-bold font-hero italic tracking-[0.02em] text-[clamp(2.25rem,8vw,6rem)] leading-[0.95]">
+            <h1 className="mb-4 font-bold font-hero italic tracking-[0.02em] text-[clamp(2.25rem,8vw,4rem)] leading-[0.95]">
               <span className="neon-soft-wrap">
                 {introDone ? (
                   <Typewriter
-                    text="HEY, I\'M ELIF DIKMEN"
+                    text="HEY, I'M ELIF DIKMEN"
                     startDelay={200}
                     speed={100}
                     ariaLabel="Headline"
                     className="neon-strong"
                   />
                 ) : (
-                  <span className="opacity-0">HEY, I\'M ELIF DIKMEN</span>
+                  <span className="opacity-0">HEY, I'M ELIF DIKMEN</span>
                 )}
               </span>
             </h1>
@@ -254,9 +254,9 @@ export default function Page() {
               initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
               animate={introDone ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0 }}
               transition={{ duration: 1, delay: 0.3, ease: easeOut }}
-              className="mb-10 w-full max-w-[70ch] text-base sm:text-lg md:text-xl lg:text-2xl font-hero leading-relaxed text-white/90"
+              className="mb-5 w-full max-w-[70ch] text-base sm:text-lg md:text-xl lg:text-1xl font-hero leading-relaxed text-white/90"
             >
-              I\'m a new graduated computer engineer passionate about data science, machine learning, and modern web
+              I'm a new graduated computer engineer passionate about data science, machine learning, and modern web
               development. I enjoy creating user-centric solutions, working with data visualization, and building
               AI-powered applications.
             </motion.p>
@@ -572,24 +572,25 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
       <div className="relative min-h-[60vh] mx-auto px-4 sm:px-6 md:px-10">
         <div className="grid lg:grid-cols-[1fr_minmax(340px,520px)] gap-8 items-start">
           {/* Left: Heading + text */}
-          <motion.div variants={container} className="relative z-10 max-w-3xl pt-4 md:pt-8">
-            <motion.h2 variants={item} className="text-[clamp(28px,6vw,56px)] font-bold tracking-wide mb-3">
+          <motion.div variants={container} className="relative z-10 pt-4 md:pt-8">
+
+            <motion.h2 variants={item} className="text-[clamp(28px,6vw,45px)] font-bold tracking-wide -mt-8 -mb-1 ml-10">
               ABOUT ME
             </motion.h2>
-            <motion.div variants={item} className="h-1 w-40 bg-white mb-6" />
+            <motion.div variants={item} className="h-0.5 w-200 bg-white mb-5 ml-10" />
 
-            <motion.p variants={item} className="text-base sm:text-lg md:text-xl font-hero leading-relaxed text-white/90 mb-4">
+            <motion.p variants={item} className="text-base sm:text-lg md:text-1xl font-hero leading-relaxed text-white/90 mb-4 ml-10">
               Hi, I’m Elif. Thanks for stopping by!
             </motion.p>
 
-            <motion.p variants={item} className="text-base sm:text-lg md:text-xl font-hero leading-relaxed text-white/90 mb-4">
+            <motion.p variants={item} className="text-base sm:text-lg md:text-1xl font-hero leading-relaxed text-white/90 mb-4 ml-10">
               I recently graduated from a Yeditepe University where I majored in a Computer Science,
               where I built a strong foundation in software, data, and modern web technologies.
               I’m especially interested in data science, machine learning, and turning complex information
               into clear, human-centered experiences
             </motion.p>
 
-            <motion.p variants={item} className="text-base sm:text-lg md:text-xl font-hero leading-relaxed text-white/90">
+            <motion.p variants={item} className="text-base sm:text-lg md:text-1xl font-hero leading-relaxed text-white/90 ml-10">
               More recently, I’ve been a Research Intern at the Università di Bologna in Italy,
               contributing to collaborative CS research and broadening my perspective in an international
               environment. I enjoy end-to-end problem solving: from data work (collecting, cleaning, modeling) to building
@@ -602,28 +603,27 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
               href="/ElifCV.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-[clamp(16px,2vw,22px)] font-bold text-indigo-300 hover:text-white transition mt-6"
+              className="inline-flex items-center gap-2 text-[clamp(16px,2vw,18px)] font-bold text-indigo-300 hover:text-white transition mt-1 ml-10"
             >
               ↓ resume
             </motion.a>
           </motion.div>
 
-          {/* Right: Photo (contained, sticky) */}
-          <motion.div
-            variants={item}
-            className="hidden lg:block sticky top-20 h-[68vh] w-full overflow-hidden shadow-2xl ring-2 ring-white/15 rounded-bl-2xl"
-          >
-            <motion.img
-              src="/elfi.jpg"
-              alt="Elif Dikmen portrait"
-              initial={{ scale: 1.05, opacity: 0 }}
-              animate={{ scale: 1.12, opacity: 1 }}
-              transition={{ duration: 1.0, ease: easeOut }}
-              className="h-full w-full object-cover object-center"
-              draggable={false}
-            />
-          </motion.div>
-        </div>
+          {/* Right: Photo (top-right corner) */}
+<motion.div
+  variants={item}
+  className="hidden lg:block fixed top-0 right-0 h-[600px] w-[350px] overflow-hidden shadow-2xl ring-2 ring-white/15 z-50" style={{ borderRadius: "0 0 0 36px" }}>
+  <motion.img
+    src="/elfi.jpg"
+    alt="Elif Dikmen portrait"
+    initial={{ scale: 1.05, opacity: 0 }}
+    animate={{ scale: 1.12, opacity: 1 }}
+    transition={{ duration: 1.0, ease: easeOut }}
+    className="h-full w-full object-cover object-center"
+    draggable={false}
+  />
+</motion.div>
+</div>
 
         {/* Mobile photo below text */}
         <motion.div variants={item} className="lg:hidden mt-8 flex justify-center">
@@ -707,7 +707,7 @@ function ContactPanel({
   );
 }
 
-/* ---------------- Kare Menü Butonu ---------------- */
+/* ---------------- Daha Küçük Kare Menü Butonu ---------------- */
 function SquareMenuButton({
   open,
   onToggle,
@@ -724,39 +724,50 @@ function SquareMenuButton({
       onClick={onToggle}
       onMouseEnter={() => onHoverChange(true)}
       onMouseLeave={() => onHoverChange(false)}
-      className="group relative grid h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 place-items-center text-white"
+      className="group relative grid h-11 w-11 sm:h-12 sm:w-12 md:h-30 md:w-30 place-items-center text-white"
     >
+      {/* Grid noktaları */}
       <motion.div
         key="grid"
         initial={false}
-        animate={{ opacity: open ? 0 : 1, scale: open ? 0.7 : 1, rotate: open ? 10 : 0 }}
+        animate={{
+          opacity: open ? 0 : 1,
+          scale: open ? 0.7 : 1,
+          rotate: open ? 10 : 0,
+        }}
         transition={{ type: "spring", stiffness: 300, damping: 26 }}
         className="absolute inset-0 grid place-items-center"
       >
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 md:gap-2.5">
           {Array.from({ length: 9 }).map((_, i) => (
             <span
               key={i}
-              className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 rounded-full border-2 border-white/85 bg-transparent opacity-90 transition group-hover:scale-110 group-hover:opacity-100"
+              className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 rounded-full border-2 border-white/85 bg-transparent opacity-90 transition group-hover:scale-110 group-hover:opacity-100"
             />
           ))}
         </div>
       </motion.div>
 
+      {/* Çarpı (close) */}
       <motion.div
         key="close"
         initial={false}
-        animate={{ opacity: open ? 1 : 0, scale: open ? 1 : 0.6, rotate: open ? 0 : -10 }}
+        animate={{
+          opacity: open ? 1 : 0,
+          scale: open ? 1 : 0.6,
+          rotate: open ? 0 : -10,
+        }}
         transition={{ type: "spring", stiffness: 280, damping: 22 }}
         className="relative"
       >
-        <span className="absolute block h-[3px] w-8 sm:w-10 md:w-12 -rotate-45 bg-white rounded-full" />
-        <span className="absolute block h-[3px] w-8 sm:w-10 md:w-12  rotate-45 bg-white rounded-full" />
-        <span className="block h-10 w-10 md:h-14 md:w-14 opacity-0" />
+        <span className="absolute block h-[2px] w-5 sm:w-6 md:w-7 -rotate-45 bg-white rounded-full" />
+        <span className="absolute block h-[2px] w-5 sm:w-6 md:w-7  rotate-45 bg-white rounded-full" />
+        <span className="block h-7 w-7 md:h-9 md:w-9 opacity-0" />
       </motion.div>
     </button>
   );
 }
+
 
 /* ---------------- Background FX ---------------- */
 function BgFX({
