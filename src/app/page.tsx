@@ -28,22 +28,22 @@ function Typewriter({
 
   useEffect(() => {
     if (prefersReducedMotion) return;
-    let timeout: number | undefined;
-    let interval: number | undefined;
-    timeout = (window as any).setTimeout(() => {
+  
+    const timeoutId = window.setTimeout(() => {
       setStarted(true);
       let i = 0;
-      interval = (window as any).setInterval(() => {
+      const intervalId = window.setInterval(() => {
         i++;
         setShown(text.slice(0, i));
-        if (i >= text.length) (window as any).clearInterval(interval);
+        if (i >= text.length) window.clearInterval(intervalId);
       }, speed);
     }, startDelay);
+  
     return () => {
-      if (timeout) (window as any).clearTimeout(timeout);
-      if (interval) (window as any).clearInterval(interval);
+      window.clearTimeout(timeoutId);
     };
   }, [prefersReducedMotion, speed, startDelay, text]);
+  
 
   const done = shown.length >= text.length;
   return (
@@ -234,14 +234,14 @@ export default function Page() {
   <span className="neon-soft-wrap">
     {introDone ? (
       <Typewriter
-        text="HEY, I'M ELIF DIKMEN"
+        text="HEY, I&apos;M ELIF DIKMEN"
         startDelay={200}
         speed={100}
         ariaLabel="Headline"
         className="neon-strong"   // sadece glow
       />
     ) : (
-      <span className="opacity-0">HEY, I'M ELIF DIKMEN</span>
+      <span className="opacity-0">HEY, I&apos;M ELIF DIKMEN</span>
     )}
   </span>
 </h1>
@@ -256,7 +256,7 @@ export default function Page() {
               transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
               className="mb-12 w-full max-w-[80ch] text-xl sm:text-2xl md:text-5xl font-hero  leading-relaxed text-white "
             >
-              I'm a new graduated computer engineer passionate about data science, machine learning, and modern web
+              I&apos;m a new graduated computer engineer passionate about data science, machine learning, and modern web
               development. I enjoy creating user-centric solutions, working with data visualization, and building
               AI-powered applications.
             </motion.p>
@@ -641,7 +641,7 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
             variants={item}
             className="text-4xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50"
           >
-            Hi, I’m Elif. Thanks for stopping by!
+            Hi, I&apos;m Elif. Thanks for stopping by!
           </motion.p>
 
           <motion.p
@@ -650,7 +650,7 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
           >
             I recently graduated from a Yeditepe University where I majored in a Computer Science, 
             where I built a strong foundation in software, data, and modern web technologies. 
-            I’m especially interested in data science, machine learning, and turning complex information 
+            I&apos;m especially interested in data science, machine learning, and turning complex information 
             into clear, human-centered experiences
           </motion.p>
 
@@ -658,10 +658,10 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
             variants={item}
             className="text-4xl w-400 font-hero leading-relaxed text-white-700 max-w-7xl ml-50"
           >
-            More recently, I’ve been a Research Intern at the Università di Bologna in Italy, 
+            More recently, I&apos;ve been a Research Intern at the Università di Bologna in Italy, 
             contributing to collaborative CS research and broadening my perspective in an international 
             environment.I enjoy end-to-end problem solving: from data work (collecting, cleaning, modeling) to building 
-            usable interfaces.Today, I’m looking to create products that are practical, performant, 
+            usable interfaces.Today, I&apos;m looking to create products that are practical, performant, 
             and respectful of users—combining data, ML, and thoughtful design to make everyday experiences a little better.
           </motion.p>
 
@@ -941,7 +941,8 @@ function MorphBlob({
     "M 0 -85 C 60 -40, 85 -30, 90 0 C 85 40, 60 85, 0 90 C -60 85, -85 40, -90 0 C -85 -30, -60 -40, 0 -85 Z";
   const seq = reverse ? [p3, p2, p1, p3] : [p1, p2, p3, p1];
   return (
-    <svg width={size} height={size} viewBox="-100 -100 200 200" className="absolute" style={{ left: x, top: y, mixBlendMode: "screen" as any }}>
+    <svg width={size} height={size} viewBox="-100 -100 200 200" className="absolute" style={{ left: x, top: y, mixBlendMode: "screen" as React.CSSProperties["mixBlendMode"] }}>
+
       <defs>
         <radialGradient id={gradientId} cx="50%" cy="40%" r="60%">
           <stop offset="0%" stopColor={hue} stopOpacity="0.9" />
