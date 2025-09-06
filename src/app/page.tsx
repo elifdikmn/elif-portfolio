@@ -45,9 +45,7 @@ function Typewriter({
       }, speed);
     }, startDelay);
 
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
+    return () => window.clearTimeout(timeoutId);
   }, [prefersReducedMotion, speed, startDelay, text]);
 
   const done = shown.length >= text.length;
@@ -120,7 +118,6 @@ export default function Page() {
   const [introDone, setIntroDone] = useState(false);
   const [hoveringButton, setHoveringButton] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  // Page() içindeki state
   const [overlayView, setOverlayView] =
     useState<"list" | "about" | "contact" | "projects">("list");
 
@@ -189,12 +186,10 @@ export default function Page() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  /* helper: dışarıdan About overlay'i aç */
   const openAboutOverlay = () => {
     setOverlayView("about");
     setMenuOpen(true);
   };
-  // Page() içinde
   const openProjectsOverlay = () => {
     setOverlayView("projects");
     setMenuOpen(true);
@@ -209,7 +204,7 @@ export default function Page() {
         <BgFX mouse={mouse} hue={hue} windowSize={windowSize} hoveringButton={hoveringButton} />
 
         {/* Sağ üst ring grid buton */}
-        <header className="absolute top-30 right-35 z-[70]">
+        <header className="absolute top-[30px] right-[35px] z-[70]">
           <SquareMenuButton
             open={menuOpen}
             onToggle={() => {
@@ -233,9 +228,9 @@ export default function Page() {
         >
           <section
             aria-label="Hero"
-            className="relative z-20 mx-auto flex min-h-screen max-w-10xl flex-col items-center justify-center px-6 text-center"
+            className="relative z-20 mx-auto flex min-h-screen max-w-[1400px] flex-col items-center justify-center px-6 text-center"
           >
-            <h1 className="text-[10rem] mb-3 font-bold font-hero italic tracking-[0.02em]">
+            <h1 className="text-[10rem] mb-3 font-bold font-hero italic tracking-[0.02em] whitespace-nowrap">
               <span className="neon-soft-wrap">
                 {introDone ? (
                   <Typewriter
@@ -243,7 +238,7 @@ export default function Page() {
                     startDelay={200}
                     speed={100}
                     ariaLabel="Headline"
-                    className="neon-strong" // sadece glow
+                    className="neon-strong"
                   />
                 ) : (
                   <span className="opacity-0">HEY, I'M ELIF DIKMEN</span>
@@ -251,11 +246,12 @@ export default function Page() {
               </span>
             </h1>
 
+            {/* DEV'deki satır genişliği için: 80ch */}
             <motion.p
               initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
               animate={introDone ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0 }}
               transition={{ duration: 1, delay: 0.3, ease: easeOut }}
-              className="mb-12 w-full max-w-[80ch] text-xl sm:text-2xl md:text-5xl font-hero  leading-relaxed text-white "
+              className="mb-12 max-w-[80ch] text-xl sm:text-2xl md:text-5xl font-hero leading-relaxed text-white"
             >
               I'm a new graduated computer engineer passionate about data science, machine learning, and modern web
               development. I enjoy creating user-centric solutions, working with data visualization, and building
@@ -263,7 +259,6 @@ export default function Page() {
             </motion.p>
 
             <div className="mt-6 flex flex-wrap items-center justify-center font-hero gap-12 text-zinc-200 text-3xl md:text-5xl">
-              {/* Hero butonu: Projects overlay'ini aç */}
               <button
                 type="button"
                 onClick={openProjectsOverlay}
@@ -275,7 +270,6 @@ export default function Page() {
                 <WavyHoverText text="see my projects" className="link-underline" />
               </button>
 
-              {/* Hero butonu: aynı About overlay'ini aç */}
               <button
                 type="button"
                 onClick={openAboutOverlay}
@@ -302,55 +296,18 @@ export default function Page() {
         />
 
         <style jsx global>{`
-          html:focus-within {
-            scroll-behavior: smooth;
-          }
-          @keyframes blink {
-            0%,
-            50% {
-              opacity: 1;
-            }
-            50.01%,
-            100% {
-              opacity: 0;
-            }
-          }
-          @keyframes fadeInUp {
-            from {
-              opacity: 0;
-              transform: translateY(10px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-
-          .link-underline {
-            position: relative;
-            display: inline-block;
-          }
-          .link-underline::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            bottom: -2px;
-            width: 0%;
-            height: 2px;
-            background: currentColor;
-            transition: width 0.4s ease;
-          }
-          .link-underline:hover::after {
-            width: 100%;
-          }
-
-          /* ✨ Neon parlama */
-          .neon-glow {
+          html:focus-within { scroll-behavior: smooth; }
+          @keyframes blink { 0%,50%{opacity:1} 50.01%,100%{opacity:0} }
+          @keyframes fadeInUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+          .link-underline{ position:relative; display:inline-block; }
+          .link-underline::after{ content:""; position:absolute; left:0; bottom:-2px; width:0%; height:2px; background: currentColor; transition: width .4s ease; }
+          .link-underline:hover::after{ width:100%; }
+          .neon-glow{
             text-shadow:
-              0 0 6px rgba(236, 72, 153, 0.55),
-              0 0 16px rgba(236, 72, 153, 0.45),
-              0 0 28px rgba(147, 51, 234, 0.35),
-              0 0 48px rgba(147, 51, 234, 0.25);
+              0 0 6px rgba(236,72,153,.55),
+              0 0 16px rgba(236,72,153,.45),
+              0 0 28px rgba(147,51,234,.35),
+              0 0 48px rgba(147,51,234,.25);
             filter: saturate(120%);
           }
         `}</style>
@@ -393,14 +350,12 @@ function OverlayMenu({
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[65] flex  overflow-y-auto"
+          className="fixed inset-0 z-[65] flex overflow-y-auto"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          {/* dışa tıkla kapat */}
           <motion.div className="absolute inset-0" onClick={onClose} />
-
           <div className={containerClass}>
             <AnimatePresence mode="wait">
               {view === "list" && (
@@ -414,13 +369,7 @@ function OverlayMenu({
               )}
               {view === "about" && <AboutPanel key="about" onBack={() => setView("list")} />}
               {view === "contact" && (
-                <ContactPanel
-                  key="contact"
-                  email={email}
-                  github={github}
-                  linkedin={linkedin}
-                  onBack={() => setView("list")}
-                />
+                <ContactPanel key="contact" email={email} github={github} linkedin={linkedin} onBack={() => setView("list")} />
               )}
               {view === "projects" && <ProjectsPanel key="projects" onBack={() => setView("list")} />}
             </AnimatePresence>
@@ -449,8 +398,8 @@ function MenuList({
   const items: Array<{ n: string; label: string; onClick: () => void }> = [
     { n: "01", label: "HOME", onClick: onClose },
     { n: "02", label: "PROJECTS", onClick: onSelectProjects },
-    { n: "03", label: "ABOUT", onClick: onSelectAbout }, // overlay ABOUT
-    { n: "04", label: "CONTACT", onClick: onSelectContact }, // overlay CONTACT
+    { n: "03", label: "ABOUT", onClick: onSelectAbout },
+    { n: "04", label: "CONTACT", onClick: onSelectContact },
   ];
 
   const container: Variants = {
@@ -464,7 +413,7 @@ function MenuList({
   };
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" exit="exit" className="mt-55">
+    <motion.div variants={container} initial="hidden" animate="show" exit="exit" className="mt-[55px]">
       <ul className="space-y-5 md:space-y-15">
         {items.map((it) => (
           <motion.li key={it.label} variants={item}>
@@ -472,7 +421,7 @@ function MenuList({
               onClick={it.onClick}
               className="group flex items-baseline gap-6 font-hero text-left text-white"
             >
-              <span className="w-8 shrink-0  md:text-3xl   font-bold text-white">{it.n}</span>
+              <span className="w-8 shrink-0 md:text-3xl font-bold text-white">{it.n}</span>
               <span className="font-extrabold leading-none tracking-tight text-[clamp(40px,8vw,110px)]">
                 <WavyHoverText text={it.label} />
                 <span className="block h-[2px] max-w-0 bg-white/80 transition-all duration-300 group-hover:max-w-full" />
@@ -491,12 +440,7 @@ const container: Variants = {
   show: {
     opacity: 1,
     y: 0,
-    transition: {
-      duration: 0.6,
-      ease: easeOut,
-      when: "beforeChildren",
-      staggerChildren: 0.25, // çocukları sırayla getir
-    },
+    transition: { duration: 0.6, ease: easeOut, when: "beforeChildren", staggerChildren: 0.25 },
   },
 };
 
@@ -509,9 +453,9 @@ const item: Variants = {
 function WavyHoverText({
   text,
   className = "",
-  waveOffset = 0.03, // dalga gecikmesi (saniye/harf)
-  lift = 8, // her harfin yukarı kalkma miktarı (px)
-  tilt = 6, // her harfin dönmesi (derece)
+  waveOffset = 0.03,
+  lift = 8,
+  tilt = 6,
 }: {
   text: string;
   className?: string;
@@ -561,46 +505,29 @@ function WavyHoverText({
 function ProjectsPanel({ onBack }: { onBack: () => void }) {
   return (
     <motion.div variants={container} initial="hidden" animate="show" exit="hidden" className="relative w-full text-white">
-      {/* Back */}
       <motion.button
         variants={item}
         onClick={onBack}
-        className="mb-8 inline-flex items-center gap-2 rounded-md px-3 py-2
-                   text-[clamp(20px,3vw,36px)] font-bold opacity-90 hover:opacity-100"
+        className="mb-8 inline-flex items-center gap-2 rounded-md px-3 py-2 text-[clamp(20px,3vw,36px)] font-bold opacity-90 hover:opacity-100"
       >
         <ArrowLeft className="w-8 h-8" />
         Back
       </motion.button>
 
-      {/* Ortalanmış içerik */}
       <div className="relative min-h-[70vh] flex flex-col items-center justify-center text-center px-8">
-        {/* Büyük COMING SOON */}
         <motion.h2 variants={item} className="text-7xl sm:text-8xl md:text-9xl font-extrabold mb-10 tracking-wide">
           COMING SOON
         </motion.h2>
 
-        {/* Alt açıklama */}
         <motion.p variants={item} className="text-2xl text-gray-300 mb-12 max-w-2xl">
           But during that, you can check out my GitHub account or my resume:
         </motion.p>
 
-        {/* Linkler */}
         <motion.div variants={item} className="flex flex-col sm:flex-row gap-8 items-center">
-          <a
-            href="https://github.com/elifdikmn"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-[clamp(20px,2vw,32px)] font-bold text-indigo-300 hover:text-white transition"
-          >
+          <a href="https://github.com/elifdikmn" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[clamp(20px,2vw,32px)] font-bold text-indigo-300 hover:text-white transition">
             ↗ GitHub
           </a>
-
-          <a
-            href="/ElifCV.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-[clamp(20px,2vw,32px)] font-bold text-indigo-300 hover:text-white transition"
-          >
+          <a href="/ElifCV.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[clamp(20px,2vw,32px)] font-bold text-indigo-300 hover:text-white transition">
             ↓ Resume
           </a>
         </motion.div>
@@ -613,37 +540,35 @@ function ProjectsPanel({ onBack }: { onBack: () => void }) {
 function AboutPanel({ onBack }: { onBack: () => void }) {
   return (
     <motion.div variants={container} initial="hidden" animate="show" exit="hidden" className="relative w-full text-white">
-      {/* Back */}
       <motion.button
         variants={item}
         onClick={onBack}
-        className="mb-8 inline-flex items-center gap-2 rounded-md px-3 py-2
-                   text-[clamp(20px,3vw,36px)] font-bold  opacity-90 hover:opacity-100"
+        className="mb-8 inline-flex items-center gap-2 rounded-md px-3 py-2 text-[clamp(20px,3vw,36px)] font-bold  opacity-90 hover:opacity-100"
       >
         <ArrowLeft className="w-8 h-8" />
         Back
       </motion.button>
 
       <div className="relative min-h-[70vh] lg:pr-[560px]">
-        {/* SOL: Başlık + metin */}
         <motion.div variants={container} className="relative z-10 max-w-3xl px-8 lg:px-24 pt-32">
-          <motion.h2 variants={item} className="text-7xl font-bold tracking-wide mb-2 -mt-30 ml-50">
+          <motion.h2 variants={item} className="text-7xl font-bold tracking-wide mb-2 -mt-[30px] ml-[50px]">
             ABOUT ME
           </motion.h2>
-          <motion.div variants={item} className="h-1 w-350 bg-white mb-6 ml-50" />
+          <motion.div variants={item} className="h-1 w-[350px] bg-white mb-6 ml-[50px]" />
 
-          <motion.p variants={item} className="text-4xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50">
+          {/* DEV görünümü için: sabit genişlik YOK, sadece max-w & margin */}
+          <motion.p variants={item} className="text-4xl font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-[50px]">
             Hi, I’m Elif. Thanks for stopping by!
           </motion.p>
 
-          <motion.p variants={item} className="text-4xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50">
+          <motion.p variants={item} className="text-4xl font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-[50px]">
             I recently graduated from a Yeditepe University where I majored in a Computer Science, 
             where I built a strong foundation in software, data, and modern web technologies. 
             I’m especially interested in data science, machine learning, and turning complex information 
             into clear, human-centered experiences
           </motion.p>
 
-          <motion.p variants={item} className="text-4xl w-400 font-hero leading-relaxed text-white-700 max-w-7xl ml-50">
+          <motion.p variants={item} className="text-4xl font-hero leading-relaxed text-white-700 max-w-7xl ml-[50px]">
             More recently, I’ve been a Research Intern at the Università di Bologna in Italy, 
             contributing to collaborative CS research and broadening my perspective in an international 
             environment.I enjoy end-to-end problem solving: from data work (collecting, cleaning, modeling) to building 
@@ -656,17 +581,15 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
             href="/ElifCV.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex ml-50 items-center gap-2 text-[clamp(18px,2.2vw,70px)] font-bold text-indigo-300 hover:text-white transition"
+            className="inline-flex ml-[50px] items-center gap-2 text-[clamp(18px,2.2vw,70px)] font-bold text-indigo-300 hover:text-white transition"
           >
             ↓ resume
           </motion.a>
         </motion.div>
 
-        {/* SAĞ: Fotoğraf */}
         <motion.div
           variants={item}
-          className="hidden lg:block fixed top-0 right-0 h-[1200px] w-[700px]
-                     overflow-hidden shadow-2xl ring-2 ring-white/15 z-50"
+          className="hidden lg:block fixed top-0 right-0 h-[1200px] w-[700px] overflow-hidden shadow-2xl ring-2 ring-white/15 z-50"
           style={{ borderRadius: "0 0 0 36px" }}
         >
           <motion.img
@@ -680,7 +603,6 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
           />
         </motion.div>
 
-        {/* Mobil fotoğraf */}
         <motion.div variants={item} className="lg:hidden mt-8 flex justify-center">
           <div className="relative h-52 w-52 overflow-hidden rounded-full ring-2 ring-white/20 shadow-xl">
             <img src="/elfi.jpg" alt="Elif Dikmen portrait" className="h-full w-full object-cover" draggable={false} />
@@ -713,8 +635,7 @@ function ContactPanel({
     >
       <button
         onClick={onBack}
-        className="mb-10 inline-flex items-center gap-1 rounded-md px-4 py-3
-                   text-[clamp(22px,3vw,36px)] font-bold opacity-90 hover:opacity-100"
+        className="mb-10 inline-flex items-center gap-1 rounded-md px-4 py-3 text-[clamp(22px,3vw,36px)] font-bold opacity-90 hover:opacity-100"
       >
         <ArrowLeft className="w-[clamp(28px,4vw,44px)] h-[clamp(28px,4vw,44px)]" />
         Back
@@ -792,9 +713,7 @@ function SquareMenuButton({
           {Array.from({ length: 9 }).map((_, i) => (
             <span
               key={i}
-              className="h-4 w-4 md:h-[18px] md:w-[18px] rounded-full border-2 border-white/85
-                         bg-transparent opacity-90 transition
-                         group-hover:scale-110 group-hover:opacity-100"
+              className="h-4 w-4 md:h-[18px] md:w-[18px] rounded-full border-2 border-white/85 bg-transparent opacity-90 transition group-hover:scale-110 group-hover:opacity-100"
             />
           ))}
         </div>
@@ -911,13 +830,7 @@ function MorphBlob({
     "M 0 -85 C 60 -40, 85 -30, 90 0 C 85 40, 60 85, 0 90 C -60 85, -85 40, -90 0 C -85 -30, -60 -40, 0 -85 Z";
   const seq = reverse ? [p3, p2, p1, p3] : [p1, p2, p3, p1];
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="-100 -100 200 200"
-      className="absolute"
-      style={{ left: x, top: y, mixBlendMode: "screen" as any }}
-    >
+    <svg width={size} height={size} viewBox="-100 -100 200 200" className="absolute" style={{ left: x, top: y, mixBlendMode: "screen" as any }}>
       <defs>
         <radialGradient id={gradientId} cx="50%" cy="40%" r="60%">
           <stop offset="0%" stopColor={hue} stopOpacity="0.9" />
