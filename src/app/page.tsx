@@ -1,36 +1,10 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import {
-  motion,
-  useReducedMotion,
-  AnimatePresence,
-  useAnimationControls,
-  type Variants,
-  type Transition,
-} from "framer-motion";
+import { motion, useReducedMotion, AnimatePresence, useAnimationControls } from "framer-motion";
 import { Mail, Github, Linkedin, ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 
-const container: Variants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { when: "beforeChildren", staggerChildren: 0.08 },
-  },
-  exit: { opacity: 0 },
-};
 
-const item: Variants = {
-  hidden: { opacity: 0, x: 30, filter: "blur(6px)" as any },
-  show: {
-    opacity: 1,
-    x: 0,
-    filter: "blur(0px)" as any,
-    transition: { duration: 0.55, ease: "easeOut" as Transition["ease"] },
-  },
-};
 
 /* ---------------- Typewriter ---------------- */
 function Typewriter({
@@ -54,7 +28,7 @@ function Typewriter({
 
   useEffect(() => {
     if (prefersReducedMotion) return;
-
+  
     const timeoutId = window.setTimeout(() => {
       setStarted(true);
       let i = 0;
@@ -64,20 +38,16 @@ function Typewriter({
         if (i >= text.length) window.clearInterval(intervalId);
       }, speed);
     }, startDelay);
-
+  
     return () => {
       window.clearTimeout(timeoutId);
     };
   }, [prefersReducedMotion, speed, startDelay, text]);
+  
 
   const done = shown.length >= text.length;
   return (
-    <span
-      className={className}
-      aria-label={ariaLabel ?? text}
-      aria-live="polite"
-      role="text"
-    >
+    <span className={className} aria-label={ariaLabel ?? text} aria-live="polite" role="text">
       {shown}
       {!prefersReducedMotion && started && !done && (
         <span
@@ -91,6 +61,7 @@ function Typewriter({
     </span>
   );
 }
+
 /* ---------------- Intro ---------------- */
 function Intro() {
   return (
@@ -99,13 +70,13 @@ function Intro() {
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 0.98 }}
-      transition={{ duration: 0.6, ease: "easeInOut" as Transition["ease"] }}
+      transition={{ duration: 0.6, ease: "easeInOut" }}
     >
       <motion.div
         initial={{ scale: 0.94, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.98, opacity: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" as Transition["ease"] }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
         className="flex flex-col items-center gap-8"
       >
         <LoaderBars size="large" />
@@ -129,22 +100,14 @@ function LoaderBars({ size = "medium" }: { size?: "medium" | "large" }) {
       {[0, 1, 2, 3, 4].map((i) => (
         <motion.div
           key={i}
-          className={`${
-            size === "large" ? "w-3 h-12" : "w-2 h-8"
-          } bg-indigo-400 rounded`}
+          className={`${size === "large" ? "w-3 h-12" : "w-2 h-8"} bg-indigo-400 rounded`}
           animate={{ scaleY: [0.4, 1, 0.4] }}
-          transition={{
-            repeat: Infinity,
-            duration: 1,
-            ease: "easeInOut" as Transition["ease"],
-            delay: i * 0.15,
-          }}
+          transition={{ repeat: Infinity, duration: 1, ease: "easeInOut", delay: i * 0.15 }}
         />
       ))}
     </div>
   );
 }
-
 
 /* ---------------- Page ---------------- */
 export default function Page() {
@@ -278,7 +241,7 @@ export default function Page() {
         className="neon-strong"   // sadece glow
       />
     ) : (
-      <span className="opacity-0">HEY, I&apos;M ELIF DIKMEN</span>
+      <span className="opacity-0">HEY, I'M ELIF DIKMEN</span>
     )}
   </span>
 </h1>
@@ -293,7 +256,7 @@ export default function Page() {
               transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
               className="mb-12 w-full max-w-[80ch] text-xl sm:text-2xl md:text-5xl font-hero  leading-relaxed text-white "
             >
-              I&apos;m a new graduated computer engineer passionate about data science, machine learning, and modern web
+              I'm a new graduated computer engineer passionate about data science, machine learning, and modern web
               development. I enjoy creating user-centric solutions, working with data visualization, and building
               AI-powered applications.
             </motion.p>
@@ -436,7 +399,8 @@ function OverlayMenu({
     </AnimatePresence>
   );
 }
-
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 /* ——— Menü Liste Görünümü ——— */
 function MenuList({
   onSelectAbout,
@@ -448,50 +412,41 @@ function MenuList({
   onSelectContact: () => void;
   onSelectProjects: () => void;
   onClose: () => void;
+
 }) {
+  const router = useRouter();
   const items: Array<{ n: string; label: string; onClick: () => void }> = [
+    
     { n: "01", label: "HOME", onClick: onClose },
     { n: "02", label: "PROJECTS", onClick: onSelectProjects },
-    { n: "03", label: "ABOUT", onClick: onSelectAbout },
-    { n: "04", label: "CONTACT", onClick: onSelectContact },
+    { n: "03", label: "ABOUT", onClick: onSelectAbout },     // overlay ABOUT
+    { n: "04", label: "CONTACT", onClick: onSelectContact }, // overlay CONTACT
   ];
 
-  const container: Variants = {
+  const container = {
     hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { when: "beforeChildren", staggerChildren: 0.08 },
-    },
+    show: { opacity: 1, transition: { when: "beforeChildren", staggerChildren: 0.08 } },
     exit: { opacity: 0 },
   };
-
-  const item: Variants = {
-    hidden: { opacity: 0, x: 30, filter: "blur(6px)" as any },
-    show: {
-      opacity: 1,
-      x: 0,
-      filter: "blur(0px)" as any,
-      transition: { duration: 0.55, ease: "easeOut" as Transition["ease"] },
-    },
+  const item = {
+    hidden: { opacity: 0, x: 30, filter: "blur(6px)" },
+    show: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.55, ease: "easeOut" } },
   };
 
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      exit="exit"
-      className="mt-55"
-    >
+    <motion.div variants={container} initial="hidden" animate="show" exit="exit"  className="mt-55">
       <ul className="space-y-5 md:space-y-15">
         {items.map((it) => (
           <motion.li key={it.label} variants={item}>
-            <button className="group flex items-baseline gap-6 font-hero text-left text-white">
-              <span className="w-8 shrink-0 md:text-3xl font-bold text-white">
-                {it.n}
-              </span>
+            <button
+              onClick={it.onClick}
+              className="group flex items-baseline gap-6 font-hero text-left text-white"
+            >
+              <span className="w-8 shrink-0  md:text-3xl   font-bold text-white">
+  {it.n}
+</span>
               <span className="font-extrabold leading-none tracking-tight text-[clamp(40px,8vw,110px)]">
-                <WavyHoverText text={it.label} />
+              <WavyHoverText text={it.label} />
                 <span className="block h-[2px] max-w-0 bg-white/80 transition-all duration-300 group-hover:max-w-full" />
               </span>
             </button>
@@ -501,6 +456,27 @@ function MenuList({
     </motion.div>
   );
 }
+
+
+const container = {
+  hidden: { opacity: 0, y: -100 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut",
+      when: "beforeChildren",
+      staggerChildren: 0.25, // çocukları sırayla getir
+    },
+  },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 40 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+};
+
 /* ---------------- WavyHoverText ---------------- */
 function WavyHoverText({
   text,
@@ -665,7 +641,7 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
             variants={item}
             className="text-4xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50"
           >
-            Hi, I&apos;m Elif. Thanks for stopping by!
+            Hi, I’m Elif. Thanks for stopping by!
           </motion.p>
 
           <motion.p
@@ -674,7 +650,7 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
           >
             I recently graduated from a Yeditepe University where I majored in a Computer Science, 
             where I built a strong foundation in software, data, and modern web technologies. 
-            I&apos;m especially interested in data science, machine learning, and turning complex information 
+            I’m especially interested in data science, machine learning, and turning complex information 
             into clear, human-centered experiences
           </motion.p>
 
@@ -682,10 +658,10 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
             variants={item}
             className="text-4xl w-400 font-hero leading-relaxed text-white-700 max-w-7xl ml-50"
           >
-            More recently, I&apos;ve been a Research Intern at the Università di Bologna in Italy, 
+            More recently, I’ve been a Research Intern at the Università di Bologna in Italy, 
             contributing to collaborative CS research and broadening my perspective in an international 
             environment.I enjoy end-to-end problem solving: from data work (collecting, cleaning, modeling) to building 
-            usable interfaces.Today, I&apos;m looking to create products that are practical, performant, 
+            usable interfaces.Today, I’m looking to create products that are practical, performant, 
             and respectful of users—combining data, ML, and thoughtful design to make everyday experiences a little better.
           </motion.p>
 
@@ -965,8 +941,7 @@ function MorphBlob({
     "M 0 -85 C 60 -40, 85 -30, 90 0 C 85 40, 60 85, 0 90 C -60 85, -85 40, -90 0 C -85 -30, -60 -40, 0 -85 Z";
   const seq = reverse ? [p3, p2, p1, p3] : [p1, p2, p3, p1];
   return (
-    <svg width={size} height={size} viewBox="-100 -100 200 200" className="absolute" style={{ left: x, top: y, mixBlendMode: "screen" as React.CSSProperties["mixBlendMode"] }}>
-
+    <svg width={size} height={size} viewBox="-100 -100 200 200" className="absolute" style={{ left: x, top: y, mixBlendMode: "screen" as any }}>
       <defs>
         <radialGradient id={gradientId} cx="50%" cy="40%" r="60%">
           <stop offset="0%" stopColor={hue} stopOpacity="0.9" />
