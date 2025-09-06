@@ -11,6 +11,8 @@ import {
   easeInOut,
 } from "framer-motion";
 import { Mail, Github, Linkedin, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 /* ---------------- Typewriter ---------------- */
 function Typewriter({
@@ -90,7 +92,7 @@ function Intro() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -6, opacity: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
-          className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-[0.25em] text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-500"
+          className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-[0.25em] text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-500"
         >
           Welcome
         </motion.h3>
@@ -105,7 +107,7 @@ function LoaderBars({ size = "medium" }: { size?: "medium" | "large" }) {
       {[0, 1, 2, 3, 4].map((i) => (
         <motion.div
           key={i}
-          className={`${size === "large" ? "w-3 h-12" : "w-2 h-8"} bg-indigo-400 rounded`}
+          className={`${size === "large" ? "w-3 h-10" : "w-2 h-7"} bg-indigo-400 rounded`}
           animate={{ scaleY: [0.4, 1, 0.4] }}
           transition={{ repeat: Infinity, duration: 1, ease: easeInOut, delay: i * 0.15 }}
         />
@@ -120,7 +122,6 @@ export default function Page() {
   const [introDone, setIntroDone] = useState(false);
   const [hoveringButton, setHoveringButton] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  // Page() içindeki state
   const [overlayView, setOverlayView] =
     useState<"list" | "about" | "contact" | "projects">("list");
 
@@ -130,13 +131,13 @@ export default function Page() {
   /* mouse takip */
   useEffect(() => {
     let frame = 0;
-    const pos = { x: 0.5, y: 0.5 };
+    const pos = { x: 0.5, y: 0.5 } as const;
     const onMove = (e: MouseEvent) => {
-      pos.x = Math.min(Math.max(e.clientX / window.innerWidth, 0), 1);
-      pos.y = Math.min(Math.max(e.clientY / window.innerHeight, 0), 1);
+      const nx = Math.min(Math.max(e.clientX / window.innerWidth, 0), 1);
+      const ny = Math.min(Math.max(e.clientY / window.innerHeight, 0), 1);
       if (!frame) {
         frame = requestAnimationFrame(() => {
-          setMouse({ x: pos.x, y: pos.y });
+          setMouse({ x: nx, y: ny });
           frame = 0;
         });
       }
@@ -160,7 +161,7 @@ export default function Page() {
       setIntroDone(true);
       return;
     }
-    const t = setTimeout(() => setIntroDone(true), 2200);
+    const t = setTimeout(() => setIntroDone(true), 1800);
     return () => clearTimeout(t);
   }, [prefersReducedMotion]);
 
@@ -189,12 +190,10 @@ export default function Page() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  /* helper: dışarıdan About overlay'i aç */
   const openAboutOverlay = () => {
     setOverlayView("about");
     setMenuOpen(true);
   };
-  // Page() içinde
   const openProjectsOverlay = () => {
     setOverlayView("projects");
     setMenuOpen(true);
@@ -209,7 +208,7 @@ export default function Page() {
         <BgFX mouse={mouse} hue={hue} windowSize={windowSize} hoveringButton={hoveringButton} />
 
         {/* Sağ üst ring grid buton */}
-        <header className="absolute top-30 right-35 z-[70]">
+        <header className="absolute top-6 right-6 sm:top-8 sm:right-8 md:top-10 md:right-10 z-[70]">
           <SquareMenuButton
             open={menuOpen}
             onToggle={() => {
@@ -233,20 +232,20 @@ export default function Page() {
         >
           <section
             aria-label="Hero"
-            className="relative z-20 mx-auto flex min-h-screen max-w-10xl flex-col items-center justify-center px-6 text-center"
+            className="relative z-20 mx-auto flex min-h-[calc(100vh-60px)] max-w-screen-2xl flex-col items-center justify-center px-4 sm:px-6 text-center"
           >
-            <h1 className="text-[10rem] mb-3 font-bold font-hero italic tracking-[0.02em]">
+            <h1 className="mb-4 font-bold font-hero italic tracking-[0.02em] text-[clamp(2.25rem,8vw,6rem)] leading-[0.95]">
               <span className="neon-soft-wrap">
                 {introDone ? (
                   <Typewriter
-                    text="HEY, I&apos;M ELIF DIKMEN"
+                    text="HEY, I\'M ELIF DIKMEN"
                     startDelay={200}
                     speed={100}
                     ariaLabel="Headline"
-                    className="neon-strong" // sadece glow
+                    className="neon-strong"
                   />
                 ) : (
-                  <span className="opacity-0">HEY, I'M ELIF DIKMEN</span>
+                  <span className="opacity-0">HEY, I\'M ELIF DIKMEN</span>
                 )}
               </span>
             </h1>
@@ -255,33 +254,31 @@ export default function Page() {
               initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
               animate={introDone ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0 }}
               transition={{ duration: 1, delay: 0.3, ease: easeOut }}
-              className="mb-12 w-full max-w-[80ch] text-xl sm:text-2xl md:text-5xl font-hero  leading-relaxed text-white "
+              className="mb-10 w-full max-w-[70ch] text-base sm:text-lg md:text-xl lg:text-2xl font-hero leading-relaxed text-white/90"
             >
-              I'm a new graduated computer engineer passionate about data science, machine learning, and modern web
+              I\'m a new graduated computer engineer passionate about data science, machine learning, and modern web
               development. I enjoy creating user-centric solutions, working with data visualization, and building
               AI-powered applications.
             </motion.p>
 
-            <div className="mt-6 flex flex-wrap items-center justify-center font-hero gap-12 text-zinc-200 text-3xl md:text-5xl">
-              {/* Hero butonu: Projects overlay'ini aç */}
+            <div className="mt-2 flex flex-wrap items-center justify-center font-hero gap-6 sm:gap-8 text-zinc-200 text-lg md:text-xl">
               <button
                 type="button"
                 onClick={openProjectsOverlay}
                 onMouseEnter={() => setHoveringButton(true)}
                 onMouseLeave={() => setHoveringButton(false)}
-                className="group inline-flex items-center gap-4 opacity-0 animate-[fadeInUp_0.6s_2.2s_forwards]"
+                className="group inline-flex items-center gap-3 opacity-0 animate-[fadeInUp_0.6s_2.2s_forwards]"
               >
                 <span>→</span>
                 <WavyHoverText text="see my projects" className="link-underline" />
               </button>
 
-              {/* Hero butonu: aynı About overlay'ini aç */}
               <button
                 type="button"
                 onClick={openAboutOverlay}
                 onMouseEnter={() => setHoveringButton(true)}
                 onMouseLeave={() => setHoveringButton(false)}
-                className="group inline-flex items-center gap-4 opacity-0 animate-[fadeInUp_0.6s_2.4s_forwards]"
+                className="group inline-flex items-center gap-3 opacity-0 animate-[fadeInUp_0.6s_2.4s_forwards]"
               >
                 <span>→</span>
                 <WavyHoverText text="more about me" className="link-underline" />
@@ -302,57 +299,13 @@ export default function Page() {
         />
 
         <style jsx global>{`
-          html:focus-within {
-            scroll-behavior: smooth;
-          }
-          @keyframes blink {
-            0%,
-            50% {
-              opacity: 1;
-            }
-            50.01%,
-            100% {
-              opacity: 0;
-            }
-          }
-          @keyframes fadeInUp {
-            from {
-              opacity: 0;
-              transform: translateY(10px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-
-          .link-underline {
-            position: relative;
-            display: inline-block;
-          }
-          .link-underline::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            bottom: -2px;
-            width: 0%;
-            height: 2px;
-            background: currentColor;
-            transition: width 0.4s ease;
-          }
-          .link-underline:hover::after {
-            width: 100%;
-          }
-
-          /* ✨ Neon parlama */
-          .neon-glow {
-            text-shadow:
-              0 0 6px rgba(236, 72, 153, 0.55),
-              0 0 16px rgba(236, 72, 153, 0.45),
-              0 0 28px rgba(147, 51, 234, 0.35),
-              0 0 48px rgba(147, 51, 234, 0.25);
-            filter: saturate(120%);
-          }
+          html:focus-within { scroll-behavior: smooth; }
+          @keyframes blink { 0%,50%{opacity:1} 50.01%,100%{opacity:0} }
+          @keyframes fadeInUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+          .link-underline { position: relative; display: inline-block; }
+          .link-underline::after { content:""; position:absolute; left:0; bottom:-2px; width:0%; height:2px; background:currentColor; transition: width .4s ease; }
+          .link-underline:hover::after { width:100%; }
+          .neon-glow { text-shadow: 0 0 6px rgba(236,72,153,.55), 0 0 16px rgba(236,72,153,.45), 0 0 28px rgba(147,51,234,.35), 0 0 48px rgba(147,51,234,.25); filter:saturate(120%); }
         `}</style>
       </main>
     </div>
@@ -386,14 +339,14 @@ function OverlayMenu({
 
   const containerClass =
     view === "list"
-      ? "relative z-[66] mx-auto w-full max-w-[1400px] px-6 pt-[clamp(12vh,14vh,18vh)]"
-      : "relative z-[66] w-screen max-w-none px-[clamp(24px,6vw,120px)] pt-[clamp(12vh,14vh,18vh)]";
+      ? "relative z-[66] mx-auto w-full max-w-6xl px-4 sm:px-6 pt-[clamp(10vh,12vh,16vh)]"
+      : "relative z-[66] w-screen max-w-none px-4 sm:px-8 md:px-16 pt-[clamp(10vh,12vh,16vh)]";
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[65] flex  overflow-y-auto"
+          className="fixed inset-0 z-[65] flex overflow-y-auto bg-black/40 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -430,8 +383,6 @@ function OverlayMenu({
     </AnimatePresence>
   );
 }
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 /* ——— Menü Liste Görünümü ——— */
 function MenuList({
@@ -449,8 +400,8 @@ function MenuList({
   const items: Array<{ n: string; label: string; onClick: () => void }> = [
     { n: "01", label: "HOME", onClick: onClose },
     { n: "02", label: "PROJECTS", onClick: onSelectProjects },
-    { n: "03", label: "ABOUT", onClick: onSelectAbout }, // overlay ABOUT
-    { n: "04", label: "CONTACT", onClick: onSelectContact }, // overlay CONTACT
+    { n: "03", label: "ABOUT", onClick: onSelectAbout },
+    { n: "04", label: "CONTACT", onClick: onSelectContact },
   ];
 
   const container: Variants = {
@@ -464,16 +415,16 @@ function MenuList({
   };
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" exit="exit" className="mt-55">
-      <ul className="space-y-5 md:space-y-15">
+    <motion.div variants={container} initial="hidden" animate="show" exit="exit" className="mt-16">
+      <ul className="space-y-6 md:space-y-10">
         {items.map((it) => (
           <motion.li key={it.label} variants={item}>
             <button
               onClick={it.onClick}
-              className="group flex items-baseline gap-6 font-hero text-left text-white"
+              className="group flex items-baseline gap-4 sm:gap-6 font-hero text-left text-white"
             >
-              <span className="w-8 shrink-0  md:text-3xl   font-bold text-white">{it.n}</span>
-              <span className="font-extrabold leading-none tracking-tight text-[clamp(40px,8vw,110px)]">
+              <span className="w-8 shrink-0 text-lg md:text-2xl font-bold text-white">{it.n}</span>
+              <span className="font-extrabold leading-none tracking-tight text-[clamp(28px,7vw,72px)]">
                 <WavyHoverText text={it.label} />
                 <span className="block h-[2px] max-w-0 bg-white/80 transition-all duration-300 group-hover:max-w-full" />
               </span>
@@ -495,7 +446,7 @@ const container: Variants = {
       duration: 0.6,
       ease: easeOut,
       when: "beforeChildren",
-      staggerChildren: 0.25, // çocukları sırayla getir
+      staggerChildren: 0.25,
     },
   },
 };
@@ -509,9 +460,9 @@ const item: Variants = {
 function WavyHoverText({
   text,
   className = "",
-  waveOffset = 0.03, // dalga gecikmesi (saniye/harf)
-  lift = 8, // her harfin yukarı kalkma miktarı (px)
-  tilt = 6, // her harfin dönmesi (derece)
+  waveOffset = 0.03,
+  lift = 8,
+  tilt = 6,
 }: {
   text: string;
   className?: string;
@@ -561,36 +512,30 @@ function WavyHoverText({
 function ProjectsPanel({ onBack }: { onBack: () => void }) {
   return (
     <motion.div variants={container} initial="hidden" animate="show" exit="hidden" className="relative w-full text-white">
-      {/* Back */}
       <motion.button
         variants={item}
         onClick={onBack}
-        className="mb-8 inline-flex items-center gap-2 rounded-md px-3 py-2
-                   text-[clamp(20px,3vw,36px)] font-bold opacity-90 hover:opacity-100"
+        className="mb-6 inline-flex items-center gap-2 rounded-md px-3 py-2 text-[clamp(18px,2.5vw,28px)] font-bold opacity-90 hover:opacity-100"
       >
-        <ArrowLeft className="w-8 h-8" />
+        <ArrowLeft className="w-6 h-6 md:w-8 md:h-8" />
         Back
       </motion.button>
 
-      {/* Ortalanmış içerik */}
-      <div className="relative min-h-[70vh] flex flex-col items-center justify-center text-center px-8">
-        {/* Büyük COMING SOON */}
-        <motion.h2 variants={item} className="text-7xl sm:text-8xl md:text-9xl font-extrabold mb-10 tracking-wide">
+      <div className="relative min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
+        <motion.h2 variants={item} className="text-[clamp(40px,10vw,120px)] font-extrabold mb-6 tracking-wide">
           COMING SOON
         </motion.h2>
 
-        {/* Alt açıklama */}
-        <motion.p variants={item} className="text-2xl text-gray-300 mb-12 max-w-2xl">
+        <motion.p variants={item} className="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl">
           But during that, you can check out my GitHub account or my resume:
         </motion.p>
 
-        {/* Linkler */}
-        <motion.div variants={item} className="flex flex-col sm:flex-row gap-8 items-center">
+        <motion.div variants={item} className="flex flex-col sm:flex-row gap-6 items-center">
           <a
             href="https://github.com/elifdikmn"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-[clamp(20px,2vw,32px)] font-bold text-indigo-300 hover:text-white transition"
+            className="inline-flex items-center gap-2 text-[clamp(18px,2vw,24px)] font-bold text-indigo-300 hover:text-white transition"
           >
             ↗ GitHub
           </a>
@@ -599,7 +544,7 @@ function ProjectsPanel({ onBack }: { onBack: () => void }) {
             href="/ElifCV.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-[clamp(20px,2vw,32px)] font-bold text-indigo-300 hover:text-white transition"
+            className="inline-flex items-center gap-2 text-[clamp(18px,2vw,24px)] font-bold text-indigo-300 hover:text-white transition"
           >
             ↓ Resume
           </a>
@@ -613,41 +558,39 @@ function ProjectsPanel({ onBack }: { onBack: () => void }) {
 function AboutPanel({ onBack }: { onBack: () => void }) {
   return (
     <motion.div variants={container} initial="hidden" animate="show" exit="hidden" className="relative w-full text-white">
-      {/* Back */}
       <motion.button
         variants={item}
         onClick={onBack}
-        className="mb-8 inline-flex items-center gap-2 rounded-md px-3 py-2
-                   text-[clamp(20px,3vw,36px)] font-bold  opacity-90 hover:opacity-100"
+        className="mb-6 inline-flex items-center gap-2 rounded-md px-3 py-2 text-[clamp(18px,2.5vw,28px)] font-bold opacity-90 hover:opacity-100"
       >
-        <ArrowLeft className="w-8 h-8" />
+        <ArrowLeft className="w-6 h-6 md:w-8 md:h-8" />
         Back
       </motion.button>
 
-      <div className="relative min-h-[70vh] lg:pr-[560px]">
+      <div className="relative min-h-[60vh] lg:pr-0">
         {/* SOL: Başlık + metin */}
-        <motion.div variants={container} className="relative z-10 max-w-3xl px-8 lg:px-24 pt-32">
-          <motion.h2 variants={item} className="text-7xl font-bold tracking-wide mb-2 -mt-30 ml-50">
+        <motion.div variants={container} className="relative z-10 max-w-3xl px-4 sm:px-6 md:px-10 pt-12 md:pt-20 mx-auto">
+          <motion.h2 variants={item} className="text-[clamp(28px,6vw,56px)] font-bold tracking-wide mb-3">
             ABOUT ME
           </motion.h2>
-          <motion.div variants={item} className="h-1 w-350 bg-white mb-6 ml-50" />
+          <motion.div variants={item} className="h-1 w-40 bg-white mb-6" />
 
-          <motion.p variants={item} className="text-4xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50">
+          <motion.p variants={item} className="text-base sm:text-lg md:text-xl font-hero leading-relaxed text-white/90 mb-4 max-w-3xl">
             Hi, I’m Elif. Thanks for stopping by!
           </motion.p>
 
-          <motion.p variants={item} className="text-4xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50">
-            I recently graduated from a Yeditepe University where I majored in a Computer Science, 
-            where I built a strong foundation in software, data, and modern web technologies. 
-            I’m especially interested in data science, machine learning, and turning complex information 
+          <motion.p variants={item} className="text-base sm:text-lg md:text-xl font-hero leading-relaxed text-white/90 mb-4 max-w-3xl">
+            I recently graduated from a Yeditepe University where I majored in a Computer Science,
+            where I built a strong foundation in software, data, and modern web technologies.
+            I’m especially interested in data science, machine learning, and turning complex information
             into clear, human-centered experiences
           </motion.p>
 
-          <motion.p variants={item} className="text-4xl w-400 font-hero leading-relaxed text-white-700 max-w-7xl ml-50">
-            More recently, I’ve been a Research Intern at the Università di Bologna in Italy, 
-            contributing to collaborative CS research and broadening my perspective in an international 
-            environment.I enjoy end-to-end problem solving: from data work (collecting, cleaning, modeling) to building 
-            usable interfaces.Today, I’m looking to create products that are practical, performant, 
+          <motion.p variants={item} className="text-base sm:text-lg md:text-xl font-hero leading-relaxed text-white/90 max-w-3xl">
+            More recently, I’ve been a Research Intern at the Università di Bologna in Italy,
+            contributing to collaborative CS research and broadening my perspective in an international
+            environment. I enjoy end-to-end problem solving: from data work (collecting, cleaning, modeling) to building
+            usable interfaces. Today, I’m looking to create products that are practical, performant,
             and respectful of users—combining data, ML, and thoughtful design to make everyday experiences a little better.
           </motion.p>
 
@@ -656,24 +599,23 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
             href="/ElifCV.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex ml-50 items-center gap-2 text-[clamp(18px,2.2vw,70px)] font-bold text-indigo-300 hover:text-white transition"
+            className="inline-flex items-center gap-2 text-[clamp(16px,2vw,22px)] font-bold text-indigo-300 hover:text-white transition mt-6"
           >
             ↓ resume
           </motion.a>
         </motion.div>
 
-        {/* SAĞ: Fotoğraf */}
+        {/* SAĞ: Fotoğraf - daha esnek ve küçük */}
         <motion.div
           variants={item}
-          className="hidden lg:block fixed top-0 right-0 h-[1200px] w-[700px]
-                     overflow-hidden shadow-2xl ring-2 ring-white/15 z-50"
-          style={{ borderRadius: "0 0 0 36px" }}
+          className="hidden lg:block fixed top-0 right-0 h-[70vh] w-[38vw] max-w-[520px] min-w-[360px] overflow-hidden shadow-2xl ring-2 ring-white/15 z-50"
+          style={{ borderRadius: "0 0 0 24px" }}
         >
           <motion.img
             src="/elfi.jpg"
             alt="Elif Dikmen portrait"
-            initial={{ scale: 1.1, opacity: 0 }}
-            animate={{ scale: 1.25, opacity: 1 }}
+            initial={{ scale: 1.05, opacity: 0 }}
+            animate={{ scale: 1.15, opacity: 1 }}
             transition={{ duration: 1.2, ease: easeOut }}
             className="h-full w-full object-cover object-center"
             draggable={false}
@@ -682,7 +624,7 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
 
         {/* Mobil fotoğraf */}
         <motion.div variants={item} className="lg:hidden mt-8 flex justify-center">
-          <div className="relative h-52 w-52 overflow-hidden rounded-full ring-2 ring-white/20 shadow-xl">
+          <div className="relative h-40 w-40 overflow-hidden rounded-full ring-2 ring-white/20 shadow-xl">
             <img src="/elfi.jpg" alt="Elif Dikmen portrait" className="h-full w-full object-cover" draggable={false} />
           </div>
         </motion.div>
@@ -709,28 +651,27 @@ function ContactPanel({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 50, scale: 0.95 }}
       transition={{ type: "spring", stiffness: 120, damping: 15 }}
-      className="text-white w-full max-w-[900px] mx-auto px-6 text-center"
+      className="text-white w-full max-w-3xl mx-auto px-4 sm:px-6 text-center"
     >
       <button
         onClick={onBack}
-        className="mb-10 inline-flex items-center gap-1 rounded-md px-4 py-3
-                   text-[clamp(22px,3vw,36px)] font-bold opacity-90 hover:opacity-100"
+        className="mb-8 inline-flex items-center gap-1 rounded-md px-4 py-3 text-[clamp(18px,2.5vw,28px)] font-bold opacity-90 hover:opacity-100"
       >
-        <ArrowLeft className="w-[clamp(28px,4vw,44px)] h-[clamp(28px,4vw,44px)]" />
+        <ArrowLeft className="w-7 h-7 md:w-10 md:h-10" />
         Back
       </button>
 
-      <h3 className="text-[clamp(36px,8vw,90px)] font-extrabold tracking-[0.15em] leading-none">CONTACT</h3>
-      <div className="mt-5 mb-12 h-[2px] w-[72%] bg-white/75 mx-auto" />
+      <h3 className="text-[clamp(28px,8vw,64px)] font-extrabold tracking-[0.15em] leading-none">CONTACT</h3>
+      <div className="mt-5 mb-10 h-[2px] w-[72%] bg-white/75 mx-auto" />
 
-      <div className="flex flex-col items-center gap-10">
+      <div className="flex flex-col items-center gap-8">
         <motion.a
           href={email}
-          className="inline-flex items-center gap-6 text-[clamp(32px,4.5vw,72px)] font-semibold no-underline"
+          className="inline-flex items-center gap-4 text-[clamp(20px,4.5vw,36px)] font-semibold no-underline"
           whileHover={{ x: [0, -4, 4, -2, 2, 0] }}
           transition={{ duration: 0.45, ease: easeOut }}
         >
-          <Mail className="w-[clamp(28px,4vw,40px)] h-[clamp(28px,4vw,40px)]" />
+          <Mail className="w-7 h-7 md:w-9 md:h-9" />
           <span>Mail</span>
         </motion.a>
 
@@ -738,11 +679,11 @@ function ContactPanel({
           href={linkedin}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-6 text-[clamp(32px,4.5vw,72px)] font-semibold no-underline"
+          className="inline-flex items-center gap-4 text-[clamp(20px,4.5vw,36px)] font-semibold no-underline"
           whileHover={{ x: [0, -4, 4, -2, 2, 0] }}
           transition={{ duration: 0.45, ease: easeOut }}
         >
-          <Linkedin className="w-[clamp(28px,4vw,40px)] h-[clamp(28px,4vw,40px)]" />
+          <Linkedin className="w-7 h-7 md:w-9 md:h-9" />
           <span>LinkedIn</span>
         </motion.a>
 
@@ -750,11 +691,11 @@ function ContactPanel({
           href={github}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-6 text-[clamp(32px,4.5vw,72px)] font-semibold no-underline"
+          className="inline-flex items-center gap-4 text-[clamp(20px,4.5vw,36px)] font-semibold no-underline"
           whileHover={{ x: [0, -4, 4, -2, 2, 0] }}
           transition={{ duration: 0.45, ease: easeOut }}
         >
-          <Github className="w-[clamp(28px,4vw,40px)] h-[clamp(28px,4vw,40px)]" />
+          <Github className="w-7 h-7 md:w-9 md:h-9" />
           <span>GitHub</span>
         </motion.a>
       </div>
@@ -779,7 +720,7 @@ function SquareMenuButton({
       onClick={onToggle}
       onMouseEnter={() => onHoverChange(true)}
       onMouseLeave={() => onHoverChange(false)}
-      className="group relative grid h-20 w-20 md:h-24 md:w-24 place-items-center text-white"
+      className="group relative grid h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 place-items-center text-white"
     >
       <motion.div
         key="grid"
@@ -788,13 +729,11 @@ function SquareMenuButton({
         transition={{ type: "spring", stiffness: 300, damping: 26 }}
         className="absolute inset-0 grid place-items-center"
       >
-        <div className="grid grid-cols-3 gap-3 md:gap-4">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
           {Array.from({ length: 9 }).map((_, i) => (
             <span
               key={i}
-              className="h-4 w-4 md:h-[18px] md:w-[18px] rounded-full border-2 border-white/85
-                         bg-transparent opacity-90 transition
-                         group-hover:scale-110 group-hover:opacity-100"
+              className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 rounded-full border-2 border-white/85 bg-transparent opacity-90 transition group-hover:scale-110 group-hover:opacity-100"
             />
           ))}
         </div>
@@ -807,9 +746,9 @@ function SquareMenuButton({
         transition={{ type: "spring", stiffness: 280, damping: 22 }}
         className="relative"
       >
-        <span className="absolute block h-[3px] w-10 md:w-12 -rotate-45 bg-white rounded-full" />
-        <span className="absolute block h-[3px] w-10 md:w-12  rotate-45 bg-white rounded-full" />
-        <span className="block h-12 w-12 md:h-14 md:w-14 opacity-0" />
+        <span className="absolute block h-[3px] w-8 sm:w-10 md:w-12 -rotate-45 bg-white rounded-full" />
+        <span className="absolute block h-[3px] w-8 sm:w-10 md:w-12  rotate-45 bg-white rounded-full" />
+        <span className="block h-10 w-10 md:h-14 md:w-14 opacity-0" />
       </motion.div>
     </button>
   );
@@ -828,9 +767,9 @@ function BgFX({
   hoveringButton: boolean;
 }) {
   const hueCool = 200 + Math.max(0, Math.min(1, mouse.x)) * 80;
-  const s = 65 + (1 - Math.max(0, Math.min(1, mouse.y))) * 25;
-  const l1 = 52 + (1 - Math.max(0, Math.min(1, mouse.y))) * 8;
-  const l2 = 48 + (1 - Math.max(0, Math.min(1, mouse.y))) * 6;
+  const s = 60 + (1 - Math.max(0, Math.min(1, mouse.y))) * 20;
+  const l1 = 50 + (1 - Math.max(0, Math.min(1, mouse.y))) * 8;
+  const l2 = 46 + (1 - Math.max(0, Math.min(1, mouse.y))) * 6;
 
   const h1 = hueCool;
   const h2 = (hueCool + 30) % 360;
@@ -840,10 +779,10 @@ function BgFX({
       {windowSize.w > 0 && windowSize.h > 0 && (
         <motion.div
           className="pointer-events-none fixed top-0 left-0 z-50 rounded-full border-2 border-indigo-400/80"
-          style={{ width: 48, height: 48 }}
+          style={{ width: 40, height: 40 }}
           animate={{
-            x: mouse.x * windowSize.w - 24,
-            y: mouse.y * windowSize.h - 24,
+            x: mouse.x * windowSize.w - 20,
+            y: mouse.y * windowSize.h - 20,
             scale: hoveringButton ? 1 : 0.5,
             backgroundColor: hoveringButton ? "#000000" : "transparent",
           }}
@@ -854,7 +793,7 @@ function BgFX({
       <div
         className="absolute inset-0 opacity-80 mix-blend-screen"
         style={{
-          background: `radial-gradient(700px 500px at ${mouse.x * 100}% ${mouse.y * 100}%, hsl(${h1} ${s}% ${l1}% / 0.45), transparent 60%), radial-gradient(900px 700px at ${
+          background: `radial-gradient(600px 420px at ${mouse.x * 100}% ${mouse.y * 100}%, hsl(${h1} ${s}% ${l1}% / 0.45), transparent 60%), radial-gradient(800px 620px at ${
             (1 - mouse.x) * 100
           }% ${(1 - mouse.y) * 100}%, hsl(${h2} ${s - 8}% ${l2}% / 0.35), transparent 65%)`,
         }}
@@ -868,20 +807,13 @@ function BgFX({
         <div className="h-full w-full bg-[linear-gradient(-45deg,#0b0e14,#111826,#0f1b2d,#0c1220)] bg-[length:400%_400%]" />
       </motion.div>
 
-      <div className="absolute -inset-20 opacity-[0.35]">
+      <div className="absolute -inset-10 md:-inset-20 opacity-[0.35]">
         <div className="h-full w-full bg-[radial-gradient(closest-side,transparent,rgba(0,0,0,0.38))]" />
       </div>
 
       <div className="absolute inset-0">
-        <MorphBlob x={220} y={200} size={420} hue={`hsl(${h1} ${s}% ${l1}%)`} opacity={0.28} />
-        <MorphBlob
-          x={900}
-          y={520}
-          size={520}
-          hue={`hsl(${h2} ${Math.max(55, s - 10)}% ${Math.max(46, l2 - 2)}%)`}
-          opacity={0.22}
-          reverse
-        />
+        <MorphBlob x={120} y={160} size={360} hue={`hsl(${h1} ${s}% ${l1}%)`} opacity={0.28} />
+        <MorphBlob x={"70vw" as any} y={520} size={460} hue={`hsl(${h2} ${Math.max(55, s - 10)}% ${Math.max(46, l2 - 2)}%)`} opacity={0.22} reverse />
       </div>
     </div>
   );
@@ -895,7 +827,7 @@ function MorphBlob({
   opacity = 0.22,
   reverse = false,
 }: {
-  x: number;
+  x: number | string;
   y: number;
   size?: number;
   hue?: string;
@@ -916,7 +848,7 @@ function MorphBlob({
       height={size}
       viewBox="-100 -100 200 200"
       className="absolute"
-      style={{ left: x, top: y, mixBlendMode: "screen" as any }}
+      style={{ left: typeof x === 'number' ? x : x, top: y, mixBlendMode: "screen" as any }}
     >
       <defs>
         <radialGradient id={gradientId} cx="50%" cy="40%" r="60%">
