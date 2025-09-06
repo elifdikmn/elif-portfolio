@@ -627,23 +627,23 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
       <div className="relative min-h-[70vh] lg:pr-[560px]">
         {/* SOL: Başlık + metin */}
         <motion.div variants={container} className="relative z-10 max-w-3xl px-8 lg:px-24 pt-32">
-          <motion.h2 variants={item} className="text-7xl font-bold tracking-wide mb-2 -mt-30 ml-50">
+          <motion.h2 variants={item} className="text-5xl font-bold tracking-wide mb-2 -mt-30 ml-20">
             ABOUT ME
           </motion.h2>
           <motion.div variants={item} className="h-1 w-350 bg-white mb-6 ml-50" />
 
-          <motion.p variants={item} className="text-2xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50">
+          <motion.p variants={item} className="text-2xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-20">
             Hi, I’m Elif. Thanks for stopping by!
           </motion.p>
 
-          <motion.p variants={item} className="text-2xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50">
+          <motion.p variants={item} className="text-2xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-20">
             I recently graduated from a Yeditepe University where I majored in a Computer Science, 
             where I built a strong foundation in software, data, and modern web technologies. 
             I’m especially interested in data science, machine learning, and turning complex information 
             into clear, human-centered experiences
           </motion.p>
 
-          <motion.p variants={item} className="text-2xl w-400 font-hero leading-relaxed text-white-700 max-w-7xl ml-50">
+          <motion.p variants={item} className="text-2xl w-400 font-hero leading-relaxed text-white-700 max-w-7xl ml-20">
             More recently, I’ve been a Research Intern at the Università di Bologna in Italy, 
             contributing to collaborative CS research and broadening my perspective in an international 
             environment.I enjoy end-to-end problem solving: from data work (collecting, cleaning, modeling) to building 
@@ -656,7 +656,7 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
             href="/ElifCV.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex ml-50 items-center gap-2 text-[clamp(18px,2.2vw,70px)] font-bold text-indigo-300 hover:text-white transition"
+            className="inline-flex ml-20 items-center gap-2 text-[clamp(18px,2.2vw,70px)] font-bold text-indigo-300 hover:text-white transition"
           >
             ↓ resume
           </motion.a>
@@ -665,7 +665,7 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
         {/* SAĞ: Fotoğraf */}
         <motion.div
           variants={item}
-          className="hidden lg:block fixed top-0 right-0 h-[600px] w-[350px]
+          className="hidden lg:block fixed top-0 right-0 h-[400px] w-[150px]
                      overflow-hidden shadow-2xl ring-2 ring-white/15 z-50"
           style={{ borderRadius: "0 0 0 36px" }}
         >
