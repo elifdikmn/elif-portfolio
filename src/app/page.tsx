@@ -255,14 +255,14 @@ export default function Page() {
               initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
               animate={introDone ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0 }}
               transition={{ duration: 1, delay: 0.3, ease: easeOut }}
-              className="mb-12 w-full max-w-[80ch] text-xl sm:text-2xl md:text-5xl font-hero  leading-relaxed text-white "
+              className="mb-12 w-full max-w-[80ch] text-xl sm:text-2xl md:text-3xl font-hero  leading-relaxed text-white "
             >
               I'm a new graduated computer engineer passionate about data science, machine learning, and modern web
               development. I enjoy creating user-centric solutions, working with data visualization, and building
               AI-powered applications.
             </motion.p>
 
-            <div className="mt-6 flex flex-wrap items-center justify-center font-hero gap-12 text-zinc-200 text-3xl md:text-5xl">
+            <div className="mt-6 flex flex-wrap items-center justify-center font-hero gap-12 text-zinc-200 text-3xl md:text-4xl">
               {/* Hero butonu: Projects overlay'ini aç */}
               <button
                 type="button"
@@ -632,18 +632,18 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
           </motion.h2>
           <motion.div variants={item} className="h-1 w-350 bg-white mb-6 ml-50" />
 
-          <motion.p variants={item} className="text-4xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50">
+          <motion.p variants={item} className="text-2xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50">
             Hi, I’m Elif. Thanks for stopping by!
           </motion.p>
 
-          <motion.p variants={item} className="text-4xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50">
+          <motion.p variants={item} className="text-2xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50">
             I recently graduated from a Yeditepe University where I majored in a Computer Science, 
             where I built a strong foundation in software, data, and modern web technologies. 
             I’m especially interested in data science, machine learning, and turning complex information 
             into clear, human-centered experiences
           </motion.p>
 
-          <motion.p variants={item} className="text-4xl w-400 font-hero leading-relaxed text-white-700 max-w-7xl ml-50">
+          <motion.p variants={item} className="text-2xl w-400 font-hero leading-relaxed text-white-700 max-w-7xl ml-50">
             More recently, I’ve been a Research Intern at the Università di Bologna in Italy, 
             contributing to collaborative CS research and broadening my perspective in an international 
             environment.I enjoy end-to-end problem solving: from data work (collecting, cleaning, modeling) to building 
@@ -665,7 +665,7 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
         {/* SAĞ: Fotoğraf */}
         <motion.div
           variants={item}
-          className="hidden lg:block fixed top-0 right-0 h-[1200px] w-[700px]
+          className="hidden lg:block fixed top-0 right-0 h-[600px] w-[350px]
                      overflow-hidden shadow-2xl ring-2 ring-white/15 z-50"
           style={{ borderRadius: "0 0 0 36px" }}
         >
