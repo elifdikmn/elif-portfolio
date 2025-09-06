@@ -418,8 +418,7 @@ function OverlayMenu({
     </AnimatePresence>
   );
 }
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+
 /* ——— Menü Liste Görünümü ——— */
 function MenuList({
   onSelectAbout,
