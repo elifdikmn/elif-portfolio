@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Geist, Geist_Mono, Playfair_Display, Great_Vibes, Newsreader } from "next/font/google";
-
+// app/layout.tsx
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 // mevcut fontların tanımı (sende zaten var)
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
