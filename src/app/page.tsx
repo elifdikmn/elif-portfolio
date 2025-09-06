@@ -1,9 +1,17 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { motion, useReducedMotion, AnimatePresence, useAnimationControls } from "framer-motion";
+import {
+  motion,
+  useReducedMotion,
+  AnimatePresence,
+  useAnimationControls,
+  type Variants,
+  type Transition,
+} from "framer-motion";
 import { Mail, Github, Linkedin, ArrowLeft } from "lucide-react";
-
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 
 /* ---------------- Typewriter ---------------- */
@@ -28,7 +36,7 @@ function Typewriter({
 
   useEffect(() => {
     if (prefersReducedMotion) return;
-  
+
     const timeoutId = window.setTimeout(() => {
       setStarted(true);
       let i = 0;
@@ -38,16 +46,20 @@ function Typewriter({
         if (i >= text.length) window.clearInterval(intervalId);
       }, speed);
     }, startDelay);
-  
+
     return () => {
       window.clearTimeout(timeoutId);
     };
   }, [prefersReducedMotion, speed, startDelay, text]);
-  
 
   const done = shown.length >= text.length;
   return (
-    <span className={className} aria-label={ariaLabel ?? text} aria-live="polite" role="text">
+    <span
+      className={className}
+      aria-label={ariaLabel ?? text}
+      aria-live="polite"
+      role="text"
+    >
       {shown}
       {!prefersReducedMotion && started && !done && (
         <span
@@ -61,7 +73,6 @@ function Typewriter({
     </span>
   );
 }
-
 /* ---------------- Intro ---------------- */
 function Intro() {
   return (
@@ -70,13 +81,13 @@ function Intro() {
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 0.98 }}
-      transition={{ duration: 0.6, ease: "easeInOut" }}
+      transition={{ duration: 0.6, ease: "easeInOut" as Transition["ease"] }}
     >
       <motion.div
         initial={{ scale: 0.94, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.98, opacity: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: 0.6, ease: "easeOut" as Transition["ease"] }}
         className="flex flex-col items-center gap-8"
       >
         <LoaderBars size="large" />
@@ -100,14 +111,22 @@ function LoaderBars({ size = "medium" }: { size?: "medium" | "large" }) {
       {[0, 1, 2, 3, 4].map((i) => (
         <motion.div
           key={i}
-          className={`${size === "large" ? "w-3 h-12" : "w-2 h-8"} bg-indigo-400 rounded`}
+          className={`${
+            size === "large" ? "w-3 h-12" : "w-2 h-8"
+          } bg-indigo-400 rounded`}
           animate={{ scaleY: [0.4, 1, 0.4] }}
-          transition={{ repeat: Infinity, duration: 1, ease: "easeInOut", delay: i * 0.15 }}
+          transition={{
+            repeat: Infinity,
+            duration: 1,
+            ease: "easeInOut" as Transition["ease"],
+            delay: i * 0.15,
+          }}
         />
       ))}
     </div>
   );
 }
+
 
 /* ---------------- Page ---------------- */
 export default function Page() {
@@ -412,41 +431,50 @@ function MenuList({
   onSelectContact: () => void;
   onSelectProjects: () => void;
   onClose: () => void;
-
 }) {
-  const router = useRouter();
   const items: Array<{ n: string; label: string; onClick: () => void }> = [
-    
     { n: "01", label: "HOME", onClick: onClose },
     { n: "02", label: "PROJECTS", onClick: onSelectProjects },
-    { n: "03", label: "ABOUT", onClick: onSelectAbout },     // overlay ABOUT
-    { n: "04", label: "CONTACT", onClick: onSelectContact }, // overlay CONTACT
+    { n: "03", label: "ABOUT", onClick: onSelectAbout },
+    { n: "04", label: "CONTACT", onClick: onSelectContact },
   ];
 
-  const container = {
+  const container: Variants = {
     hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { when: "beforeChildren", staggerChildren: 0.08 } },
+    show: {
+      opacity: 1,
+      transition: { when: "beforeChildren", staggerChildren: 0.08 },
+    },
     exit: { opacity: 0 },
   };
-  const item = {
-    hidden: { opacity: 0, x: 30, filter: "blur(6px)" },
-    show: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.55, ease: "easeOut" } },
+
+  const item: Variants = {
+    hidden: { opacity: 0, x: 30, filter: "blur(6px)" as any },
+    show: {
+      opacity: 1,
+      x: 0,
+      filter: "blur(0px)" as any,
+      transition: { duration: 0.55, ease: "easeOut" as Transition["ease"] },
+    },
   };
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" exit="exit"  className="mt-55">
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      exit="exit"
+      className="mt-55"
+    >
       <ul className="space-y-5 md:space-y-15">
         {items.map((it) => (
           <motion.li key={it.label} variants={item}>
-            <button
-              onClick={it.onClick}
-              className="group flex items-baseline gap-6 font-hero text-left text-white"
-            >
-              <span className="w-8 shrink-0  md:text-3xl   font-bold text-white">
-  {it.n}
-</span>
+            <button className="group flex items-baseline gap-6 font-hero text-left text-white">
+              <span className="w-8 shrink-0 md:text-3xl font-bold text-white">
+                {it.n}
+              </span>
               <span className="font-extrabold leading-none tracking-tight text-[clamp(40px,8vw,110px)]">
-              <WavyHoverText text={it.label} />
+                <WavyHoverText text={it.label} />
                 <span className="block h-[2px] max-w-0 bg-white/80 transition-all duration-300 group-hover:max-w-full" />
               </span>
             </button>
@@ -456,27 +484,6 @@ function MenuList({
     </motion.div>
   );
 }
-
-
-const container = {
-  hidden: { opacity: 0, y: -100 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: "easeOut",
-      when: "beforeChildren",
-      staggerChildren: 0.25, // çocukları sırayla getir
-    },
-  },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 40 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-};
-
 /* ---------------- WavyHoverText ---------------- */
 function WavyHoverText({
   text,
