@@ -558,6 +558,7 @@ function ProjectsPanel({ onBack }: { onBack: () => void }) {
 function AboutPanel({ onBack }: { onBack: () => void }) {
   return (
     <motion.div variants={container} initial="hidden" animate="show" exit="hidden" className="relative w-full text-white">
+      {/* Back */}
       <motion.button
         variants={item}
         onClick={onBack}
@@ -567,62 +568,64 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
         Back
       </motion.button>
 
-      <div className="relative min-h-[60vh] lg:pr-0">
-        {/* SOL: Başlık + metin */}
-        <motion.div variants={container} className="relative z-10 max-w-3xl px-4 sm:px-6 md:px-10 pt-12 md:pt-20 mx-auto">
-          <motion.h2 variants={item} className="text-[clamp(28px,6vw,56px)] font-bold tracking-wide mb-3">
-            ABOUT ME
-          </motion.h2>
-          <motion.div variants={item} className="h-1 w-40 bg-white mb-6" />
+      {/* Grid: text + photo (no overlap) */}
+      <div className="relative min-h-[60vh] mx-auto px-4 sm:px-6 md:px-10">
+        <div className="grid lg:grid-cols-[1fr_minmax(340px,520px)] gap-8 items-start">
+          {/* Left: Heading + text */}
+          <motion.div variants={container} className="relative z-10 max-w-3xl pt-4 md:pt-8">
+            <motion.h2 variants={item} className="text-[clamp(28px,6vw,56px)] font-bold tracking-wide mb-3">
+              ABOUT ME
+            </motion.h2>
+            <motion.div variants={item} className="h-1 w-40 bg-white mb-6" />
 
-          <motion.p variants={item} className="text-base sm:text-lg md:text-xl font-hero leading-relaxed text-white/90 mb-4 max-w-3xl">
-            Hi, I’m Elif. Thanks for stopping by!
-          </motion.p>
+            <motion.p variants={item} className="text-base sm:text-lg md:text-xl font-hero leading-relaxed text-white/90 mb-4">
+              Hi, I’m Elif. Thanks for stopping by!
+            </motion.p>
 
-          <motion.p variants={item} className="text-base sm:text-lg md:text-xl font-hero leading-relaxed text-white/90 mb-4 max-w-3xl">
-            I recently graduated from a Yeditepe University where I majored in a Computer Science,
-            where I built a strong foundation in software, data, and modern web technologies.
-            I’m especially interested in data science, machine learning, and turning complex information
-            into clear, human-centered experiences
-          </motion.p>
+            <motion.p variants={item} className="text-base sm:text-lg md:text-xl font-hero leading-relaxed text-white/90 mb-4">
+              I recently graduated from a Yeditepe University where I majored in a Computer Science,
+              where I built a strong foundation in software, data, and modern web technologies.
+              I’m especially interested in data science, machine learning, and turning complex information
+              into clear, human-centered experiences
+            </motion.p>
 
-          <motion.p variants={item} className="text-base sm:text-lg md:text-xl font-hero leading-relaxed text-white/90 max-w-3xl">
-            More recently, I’ve been a Research Intern at the Università di Bologna in Italy,
-            contributing to collaborative CS research and broadening my perspective in an international
-            environment. I enjoy end-to-end problem solving: from data work (collecting, cleaning, modeling) to building
-            usable interfaces. Today, I’m looking to create products that are practical, performant,
-            and respectful of users—combining data, ML, and thoughtful design to make everyday experiences a little better.
-          </motion.p>
+            <motion.p variants={item} className="text-base sm:text-lg md:text-xl font-hero leading-relaxed text-white/90">
+              More recently, I’ve been a Research Intern at the Università di Bologna in Italy,
+              contributing to collaborative CS research and broadening my perspective in an international
+              environment. I enjoy end-to-end problem solving: from data work (collecting, cleaning, modeling) to building
+              usable interfaces. Today, I’m looking to create products that are practical, performant,
+              and respectful of users—combining data, ML, and thoughtful design to make everyday experiences a little better.
+            </motion.p>
 
-          <motion.a
+            <motion.a
+              variants={item}
+              href="/ElifCV.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-[clamp(16px,2vw,22px)] font-bold text-indigo-300 hover:text-white transition mt-6"
+            >
+              ↓ resume
+            </motion.a>
+          </motion.div>
+
+          {/* Right: Photo (contained, sticky) */}
+          <motion.div
             variants={item}
-            href="/ElifCV.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-[clamp(16px,2vw,22px)] font-bold text-indigo-300 hover:text-white transition mt-6"
+            className="hidden lg:block sticky top-20 h-[68vh] w-full overflow-hidden shadow-2xl ring-2 ring-white/15 rounded-bl-2xl"
           >
-            ↓ resume
-          </motion.a>
-        </motion.div>
+            <motion.img
+              src="/elfi.jpg"
+              alt="Elif Dikmen portrait"
+              initial={{ scale: 1.05, opacity: 0 }}
+              animate={{ scale: 1.12, opacity: 1 }}
+              transition={{ duration: 1.0, ease: easeOut }}
+              className="h-full w-full object-cover object-center"
+              draggable={false}
+            />
+          </motion.div>
+        </div>
 
-        {/* SAĞ: Fotoğraf - daha esnek ve küçük */}
-        <motion.div
-          variants={item}
-          className="hidden lg:block fixed top-0 right-0 h-[70vh] w-[38vw] max-w-[520px] min-w-[360px] overflow-hidden shadow-2xl ring-2 ring-white/15 z-50"
-          style={{ borderRadius: "0 0 0 24px" }}
-        >
-          <motion.img
-            src="/elfi.jpg"
-            alt="Elif Dikmen portrait"
-            initial={{ scale: 1.05, opacity: 0 }}
-            animate={{ scale: 1.15, opacity: 1 }}
-            transition={{ duration: 1.2, ease: easeOut }}
-            className="h-full w-full object-cover object-center"
-            draggable={false}
-          />
-        </motion.div>
-
-        {/* Mobil fotoğraf */}
+        {/* Mobile photo below text */}
         <motion.div variants={item} className="lg:hidden mt-8 flex justify-center">
           <div className="relative h-40 w-40 overflow-hidden rounded-full ring-2 ring-white/20 shadow-xl">
             <img src="/elfi.jpg" alt="Elif Dikmen portrait" className="h-full w-full object-cover" draggable={false} />
@@ -632,6 +635,7 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
     </motion.div>
   );
 }
+
 
 /* ——— CONTACT PANEL (Overlay) ——— */
 function ContactPanel({
