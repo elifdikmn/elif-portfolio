@@ -59,3 +59,9 @@ body {
   filter: blur(60px);
   z-index: -1;
 }
+/* Normalize: prod'da istemsiz büyümeyi engelle */
+html {
+  font-size: 16px;                 /* rem tabanı sabit */
+  -webkit-text-size-adjust: 100%;  /* iOS/Safari metin şişirmesini kapat */
+  text-size-adjust: 100%;
+}
