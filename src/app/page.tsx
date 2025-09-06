@@ -1,10 +1,16 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { motion, useReducedMotion, AnimatePresence, useAnimationControls } from "framer-motion";
+import {
+  motion,
+  useReducedMotion,
+  AnimatePresence,
+  useAnimationControls,
+  type Variants,
+  easeOut,
+  easeInOut,
+} from "framer-motion";
 import { Mail, Github, Linkedin, ArrowLeft } from "lucide-react";
-
-
 
 /* ---------------- Typewriter ---------------- */
 function Typewriter({
@@ -28,7 +34,7 @@ function Typewriter({
 
   useEffect(() => {
     if (prefersReducedMotion) return;
-  
+
     const timeoutId = window.setTimeout(() => {
       setStarted(true);
       let i = 0;
@@ -38,12 +44,11 @@ function Typewriter({
         if (i >= text.length) window.clearInterval(intervalId);
       }, speed);
     }, startDelay);
-  
+
     return () => {
       window.clearTimeout(timeoutId);
     };
   }, [prefersReducedMotion, speed, startDelay, text]);
-  
 
   const done = shown.length >= text.length;
   return (
@@ -70,13 +75,13 @@ function Intro() {
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 0.98 }}
-      transition={{ duration: 0.6, ease: "easeInOut" }}
+      transition={{ duration: 0.6, ease: easeInOut }}
     >
       <motion.div
         initial={{ scale: 0.94, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.98, opacity: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: 0.6, ease: easeOut }}
         className="flex flex-col items-center gap-8"
       >
         <LoaderBars size="large" />
@@ -102,7 +107,7 @@ function LoaderBars({ size = "medium" }: { size?: "medium" | "large" }) {
           key={i}
           className={`${size === "large" ? "w-3 h-12" : "w-2 h-8"} bg-indigo-400 rounded`}
           animate={{ scaleY: [0.4, 1, 0.4] }}
-          transition={{ repeat: Infinity, duration: 1, ease: "easeInOut", delay: i * 0.15 }}
+          transition={{ repeat: Infinity, duration: 1, ease: easeInOut, delay: i * 0.15 }}
         />
       ))}
     </div>
@@ -223,37 +228,33 @@ export default function Page() {
         <motion.div
           key="pageContent"
           animate={menuOpen ? { opacity: 0, filter: "blur(14px)" } : { opacity: 1, filter: "blur(0px)" }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
+          transition={{ duration: 0.35, ease: easeOut }}
           className={menuOpen ? "pointer-events-none" : ""}
         >
           <section
-  aria-label="Hero"
-  className="relative z-20 mx-auto flex min-h-screen max-w-10xl flex-col items-center justify-center px-6 text-center"
->
-<h1 className="text-[10rem] mb-3 font-bold font-hero italic tracking-[0.02em]">
-  <span className="neon-soft-wrap">
-    {introDone ? (
-      <Typewriter
-        text="HEY, I&apos;M ELIF DIKMEN"
-        startDelay={200}
-        speed={100}
-        ariaLabel="Headline"
-        className="neon-strong"   // sadece glow
-      />
-    ) : (
-      <span className="opacity-0">HEY, I'M ELIF DIKMEN</span>
-    )}
-  </span>
-</h1>
-
-
-
-
+            aria-label="Hero"
+            className="relative z-20 mx-auto flex min-h-screen max-w-10xl flex-col items-center justify-center px-6 text-center"
+          >
+            <h1 className="text-[10rem] mb-3 font-bold font-hero italic tracking-[0.02em]">
+              <span className="neon-soft-wrap">
+                {introDone ? (
+                  <Typewriter
+                    text="HEY, I&apos;M ELIF DIKMEN"
+                    startDelay={200}
+                    speed={100}
+                    ariaLabel="Headline"
+                    className="neon-strong" // sadece glow
+                  />
+                ) : (
+                  <span className="opacity-0">HEY, I'M ELIF DIKMEN</span>
+                )}
+              </span>
+            </h1>
 
             <motion.p
               initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
               animate={introDone ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0 }}
-              transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+              transition={{ duration: 1, delay: 0.3, ease: easeOut }}
               className="mb-12 w-full max-w-[80ch] text-xl sm:text-2xl md:text-5xl font-hero  leading-relaxed text-white "
             >
               I'm a new graduated computer engineer passionate about data science, machine learning, and modern web
@@ -300,29 +301,59 @@ export default function Page() {
           linkedin={LINKEDIN_URL}
         />
 
-<style jsx global>{`
-  html:focus-within { scroll-behavior: smooth; }
-  @keyframes blink { 0%,50%{opacity:1} 50.01%,100%{opacity:0} }
-  @keyframes fadeInUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        <style jsx global>{`
+          html:focus-within {
+            scroll-behavior: smooth;
+          }
+          @keyframes blink {
+            0%,
+            50% {
+              opacity: 1;
+            }
+            50.01%,
+            100% {
+              opacity: 0;
+            }
+          }
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
 
-  .link-underline { position:relative; display:inline-block; }
-  .link-underline::after{
-    content:""; position:absolute; left:0; bottom:-2px; width:0%; height:2px;
-    background: currentColor; transition: width .4s ease;
-  }
-  .link-underline:hover::after{ width:100%; }
+          .link-underline {
+            position: relative;
+            display: inline-block;
+          }
+          .link-underline::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 0%;
+            height: 2px;
+            background: currentColor;
+            transition: width 0.4s ease;
+          }
+          .link-underline:hover::after {
+            width: 100%;
+          }
 
-  /* ✨ Neon parlama */
-  .neon-glow{
-    text-shadow:
-      0 0 6px rgba(236,72,153,.55),    /* pink */
-      0 0 16px rgba(236,72,153,.45),
-      0 0 28px rgba(147,51,234,.35),   /* purple */
-      0 0 48px rgba(147,51,234,.25);
-    filter: saturate(120%);
-  }
-`}</style>
-
+          /* ✨ Neon parlama */
+          .neon-glow {
+            text-shadow:
+              0 0 6px rgba(236, 72, 153, 0.55),
+              0 0 16px rgba(236, 72, 153, 0.45),
+              0 0 28px rgba(147, 51, 234, 0.35),
+              0 0 48px rgba(147, 51, 234, 0.25);
+            filter: saturate(120%);
+          }
+        `}</style>
       </main>
     </div>
   );
@@ -401,6 +432,7 @@ function OverlayMenu({
 }
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
 /* ——— Menü Liste Görünümü ——— */
 function MenuList({
   onSelectAbout,
@@ -412,29 +444,27 @@ function MenuList({
   onSelectContact: () => void;
   onSelectProjects: () => void;
   onClose: () => void;
-
 }) {
   const router = useRouter();
   const items: Array<{ n: string; label: string; onClick: () => void }> = [
-    
     { n: "01", label: "HOME", onClick: onClose },
     { n: "02", label: "PROJECTS", onClick: onSelectProjects },
-    { n: "03", label: "ABOUT", onClick: onSelectAbout },     // overlay ABOUT
+    { n: "03", label: "ABOUT", onClick: onSelectAbout }, // overlay ABOUT
     { n: "04", label: "CONTACT", onClick: onSelectContact }, // overlay CONTACT
   ];
 
-  const container = {
+  const container: Variants = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { when: "beforeChildren", staggerChildren: 0.08 } },
     exit: { opacity: 0 },
   };
-  const item = {
+  const item: Variants = {
     hidden: { opacity: 0, x: 30, filter: "blur(6px)" },
-    show: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.55, ease: "easeOut" } },
+    show: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.55, ease: easeOut } },
   };
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" exit="exit"  className="mt-55">
+    <motion.div variants={container} initial="hidden" animate="show" exit="exit" className="mt-55">
       <ul className="space-y-5 md:space-y-15">
         {items.map((it) => (
           <motion.li key={it.label} variants={item}>
@@ -442,11 +472,9 @@ function MenuList({
               onClick={it.onClick}
               className="group flex items-baseline gap-6 font-hero text-left text-white"
             >
-              <span className="w-8 shrink-0  md:text-3xl   font-bold text-white">
-  {it.n}
-</span>
+              <span className="w-8 shrink-0  md:text-3xl   font-bold text-white">{it.n}</span>
               <span className="font-extrabold leading-none tracking-tight text-[clamp(40px,8vw,110px)]">
-              <WavyHoverText text={it.label} />
+                <WavyHoverText text={it.label} />
                 <span className="block h-[2px] max-w-0 bg-white/80 transition-all duration-300 group-hover:max-w-full" />
               </span>
             </button>
@@ -457,33 +485,33 @@ function MenuList({
   );
 }
 
-
-const container = {
+/* ---- Global variants (diğer paneller kullanıyor) ---- */
+const container: Variants = {
   hidden: { opacity: 0, y: -100 },
   show: {
     opacity: 1,
     y: 0,
     transition: {
       duration: 0.6,
-      ease: "easeOut",
+      ease: easeOut,
       when: "beforeChildren",
       staggerChildren: 0.25, // çocukları sırayla getir
     },
   },
 };
 
-const item = {
+const item: Variants = {
   hidden: { opacity: 0, y: 40 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: easeOut } },
 };
 
 /* ---------------- WavyHoverText ---------------- */
 function WavyHoverText({
   text,
   className = "",
-  waveOffset = 0.03,     // dalga gecikmesi (saniye/harf)
-  lift = 8,              // her harfin yukarı kalkma miktarı (px)
-  tilt = 6,              // her harfin dönmesi (derece)
+  waveOffset = 0.03, // dalga gecikmesi (saniye/harf)
+  lift = 8, // her harfin yukarı kalkma miktarı (px)
+  tilt = 6, // her harfin dönmesi (derece)
 }: {
   text: string;
   className?: string;
@@ -500,14 +528,14 @@ function WavyHoverText({
         controls.start((i: number) => ({
           y: [0, -lift, 0],
           rotate: [0, tilt, 0],
-          transition: { duration: 0.5, ease: "easeOut", delay: i * waveOffset },
+          transition: { duration: 0.5, ease: easeOut, delay: i * waveOffset },
         }))
       }
       onHoverEnd={() =>
         controls.start((i: number) => ({
           y: 0,
           rotate: 0,
-          transition: { duration: 0.3, ease: "easeOut", delay: i * 0.01 },
+          transition: { duration: 0.3, ease: easeOut, delay: i * 0.01 },
         }))
       }
       aria-label={text}
@@ -529,17 +557,10 @@ function WavyHoverText({
   );
 }
 
-
 /* ——— PROJECTS PANEL (Overlay) ——— */
 function ProjectsPanel({ onBack }: { onBack: () => void }) {
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      exit="hidden"
-      className="relative w-full text-white"
-    >
+    <motion.div variants={container} initial="hidden" animate="show" exit="hidden" className="relative w-full text-white">
       {/* Back */}
       <motion.button
         variants={item}
@@ -554,26 +575,17 @@ function ProjectsPanel({ onBack }: { onBack: () => void }) {
       {/* Ortalanmış içerik */}
       <div className="relative min-h-[70vh] flex flex-col items-center justify-center text-center px-8">
         {/* Büyük COMING SOON */}
-        <motion.h2
-          variants={item}
-          className="text-7xl sm:text-8xl md:text-9xl font-extrabold mb-10 tracking-wide"
-        >
+        <motion.h2 variants={item} className="text-7xl sm:text-8xl md:text-9xl font-extrabold mb-10 tracking-wide">
           COMING SOON
         </motion.h2>
 
         {/* Alt açıklama */}
-        <motion.p
-          variants={item}
-          className="text-2xl text-gray-300 mb-12 max-w-2xl"
-        >
+        <motion.p variants={item} className="text-2xl text-gray-300 mb-12 max-w-2xl">
           But during that, you can check out my GitHub account or my resume:
         </motion.p>
 
         {/* Linkler */}
-        <motion.div
-          variants={item}
-          className="flex flex-col sm:flex-row gap-8 items-center"
-        >
+        <motion.div variants={item} className="flex flex-col sm:flex-row gap-8 items-center">
           <a
             href="https://github.com/elifdikmn"
             target="_blank"
@@ -597,18 +609,10 @@ function ProjectsPanel({ onBack }: { onBack: () => void }) {
   );
 }
 
-
-
 /* ——— ABOUT PANEL (Overlay) ——— */
 function AboutPanel({ onBack }: { onBack: () => void }) {
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      exit="hidden"
-      className="relative w-full text-white"
-    >
+    <motion.div variants={container} initial="hidden" animate="show" exit="hidden" className="relative w-full text-white">
       {/* Back */}
       <motion.button
         variants={item}
@@ -622,50 +626,30 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
 
       <div className="relative min-h-[70vh] lg:pr-[560px]">
         {/* SOL: Başlık + metin */}
-        <motion.div
-          variants={container}
-          className="relative z-10 max-w-3xl px-8 lg:px-24 pt-32"
-        >
-          <motion.h2
-            variants={item}
-            className="text-7xl font-bold tracking-wide mb-2 -mt-30 ml-50"
-          >
+        <motion.div variants={container} className="relative z-10 max-w-3xl px-8 lg:px-24 pt-32">
+          <motion.h2 variants={item} className="text-7xl font-bold tracking-wide mb-2 -mt-30 ml-50">
             ABOUT ME
           </motion.h2>
-          <motion.div
-            variants={item}
-            className="h-1 w-350 bg-white mb-6 ml-50"
-          />
+          <motion.div variants={item} className="h-1 w-350 bg-white mb-6 ml-50" />
 
-          <motion.p
-            variants={item}
-            className="text-4xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50"
-          >
+          <motion.p variants={item} className="text-4xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50">
             Hi, I’m Elif. Thanks for stopping by!
           </motion.p>
 
-          <motion.p
-            variants={item}
-            className="text-4xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50"
-          >
+          <motion.p variants={item} className="text-4xl w-400 font-hero leading-relaxed text-white-700 mb-6 max-w-7xl ml-50">
             I recently graduated from a Yeditepe University where I majored in a Computer Science, 
             where I built a strong foundation in software, data, and modern web technologies. 
             I’m especially interested in data science, machine learning, and turning complex information 
             into clear, human-centered experiences
           </motion.p>
 
-          <motion.p
-            variants={item}
-            className="text-4xl w-400 font-hero leading-relaxed text-white-700 max-w-7xl ml-50"
-          >
+          <motion.p variants={item} className="text-4xl w-400 font-hero leading-relaxed text-white-700 max-w-7xl ml-50">
             More recently, I’ve been a Research Intern at the Università di Bologna in Italy, 
             contributing to collaborative CS research and broadening my perspective in an international 
             environment.I enjoy end-to-end problem solving: from data work (collecting, cleaning, modeling) to building 
             usable interfaces.Today, I’m looking to create products that are practical, performant, 
             and respectful of users—combining data, ML, and thoughtful design to make everyday experiences a little better.
           </motion.p>
-
-          
 
           <motion.a
             variants={item}
@@ -690,34 +674,22 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
             alt="Elif Dikmen portrait"
             initial={{ scale: 1.1, opacity: 0 }}
             animate={{ scale: 1.25, opacity: 1 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
+            transition={{ duration: 1.2, ease: easeOut }}
             className="h-full w-full object-cover object-center"
             draggable={false}
           />
         </motion.div>
 
         {/* Mobil fotoğraf */}
-        <motion.div
-          variants={item}
-          className="lg:hidden mt-8 flex justify-center"
-        >
+        <motion.div variants={item} className="lg:hidden mt-8 flex justify-center">
           <div className="relative h-52 w-52 overflow-hidden rounded-full ring-2 ring-white/20 shadow-xl">
-            <img
-              src="/elfi.jpg"
-              alt="Elif Dikmen portrait"
-              className="h-full w-full object-cover"
-              draggable={false}
-            />
+            <img src="/elfi.jpg" alt="Elif Dikmen portrait" className="h-full w-full object-cover" draggable={false} />
           </div>
         </motion.div>
       </div>
     </motion.div>
   );
 }
-
-
-
-
 
 /* ——— CONTACT PANEL (Overlay) ——— */
 function ContactPanel({
@@ -748,9 +720,7 @@ function ContactPanel({
         Back
       </button>
 
-      <h3 className="text-[clamp(36px,8vw,90px)] font-extrabold tracking-[0.15em] leading-none">
-        CONTACT
-      </h3>
+      <h3 className="text-[clamp(36px,8vw,90px)] font-extrabold tracking-[0.15em] leading-none">CONTACT</h3>
       <div className="mt-5 mb-12 h-[2px] w-[72%] bg-white/75 mx-auto" />
 
       <div className="flex flex-col items-center gap-10">
@@ -758,7 +728,7 @@ function ContactPanel({
           href={email}
           className="inline-flex items-center gap-6 text-[clamp(32px,4.5vw,72px)] font-semibold no-underline"
           whileHover={{ x: [0, -4, 4, -2, 2, 0] }}
-          transition={{ duration: 0.45, ease: "easeOut" }}
+          transition={{ duration: 0.45, ease: easeOut }}
         >
           <Mail className="w-[clamp(28px,4vw,40px)] h-[clamp(28px,4vw,40px)]" />
           <span>Mail</span>
@@ -770,7 +740,7 @@ function ContactPanel({
           rel="noopener noreferrer"
           className="inline-flex items-center gap-6 text-[clamp(32px,4.5vw,72px)] font-semibold no-underline"
           whileHover={{ x: [0, -4, 4, -2, 2, 0] }}
-          transition={{ duration: 0.45, ease: "easeOut" }}
+          transition={{ duration: 0.45, ease: easeOut }}
         >
           <Linkedin className="w-[clamp(28px,4vw,40px)] h-[clamp(28px,4vw,40px)]" />
           <span>LinkedIn</span>
@@ -782,7 +752,7 @@ function ContactPanel({
           rel="noopener noreferrer"
           className="inline-flex items-center gap-6 text-[clamp(32px,4.5vw,72px)] font-semibold no-underline"
           whileHover={{ x: [0, -4, 4, -2, 2, 0] }}
-          transition={{ duration: 0.45, ease: "easeOut" }}
+          transition={{ duration: 0.45, ease: easeOut }}
         >
           <Github className="w-[clamp(28px,4vw,40px)] h-[clamp(28px,4vw,40px)]" />
           <span>GitHub</span>
@@ -893,7 +863,7 @@ function BgFX({
       <motion.div
         className="absolute inset-0 opacity-55"
         animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-        transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 26, repeat: Infinity, ease: easeInOut }}
       >
         <div className="h-full w-full bg-[linear-gradient(-45deg,#0b0e14,#111826,#0f1b2d,#0c1220)] bg-[length:400%_400%]" />
       </motion.div>
@@ -941,7 +911,13 @@ function MorphBlob({
     "M 0 -85 C 60 -40, 85 -30, 90 0 C 85 40, 60 85, 0 90 C -60 85, -85 40, -90 0 C -85 -30, -60 -40, 0 -85 Z";
   const seq = reverse ? [p3, p2, p1, p3] : [p1, p2, p3, p1];
   return (
-    <svg width={size} height={size} viewBox="-100 -100 200 200" className="absolute" style={{ left: x, top: y, mixBlendMode: "screen" as any }}>
+    <svg
+      width={size}
+      height={size}
+      viewBox="-100 -100 200 200"
+      className="absolute"
+      style={{ left: x, top: y, mixBlendMode: "screen" as any }}
+    >
       <defs>
         <radialGradient id={gradientId} cx="50%" cy="40%" r="60%">
           <stop offset="0%" stopColor={hue} stopOpacity="0.9" />
@@ -954,7 +930,7 @@ function MorphBlob({
         fill={`url(#${gradientId})`}
         opacity={opacity}
         animate={{ d: seq, rotate: reverse ? -10 : 10 }}
-        transition={{ repeat: Infinity, duration: 12, ease: "easeInOut", repeatType: "reverse" }}
+        transition={{ repeat: Infinity, duration: 12, ease: easeInOut, repeatType: "reverse" }}
       />
     </svg>
   );
