@@ -340,13 +340,12 @@ function OverlayMenu({
   const containerClass =
     view === "list"
       ? "relative z-[66] mx-auto w-full max-w-6xl px-4 sm:px-6 pt-[clamp(10vh,12vh,16vh)]"
-      : "relative z-[66] w-screen max-w-none px-4 sm:px-8 md:px-16 pt-[clamp(10vh,12vh,16vh)]";
-
+      : "relative z-[66] w-full  max-w-none px-4 sm:px-8 md:px-16 pt-[clamp(10vh,12vh,16vh)]";
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[65] flex overflow-y-auto bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 z-[65] flex overflow-y-auto overflow-x-hidden bg-black/40 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -557,7 +556,14 @@ function ProjectsPanel({ onBack }: { onBack: () => void }) {
 /* ——— ABOUT PANEL (Overlay) ——— */
 function AboutPanel({ onBack }: { onBack: () => void }) {
   return (
-    <motion.div variants={container} initial="hidden" animate="show" exit="hidden" className="relative w-full text-white">
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      exit="hidden"
+      /* mobilde güvenlik kemeri: yatay taşmayı kapat */
+      className="relative w-full max-w-[100vw] overflow-x-hidden text-white"
+    >
       {/* Back */}
       <motion.button
         variants={item}
@@ -568,29 +574,52 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
         Back
       </motion.button>
 
-      {/* Grid: text + photo (no overlap) */}
+      {/* Grid: text + photo */}
       <div className="relative min-h-[60vh] mx-auto px-4 sm:px-6 md:px-10">
         <div className="grid lg:grid-cols-[1fr_minmax(340px,520px)] gap-8 items-start">
           {/* Left: Heading + text */}
-          <motion.div variants={container} className="relative z-10 pt-4 md:pt-8">
-
-            <motion.h2 variants={item} className="text-[clamp(28px,6vw,45px)] font-bold tracking-wide -mt-8 -mb-1 ml-10">
+          <motion.div variants={container} className="relative z-10 pt-4 md:pt-8 ">
+            {/* Başlık */}
+            <motion.h2
+              variants={item}
+              className="text-[clamp(28px,6vw,45px)] font-bold tracking-wide -mt-8 -mb-1 ml-0 md:ml-10"
+            >
               ABOUT ME
             </motion.h2>
-            <motion.div variants={item} className="h-0.5 w-200 bg-white mb-5 ml-10" />
 
-            <motion.p variants={item} className="text-base sm:text-lg md:text-1xl font-hero leading-relaxed text-white/90 mb-4 ml-10">
+            {/* Çizgi — metinden bağımsız, responsive genişlik
+                (mobil kısa, masaüstü uzun) */}
+            <motion.div
+              variants={item}
+              className="
+                h-0.5 bg-white mb-5 ml-0 md:ml-10
+                w-[320px] sm:w-[180px] md:w-[200px] lg:w-200
+              "
+            />
+
+            {/* Metinler — mobilde margin sıfır, md+ aynı görünüm
+                (md:text-1xl sende vardı; masaüstü görünümü değiştirmemek için aynen bıraktım) */}
+            <motion.p
+              variants={item}
+              className="text-base sm:text-lg md:text-1xl font-hero leading-relaxed text-white/90 mb-4 ml-0 md:ml-10"
+            >
               Hi, I’m Elif. Thanks for stopping by!
             </motion.p>
 
-            <motion.p variants={item} className="text-base sm:text-lg md:text-1xl font-hero leading-relaxed text-white/90 mb-4 ml-10">
+            <motion.p
+              variants={item}
+              className="text-base sm:text-lg md:text-1xl font-hero leading-relaxed text-white/90 mb-4 ml-0 md:ml-10"
+            >
               I recently graduated from a Yeditepe University where I majored in a Computer Science,
               where I built a strong foundation in software, data, and modern web technologies.
               I’m especially interested in data science, machine learning, and turning complex information
               into clear, human-centered experiences
             </motion.p>
 
-            <motion.p variants={item} className="text-base sm:text-lg md:text-1xl font-hero leading-relaxed text-white/90 ml-10">
+            <motion.p
+              variants={item}
+              className="text-base sm:text-lg md:text-1xl font-hero leading-relaxed text-white/90 ml-0 md:ml-10"
+            >
               More recently, I’ve been a Research Intern at the Università di Bologna in Italy,
               contributing to collaborative CS research and broadening my perspective in an international
               environment. I enjoy end-to-end problem solving: from data work (collecting, cleaning, modeling) to building
@@ -603,29 +632,31 @@ function AboutPanel({ onBack }: { onBack: () => void }) {
               href="/ElifCV.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-[clamp(16px,2vw,18px)] font-bold text-indigo-300 hover:text-white transition mt-1 ml-10"
+              className="inline-flex items-center gap-2 text-[clamp(16px,2vw,18px)] font-bold text-indigo-300 hover:text-white transition mt-1 ml-0 md:ml-10"
             >
               ↓ resume
             </motion.a>
           </motion.div>
 
-          {/* Right: Photo (top-right corner) */}
-<motion.div
-  variants={item}
-  className="hidden lg:block fixed top-0 right-0 h-[600px] w-[350px] overflow-hidden shadow-2xl ring-2 ring-white/15 z-50" style={{ borderRadius: "0 0 0 36px" }}>
-  <motion.img
-    src="/elfi.jpg"
-    alt="Elif Dikmen portrait"
-    initial={{ scale: 1.05, opacity: 0 }}
-    animate={{ scale: 1.12, opacity: 1 }}
-    transition={{ duration: 1.0, ease: easeOut }}
-    className="h-full w-full object-cover object-center"
-    draggable={false}
-  />
-</motion.div>
-</div>
+          {/* Sağdaki foto — MASAÜSTÜ: aynen kalsın (lg+ görünür) */}
+          <motion.div
+            variants={item}
+            className="hidden lg:block fixed top-0 right-0 h-[600px] w-[350px] overflow-hidden shadow-2xl ring-2 ring-white/15 z-50"
+            style={{ borderRadius: "0 0 0 36px" }}
+          >
+            <motion.img
+              src="/elfi.jpg"
+              alt="Elif Dikmen portrait"
+              initial={{ scale: 1.05, opacity: 0 }}
+              animate={{ scale: 1.12, opacity: 1 }}
+              transition={{ duration: 1.0, ease: easeOut }}
+              className="h-full w-full object-cover object-center"
+              draggable={false}
+            />
+          </motion.div>
+        </div>
 
-        {/* Mobile photo below text */}
+        {/* MOBİL foto — altta daire (lg'de zaten gizli) */}
         <motion.div variants={item} className="lg:hidden mt-8 flex justify-center">
           <div className="relative h-40 w-40 overflow-hidden rounded-full ring-2 ring-white/20 shadow-xl">
             <img src="/elfi.jpg" alt="Elif Dikmen portrait" className="h-full w-full object-cover" draggable={false} />
