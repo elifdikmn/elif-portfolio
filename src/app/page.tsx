@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion, AnimatePresence, easeOut, easeInOut } from "framer-motion";
 import { Mail, Github, Linkedin } from "lucide-react";
 import { SquareMenuButton, Typewriter, WavyHoverText } from "@/components/ui";
@@ -73,7 +73,6 @@ export default function Page() {
 
   const prefersReducedMotion = useReducedMotion();
   const [windowSize, setWindowSize] = useState({ w: 0, h: 0 });
-  const projectsPreviewRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     let frame = 0;
@@ -109,56 +108,6 @@ export default function Page() {
     const t = setTimeout(() => setIntroDone(true), 1500);
     return () => clearTimeout(t);
   }, [prefersReducedMotion]);
-
-  /* One-time "intro scroll" nudge toward the Projects preview, once per browser session */
-  useEffect(() => {
-    if (!introDone) return;
-    if (typeof window === "undefined") return;
-
-    const STORAGE_KEY = "introScrollDone";
-    let alreadyRan = false;
-    try {
-      alreadyRan = sessionStorage.getItem(STORAGE_KEY) === "1";
-    } catch {
-      // sessionStorage unavailable (private mode, etc.) — treat as not-yet-run.
-    }
-    if (alreadyRan || prefersReducedMotion || menuOpen) return;
-
-    const markDone = () => {
-      try {
-        sessionStorage.setItem(STORAGE_KEY, "1");
-      } catch {
-        // ignore — worst case the nudge can replay once more this session
-      }
-    };
-
-    let cancelled = false;
-    const cancel = () => {
-      if (cancelled) return;
-      cancelled = true;
-      markDone();
-      detachCancelListeners();
-    };
-    const cancelEvents: (keyof WindowEventMap)[] = ["wheel", "touchstart", "pointerdown", "keydown"];
-    const detachCancelListeners = () => {
-      cancelEvents.forEach((evt) => window.removeEventListener(evt, cancel));
-    };
-    cancelEvents.forEach((evt) => window.addEventListener(evt, cancel, { passive: true }));
-
-    const timer = window.setTimeout(() => {
-      detachCancelListeners();
-      if (!cancelled) {
-        projectsPreviewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-        markDone();
-      }
-    }, 750);
-
-    return () => {
-      window.clearTimeout(timer);
-      detachCancelListeners();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [introDone]);
 
   const EMAIL = "mailto:eelifddikmen@gmail.com";
   const GITHUB_URL = "https://github.com/elifdikmn";
@@ -296,7 +245,7 @@ export default function Page() {
             </div>
           </section>
 
-          <HomeProjectsPreview sectionRef={projectsPreviewRef} onOpenProjects={openProjectsOverlay} />
+          <HomeProjectsPreview onOpenProjects={openProjectsOverlay} />
           <HomeHighlights onOpenAbout={openAboutOverlay} onOpenProjects={openProjectsOverlay} />
           <HomeSkillsPreview />
           <HomeContact email={EMAIL} github={GITHUB_URL} linkedin={LINKEDIN_URL} />
@@ -361,13 +310,7 @@ export default function Page() {
 }
 
 /* ---------------- Home projects preview ---------------- */
-function HomeProjectsPreview({
-  sectionRef,
-  onOpenProjects,
-}: {
-  sectionRef: React.RefObject<HTMLElement | null>;
-  onOpenProjects: () => void;
-}) {
+function HomeProjectsPreview({ onOpenProjects }: { onOpenProjects: () => void }) {
   const previews = [
     { tag: "Sports analytics", title: "Football Match Prediction", stat: "67.8% live-model accuracy" },
     { tag: "Quantitative finance", title: "MNQ Tick Data Analysis", stat: "Write-up in progress" },
@@ -376,7 +319,7 @@ function HomeProjectsPreview({
   ];
 
   return (
-    <section ref={sectionRef} aria-label="Selected work" className="relative z-20 mx-auto max-w-screen-xl px-4 py-16 sm:px-6 sm:py-20">
+    <section aria-label="Selected work" className="relative z-20 mx-auto max-w-screen-xl px-4 py-16 sm:px-6 sm:py-20">
       <p className="font-hero mb-2 text-lg italic" style={{ color: "var(--accent-strong)" }}>
         Selected work
       </p>
