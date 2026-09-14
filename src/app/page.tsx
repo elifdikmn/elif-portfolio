@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion, AnimatePresence, easeOut, easeInOut } from "framer-motion";
-import { SquareMenuButton, Typewriter, WavyHoverText } from "@/components/ui";
+import { SquareMenuButton } from "@/components/ui";
 import MenuList from "@/components/panels/MenuList";
 import AboutPanel from "@/components/panels/AboutPanel";
 import ContactPanel from "@/components/panels/ContactPanel";
@@ -125,6 +125,10 @@ export default function Page() {
     setOverlayView("projects");
     setMenuOpen(true);
   };
+  const openContactOverlay = () => {
+    setOverlayView("contact");
+    setMenuOpen(true);
+  };
 
   return (
     <div id="home">
@@ -159,87 +163,124 @@ export default function Page() {
         >
           <section
             aria-label="Hero"
-            className="relative z-20 mx-auto flex min-h-[calc(100vh-60px)] max-w-screen-2xl flex-col items-center justify-center px-4 sm:px-6 text-center"
+            className="relative z-20 mx-auto max-w-screen-xl px-4 pb-16 pt-28 sm:px-6 sm:pt-32 md:pt-40"
           >
-            <p
-              className="mb-4 text-xs font-semibold uppercase tracking-[0.35em]"
-              style={{ color: "var(--text-faint)" }}
-            >
-              Data Science &amp; Machine Learning
-            </p>
+            <div className="grid items-center gap-10 md:grid-cols-[minmax(0,1fr)_minmax(220px,300px)] md:gap-12">
+              <div className="mx-auto max-w-[640px] text-center md:mx-0 md:text-left">
+                <motion.p
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
+                  transition={{ duration: 0.6, ease: easeOut }}
+                  className="font-hero mb-1.5 text-lg italic"
+                  style={{ color: "var(--accent-strong)" }}
+                >
+                  Hi, I&apos;m
+                </motion.p>
 
-            <h1 className="mb-6 font-hero italic tracking-[0.01em] text-[clamp(2.5rem,9vw,4.5rem)] leading-[1.02]">
-              <span className="warm-glow-wrap">
-                {introDone ? (
-                  <Typewriter
-                    text="Welcome, I'm Elif"
-                    startDelay={200}
-                    speed={70}
-                    ariaLabel="Headline"
-                    className="font-semibold"
-                    cursorClassName="inline-block translate-y-[0.1em] w-[0.5ch] h-[0.9em] align-baseline"
+                <motion.h1
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
+                  transition={{ duration: 0.7, delay: 0.1, ease: easeOut }}
+                  className="font-hero mb-3.5 font-semibold tracking-tight text-[clamp(2.6rem,6vw,4.2rem)] leading-[1.05]"
+                >
+                  <span className="warm-glow-wrap">Elif Dikmen</span>
+                </motion.h1>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
+                  transition={{ duration: 0.7, delay: 0.2, ease: easeOut }}
+                  className="font-hero mb-6 text-[clamp(1.2rem,2.4vw,1.5rem)] italic"
+                  style={{ color: "var(--accent-strong)" }}
+                >
+                  Data Scientist &amp; ML Engineer, in progress
+                </motion.p>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
+                  transition={{ duration: 0.7, delay: 0.3, ease: easeOut }}
+                  className="mx-auto mb-6 max-w-[62ch] text-base leading-relaxed sm:text-lg md:mx-0"
+                  style={{ color: "var(--text-soft)" }}
+                >
+                  I&apos;m a Computer Science graduate who spent a research internship at the Università di
+                  Bologna auditing how GPT plugins handle data privacy — the project that convinced me to go
+                  deeper into this field. I&apos;m now pursuing an Online Master of Science in Analytics
+                  (OMSA) at Georgia Tech, specializing in Computational Data Analysis, based in Philadelphia,
+                  PA.
+                </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
+                  transition={{ duration: 0.7, delay: 0.4, ease: easeOut }}
+                  className="mx-auto mb-8 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium sm:text-sm md:mx-0"
+                  style={{ borderColor: "var(--border)", background: "var(--bg-soft)", color: "var(--text-soft)" }}
+                >
+                  <span
+                    className="h-2 w-2 shrink-0 rounded-full"
+                    style={{ background: "var(--accent)", boxShadow: "0 0 0 3px var(--accent-soft)" }}
                   />
-                ) : (
-                  <span className="opacity-0">Welcome, I&apos;m Elif</span>
-                )}
-              </span>
-            </h1>
+                  Currently: OMSA @ Georgia Tech · Computational Data Analysis specialization
+                </motion.div>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
-              transition={{ duration: 0.9, delay: 0.3, ease: easeOut }}
-              className="mb-8 w-full max-w-[62ch] text-base sm:text-lg md:text-xl leading-relaxed"
-              style={{ color: "var(--text-soft)" }}
-            >
-              I&apos;m a Master of Science in Analytics student at Georgia Tech, specializing in Computational
-              Data Analysis. Based in Philadelphia, PA, I spend my days turning messy datasets into stories
-              worth telling — fueled by an amount of coffee I&apos;d rather not put a number on. Take a look
-              around, and thanks for stopping by.
-            </motion.p>
+                <motion.div
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
+                  transition={{ duration: 0.7, delay: 0.5, ease: easeOut }}
+                  className="flex flex-wrap items-center justify-center gap-4 md:justify-start"
+                >
+                  <button
+                    type="button"
+                    onClick={openProjectsOverlay}
+                    onMouseEnter={() => setHoveringButton(true)}
+                    onMouseLeave={() => setHoveringButton(false)}
+                    className="rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+                    style={{ background: "var(--accent)" }}
+                  >
+                    See my projects
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openAboutOverlay}
+                    onMouseEnter={() => setHoveringButton(true)}
+                    onMouseLeave={() => setHoveringButton(false)}
+                    className="rounded-full border px-6 py-3 text-sm font-semibold transition hover:border-[var(--accent)]"
+                    style={{ borderColor: "var(--border)", color: "var(--text)" }}
+                  >
+                    About me
+                  </button>
+                  <a
+                    href="/ElifCV.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-full border px-6 py-3 text-sm font-semibold transition hover:border-[var(--accent)]"
+                    style={{ borderColor: "var(--border)", color: "var(--text)" }}
+                  >
+                    Resume ↗
+                  </a>
+                </motion.div>
+              </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
-              transition={{ duration: 0.8, delay: 0.55, ease: easeOut }}
-              className="mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs sm:text-sm font-medium"
-              style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text-soft)" }}
-            >
-              <span
-                className="h-2 w-2 shrink-0 rounded-full"
-                style={{ background: "var(--accent)", boxShadow: "0 0 0 3px var(--accent-soft)" }}
-              />
-              Currently: OMSA @ Georgia Tech · Open to Data Scientist / ML Engineer roles
-            </motion.div>
-
-            <div className="mt-2 flex flex-wrap items-center justify-center font-hero gap-6 sm:gap-8 text-lg md:text-xl">
-              <button
-                type="button"
-                onClick={openProjectsOverlay}
-                onMouseEnter={() => setHoveringButton(true)}
-                onMouseLeave={() => setHoveringButton(false)}
-                className="group inline-flex items-center gap-3 opacity-0 animate-[fadeInUp_0.6s_1.8s_forwards]"
-                style={{ color: "var(--text)" }}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
+                transition={{ duration: 0.8, delay: 0.25, ease: easeOut }}
+                className="order-first mx-auto aspect-square w-[220px] overflow-hidden rounded-2xl border shadow-lg sm:aspect-[4/5] sm:w-full md:order-none"
+                style={{ borderColor: "var(--border)", background: "var(--surface)" }}
               >
-                <span style={{ color: "var(--accent)" }}>→</span>
-                <WavyHoverText text="see my projects" className="link-underline" />
-              </button>
-
-              <button
-                type="button"
-                onClick={openAboutOverlay}
-                onMouseEnter={() => setHoveringButton(true)}
-                onMouseLeave={() => setHoveringButton(false)}
-                className="group inline-flex items-center gap-3 opacity-0 animate-[fadeInUp_0.6s_2s_forwards]"
-                style={{ color: "var(--text)" }}
-              >
-                <span style={{ color: "var(--accent)" }}>→</span>
-                <WavyHoverText text="more about me" className="link-underline" />
-              </button>
+                <img
+                  src="/elfi.jpg"
+                  alt="Portrait of Elif Dikmen"
+                  className="h-full w-full object-cover"
+                  draggable={false}
+                />
+              </motion.div>
             </div>
           </section>
 
           <HomeHighlights onOpenAbout={openAboutOverlay} onOpenProjects={openProjectsOverlay} />
+          <HomeClosingCta onOpenAbout={openAboutOverlay} onOpenProjects={openProjectsOverlay} onOpenContact={openContactOverlay} />
         </motion.div>
 
         <OverlayMenu
@@ -334,37 +375,118 @@ function HomeHighlights({
   return (
     <section
       aria-label="Quick introduction"
-      className="relative z-20 mx-auto max-w-screen-xl px-4 pb-24 pt-4 sm:px-6"
+      className="relative z-20 border-y py-16 sm:py-20"
+      style={{ borderColor: "var(--border)", background: "var(--bg-soft)" }}
     >
-      <div className="grid gap-6 md:grid-cols-3">
-        {cards.map((card, i) => (
-          <motion.div
-            key={card.title}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.55, ease: easeOut, delay: i * 0.08 }}
-            className="rounded-[1.5rem] border p-6"
-            style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-          >
-            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-faint)" }}>
-              {card.label}
-            </p>
-            <h3 className="font-hero mt-2 text-xl font-semibold">{card.title}</h3>
-            <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
-              {card.body}
-            </p>
-            <button
-              type="button"
-              onClick={card.onClick}
-              className="mt-4 text-sm font-semibold transition hover:opacity-70"
-              style={{ color: "var(--accent-strong)" }}
+      <div className="mx-auto max-w-screen-xl px-4 sm:px-6">
+        <p className="font-hero mb-2 text-lg italic" style={{ color: "var(--accent-strong)" }}>
+          Right now
+        </p>
+        <h2 className="font-hero mb-3 text-[clamp(28px,4vw,40px)] font-semibold tracking-tight">
+          A quick introduction
+        </h2>
+        <p className="mb-10 max-w-[60ch] text-base" style={{ color: "var(--text-soft)" }}>
+          Three things that sum up where I am and what I&apos;m chasing next.
+        </p>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          {cards.map((card, i) => (
+            <motion.div
+              key={card.title}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.55, ease: easeOut, delay: i * 0.08 }}
+              className="rounded-[1.5rem] border p-6"
+              style={{ borderColor: "var(--border)", background: "var(--surface)" }}
             >
-              {card.linkText}
-            </button>
-          </motion.div>
-        ))}
+              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-faint)" }}>
+                {card.label}
+              </p>
+              <h3 className="font-hero mt-2 text-xl font-semibold">{card.title}</h3>
+              <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
+                {card.body}
+              </p>
+              <button
+                type="button"
+                onClick={card.onClick}
+                className="mt-4 text-sm font-semibold transition hover:opacity-70"
+                style={{ color: "var(--accent-strong)" }}
+              >
+                {card.linkText}
+              </button>
+            </motion.div>
+          ))}
+        </div>
       </div>
+    </section>
+  );
+}
+
+/* ---------------- Home closing CTA ---------------- */
+function HomeClosingCta({
+  onOpenAbout,
+  onOpenProjects,
+  onOpenContact,
+}: {
+  onOpenAbout: () => void;
+  onOpenProjects: () => void;
+  onOpenContact: () => void;
+}) {
+  return (
+    <section aria-label="Get in touch" className="relative z-20 mx-auto max-w-screen-md px-4 py-20 text-center sm:px-6 sm:py-24">
+      <motion.h2
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.55, ease: easeOut }}
+        className="font-hero mb-4 text-[clamp(26px,4vw,36px)] font-semibold tracking-tight"
+      >
+        Want the full story?
+      </motion.h2>
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.55, delay: 0.1, ease: easeOut }}
+        className="mx-auto mb-9 max-w-[56ch] text-base leading-relaxed"
+        style={{ color: "var(--text-soft)" }}
+      >
+        From my Computer Science degree, to Bologna, to Georgia Tech — here&apos;s how it all connects. Or
+        skip ahead to see what I&apos;ve actually built.
+      </motion.p>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.55, delay: 0.2, ease: easeOut }}
+        className="flex flex-wrap items-center justify-center gap-4"
+      >
+        <button
+          type="button"
+          onClick={onOpenAbout}
+          className="rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+          style={{ background: "var(--accent)" }}
+        >
+          Read my About page
+        </button>
+        <button
+          type="button"
+          onClick={onOpenProjects}
+          className="rounded-full border px-6 py-3 text-sm font-semibold transition hover:border-[var(--accent)]"
+          style={{ borderColor: "var(--border)", color: "var(--text)" }}
+        >
+          View my projects
+        </button>
+        <button
+          type="button"
+          onClick={onOpenContact}
+          className="rounded-full border px-6 py-3 text-sm font-semibold transition hover:border-[var(--accent)]"
+          style={{ borderColor: "var(--border)", color: "var(--text)" }}
+        >
+          Get in touch
+        </button>
+      </motion.div>
     </section>
   );
 }
