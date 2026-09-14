@@ -204,11 +204,20 @@ export default function ChatDemoPhone() {
                           className="mt-2 overflow-hidden rounded-[10px] border p-1.5"
                           style={{ borderColor: t.border, background: t.page }}
                         >
-                          <img
-                            src={m.chart}
-                            alt={m.chartAlt ?? "Supporting chart"}
-                            className="block w-full rounded-md"
-                          />
+                          {m.chart.endsWith(".html") ? (
+                            <iframe
+                              src={m.chart}
+                              title={m.chartAlt ?? "Interactive chart from the analysis"}
+                              className="block w-full rounded-md border-0 bg-white"
+                              style={{ height: 280 }}
+                            />
+                          ) : (
+                            <img
+                              src={m.chart}
+                              alt={m.chartAlt ?? "Supporting chart"}
+                              className="block w-full rounded-md"
+                            />
+                          )}
                         </motion.div>
                       )}
                     </div>
