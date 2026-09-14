@@ -198,6 +198,20 @@ export default function Page() {
               around, and thanks for stopping by.
             </motion.p>
 
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
+              transition={{ duration: 0.8, delay: 0.55, ease: easeOut }}
+              className="mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs sm:text-sm font-medium"
+              style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text-soft)" }}
+            >
+              <span
+                className="h-2 w-2 shrink-0 rounded-full"
+                style={{ background: "var(--accent)", boxShadow: "0 0 0 3px var(--accent-soft)" }}
+              />
+              Currently: OMSA @ Georgia Tech · Open to Data Scientist / ML Engineer roles
+            </motion.div>
+
             <div className="mt-2 flex flex-wrap items-center justify-center font-hero gap-6 sm:gap-8 text-lg md:text-xl">
               <button
                 type="button"

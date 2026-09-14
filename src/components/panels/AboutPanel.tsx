@@ -3,6 +3,18 @@
 import { motion, easeOut, type Variants } from "framer-motion";
 import { ArrowLeft, Download, GraduationCap, MapPin } from "lucide-react";
 
+const SKILL_GROUPS: { name: string; items: string[] }[] = [
+  { name: "Languages", items: ["Python", "SQL", "R", "Java", "TypeScript / JavaScript", "C / C++"] },
+  {
+    name: "ML & Data Science",
+    items: ["scikit-learn", "XGBoost", "TensorFlow", "PyTorch", "Pandas", "NumPy", "Feature Engineering", "GridSearchCV"],
+  },
+  { name: "Data Visualization", items: ["Matplotlib", "Seaborn", "Plotly", "Tableau", "Power BI"] },
+  { name: "NLP & LLM Tooling", items: ["Anthropic Claude API", "FAISS", "sentence-transformers", "spaCy", "LangChain", "Prompt Engineering"] },
+  { name: "Data & Backend", items: ["FastAPI", "PostgreSQL", "MySQL", "SQLite", "REST APIs"] },
+  { name: "Tools & Practices", items: ["Git / GitHub", "Web Scraping", "Statistical Testing", "Temporal Train/Test Splits"] },
+];
+
 const container: Variants = {
   hidden: { opacity: 0 },
   show: {
@@ -77,6 +89,16 @@ export default function AboutPanel({ onBack }: { onBack: () => void }) {
           </motion.p>
 
           <motion.p variants={item} className="mb-5 max-w-[62ch] text-base leading-relaxed sm:text-lg" style={{ color: "var(--text-soft)" }}>
+            In between, I spent time as a{" "}
+            <strong style={{ color: "var(--text)" }}>Research Intern at the Università di Bologna</strong>, building
+            LLM-powered tools and interactive dashboards for data privacy research — that&apos;s where the GPT
+            Plugin Privacy project on this site started. I also picked up{" "}
+            <strong style={{ color: "var(--text)" }}>GTx ISYE6501x (Analytics Modeling)</strong> and{" "}
+            <strong style={{ color: "var(--text)" }}>GTx CSE6040x (Computing for Data Analysis)</strong> certifications
+            along the way, which is part of what convinced me to go all in on the full OMSA.
+          </motion.p>
+
+          <motion.p variants={item} className="mb-5 max-w-[62ch] text-base leading-relaxed sm:text-lg" style={{ color: "var(--text-soft)" }}>
             My interests sit squarely in <strong style={{ color: "var(--text)" }}>data science and machine learning</strong>: predictive
             modeling, statistical inference, and the less glamorous but equally important work of figuring out
             whether a model&apos;s numbers can actually be trusted. I&apos;m drawn to projects that force me to be
@@ -102,6 +124,33 @@ export default function AboutPanel({ onBack }: { onBack: () => void }) {
             <Download className="h-4 w-4" />
             Download resume
           </motion.a>
+
+          <motion.div variants={item} className="mt-12 max-w-[62ch]">
+            <h3 className="font-hero text-xl font-semibold italic tracking-tight">Skills &amp; tools</h3>
+            <p className="mt-1 text-sm" style={{ color: "var(--text-faint)" }}>
+              What I&apos;ve actually used to ship the projects on this site — not an aspirational list.
+            </p>
+            <div className="mt-5 flex flex-col gap-4">
+              {SKILL_GROUPS.map((group) => (
+                <div key={group.name}>
+                  <p className="mb-2 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--accent-strong)" }}>
+                    {group.name}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {group.items.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full border px-3 py-1 text-xs font-medium"
+                        style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text-soft)" }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </motion.div>
 
         {/* Photo */}
