@@ -223,6 +223,75 @@ export default function ProjectsPanel({
             Open the full case study <ArrowUpRight className="h-4 w-4" />
           </button>
         </motion.article>
+
+        {/* ---------------- SQL Job Market Analysis ---------------- */}
+        <motion.article
+          variants={cardReveal}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.15 }}
+          className="overflow-hidden rounded-[1.75rem] border p-6 sm:p-8"
+          style={{ borderColor: "var(--border)", background: "var(--bg-soft)" }}
+        >
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <SectionTag>SQL · Job market analytics</SectionTag>
+            <a
+              href="https://github.com/elifdikmn/SQL_Analyze_Job"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold transition hover:opacity-70"
+              style={{ color: "var(--accent-strong)" }}
+            >
+              <Github className="h-4 w-4" /> View repository <ArrowUpRight className="h-3.5 w-3.5" />
+            </a>
+          </div>
+
+          <h3 className="font-hero text-2xl font-semibold sm:text-3xl">Data Analyst Job Market Analysis</h3>
+          <p className="mt-3 max-w-[70ch] text-[15px] leading-relaxed sm:text-base" style={{ color: "var(--text-soft)" }}>
+            A SQL-only deep dive into 2023 remote Data Analyst job postings — no pandas, no notebooks, just
+            CTEs, multi-table joins, and GROUP BY aggregations run directly in PostgreSQL — to find where
+            skill demand and skill pay actually overlap.
+          </p>
+
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatPill value="$184K–$256K" label="Top 10 salary range" />
+            <StatPill value="8 / 10" label="Top postings requiring SQL" />
+            <StatPill value="$208K" label="Highest-paying skill · PySpark" />
+            <StatPill value="7,291" label="SQL job-posting mentions" />
+          </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <figure className="overflow-hidden rounded-xl border bg-white" style={{ borderColor: "var(--border)" }}>
+              <img
+                src="/projects/sql-job-market/top_paying_roles.png"
+                alt="Bar chart of average salary for the top 10 highest-paying remote Data Analyst postings"
+                className="w-full object-contain"
+              />
+              <figcaption className="px-3 py-2 text-xs" style={{ color: "var(--text-faint)" }}>
+                Top 10 highest-paying remote Data Analyst postings, by average yearly salary.
+              </figcaption>
+            </figure>
+            <figure className="overflow-hidden rounded-xl border bg-white" style={{ borderColor: "var(--border)" }}>
+              <img
+                src="/projects/sql-job-market/top_skills_demand.png"
+                alt="Bar chart of the most frequently requested skills among those top-paying postings"
+                className="w-full object-contain"
+              />
+              <figcaption className="px-3 py-2 text-xs" style={{ color: "var(--text-faint)" }}>
+                Most-requested skills among the top 10 highest-paying postings — SQL leads at 8 of 10.
+              </figcaption>
+            </figure>
+          </div>
+
+          <p className="mt-5 text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
+            <strong style={{ color: "var(--text)" }}>Methodology:</strong> queried a 2023 job-postings dataset
+            directly in PostgreSQL to isolate remote Data Analyst roles with disclosed salaries, joined
+            against their listed skills, then cross-referenced skill frequency against average salary —
+            demand leaders (SQL, Excel, Python, Tableau, Power BI) turned out not to be the same list as the
+            highest-paying skills (PySpark $208K, Bitbucket $189K, Couchbase $160.5K), which skew toward
+            cloud and engineering-adjacent tools.
+          </p>
+        </motion.article>
       </div>
     </motion.div>
   );

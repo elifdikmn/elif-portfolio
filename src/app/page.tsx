@@ -238,6 +238,8 @@ export default function Page() {
               </button>
             </div>
           </section>
+
+          <HomeHighlights onOpenAbout={openAboutOverlay} onOpenProjects={openProjectsOverlay} />
         </motion.div>
 
         <OverlayMenu
@@ -294,6 +296,76 @@ export default function Page() {
         `}</style>
       </main>
     </div>
+  );
+}
+
+/* ---------------- Home highlights ---------------- */
+function HomeHighlights({
+  onOpenAbout,
+  onOpenProjects,
+}: {
+  onOpenAbout: () => void;
+  onOpenProjects: () => void;
+}) {
+  const cards = [
+    {
+      label: "Currently studying",
+      title: "OMSA @ Georgia Tech",
+      body: "An Online Master of Science in Analytics, specializing in Computational Data Analysis — going deeper into the statistics and machine learning behind every model I build.",
+      linkText: "More about my path →",
+      onClick: onOpenAbout,
+    },
+    {
+      label: "What I love",
+      title: "Machine Learning",
+      body: "The process of teaching a model to find the signal in the noise. It's the thread running through every project on this site.",
+      linkText: "See it in action →",
+      onClick: onOpenProjects,
+    },
+    {
+      label: "Recently completed",
+      title: "Research Internship — Università di Bologna",
+      body: "A research internship on data privacy that turned into the GPT Plugin Privacy project on this site — a full analysis pipeline plus a RAG chatbot to explore the results.",
+      linkText: "Read the full story →",
+      onClick: onOpenAbout,
+    },
+  ];
+
+  return (
+    <section
+      aria-label="Quick introduction"
+      className="relative z-20 mx-auto max-w-screen-xl px-4 pb-24 pt-4 sm:px-6"
+    >
+      <div className="grid gap-6 md:grid-cols-3">
+        {cards.map((card, i) => (
+          <motion.div
+            key={card.title}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.55, ease: easeOut, delay: i * 0.08 }}
+            className="rounded-[1.5rem] border p-6"
+            style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+          >
+            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-faint)" }}>
+              {card.label}
+            </p>
+            <h3 className="font-hero mt-2 text-xl font-semibold">{card.title}</h3>
+            <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
+              {card.body}
+            </p>
+            <button
+              type="button"
+              onClick={card.onClick}
+              className="mt-4 text-sm font-semibold transition hover:opacity-70"
+              style={{ color: "var(--accent-strong)" }}
+            >
+              {card.linkText}
+            </button>
+          </motion.div>
+        ))}
+      </div>
+    </section>
   );
 }
 
