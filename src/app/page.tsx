@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, AnimatePresence, easeOut, easeInOut } from "framer-motion";
 import { SquareMenuButton } from "@/components/ui";
 import MenuList from "@/components/panels/MenuList";
@@ -71,6 +71,7 @@ export default function Page() {
 
   const prefersReducedMotion = useReducedMotion();
   const [windowSize, setWindowSize] = useState({ w: 0, h: 0 });
+  const projectsPreviewRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     let frame = 0;
@@ -106,6 +107,56 @@ export default function Page() {
     const t = setTimeout(() => setIntroDone(true), 1500);
     return () => clearTimeout(t);
   }, [prefersReducedMotion]);
+
+  /* One-time "intro scroll" nudge toward the Projects preview, once per browser session */
+  useEffect(() => {
+    if (!introDone) return;
+    if (typeof window === "undefined") return;
+
+    const STORAGE_KEY = "introScrollDone";
+    let alreadyRan = false;
+    try {
+      alreadyRan = sessionStorage.getItem(STORAGE_KEY) === "1";
+    } catch {
+      // sessionStorage unavailable (private mode, etc.) — treat as not-yet-run.
+    }
+    if (alreadyRan || prefersReducedMotion || menuOpen) return;
+
+    const markDone = () => {
+      try {
+        sessionStorage.setItem(STORAGE_KEY, "1");
+      } catch {
+        // ignore — worst case the nudge can replay once more this session
+      }
+    };
+
+    let cancelled = false;
+    const cancel = () => {
+      if (cancelled) return;
+      cancelled = true;
+      markDone();
+      detachCancelListeners();
+    };
+    const cancelEvents: (keyof WindowEventMap)[] = ["wheel", "touchstart", "pointerdown", "keydown"];
+    const detachCancelListeners = () => {
+      cancelEvents.forEach((evt) => window.removeEventListener(evt, cancel));
+    };
+    cancelEvents.forEach((evt) => window.addEventListener(evt, cancel, { passive: true }));
+
+    const timer = window.setTimeout(() => {
+      detachCancelListeners();
+      if (!cancelled) {
+        projectsPreviewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        markDone();
+      }
+    }, 750);
+
+    return () => {
+      window.clearTimeout(timer);
+      detachCancelListeners();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [introDone]);
 
   const EMAIL = "mailto:eelifddikmen@gmail.com";
   const GITHUB_URL = "https://github.com/elifdikmn";
@@ -279,6 +330,7 @@ export default function Page() {
             </div>
           </section>
 
+          <HomeProjectsPreview sectionRef={projectsPreviewRef} onOpenProjects={openProjectsOverlay} />
           <HomeHighlights onOpenAbout={openAboutOverlay} onOpenProjects={openProjectsOverlay} />
           <HomeClosingCta onOpenAbout={openAboutOverlay} onOpenProjects={openProjectsOverlay} onOpenContact={openContactOverlay} />
         </motion.div>
@@ -337,6 +389,68 @@ export default function Page() {
         `}</style>
       </main>
     </div>
+  );
+}
+
+/* ---------------- Home projects preview ---------------- */
+function HomeProjectsPreview({
+  sectionRef,
+  onOpenProjects,
+}: {
+  sectionRef: React.RefObject<HTMLElement | null>;
+  onOpenProjects: () => void;
+}) {
+  const previews = [
+    { tag: "Sports analytics", title: "Football Match Prediction", stat: "67.8% live-model accuracy" },
+    { tag: "Quantitative finance", title: "MNQ Tick Data Analysis", stat: "Write-up in progress" },
+    { tag: "Data privacy · RAG", title: "GPT Plugin Privacy Risk Analysis", stat: "12,811 records analyzed" },
+    { tag: "SQL · job market", title: "Data Analyst Job Market Analysis", stat: "$184K–$256K salary range" },
+  ];
+
+  return (
+    <section ref={sectionRef} aria-label="Selected work" className="relative z-20 mx-auto max-w-screen-xl px-4 py-16 sm:px-6 sm:py-20">
+      <p className="font-hero mb-2 text-lg italic" style={{ color: "var(--accent-strong)" }}>
+        Selected work
+      </p>
+      <h2 className="font-hero mb-3 text-[clamp(28px,4vw,40px)] font-semibold tracking-tight">Projects</h2>
+      <p className="mb-10 max-w-[60ch] text-base" style={{ color: "var(--text-soft)" }}>
+        A few of the projects I&apos;ve built — the problem I was chasing, how I approached it, and what
+        actually came out of it.
+      </p>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        {previews.map((p, i) => (
+          <motion.button
+            key={p.title}
+            type="button"
+            onClick={onOpenProjects}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5, ease: easeOut, delay: i * 0.06 }}
+            className="rounded-2xl border p-5 text-left transition hover:-translate-y-0.5"
+            style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+          >
+            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-faint)" }}>
+              {p.tag}
+            </p>
+            <h3 className="font-hero mt-1.5 text-lg font-semibold">{p.title}</h3>
+            <p className="mt-2 text-sm font-medium" style={{ color: "var(--accent-strong)" }}>
+              {p.stat}
+            </p>
+          </motion.button>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={onOpenProjects}
+        className="mt-8 text-sm font-semibold transition hover:opacity-70"
+        style={{ color: "var(--accent-strong)" }}
+      >
+        View all projects →
+      </button>
+    </section>
   );
 }
 
