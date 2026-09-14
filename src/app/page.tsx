@@ -1,79 +1,22 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
-import {
-  motion,
-  useReducedMotion,
-  AnimatePresence,
-  useAnimationControls,
-  type Variants,
-  easeOut,
-  easeInOut,
-} from "framer-motion";
-import { Mail, Github, Linkedin, ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { motion, useReducedMotion, AnimatePresence, easeOut, easeInOut } from "framer-motion";
+import { SquareMenuButton, Typewriter, WavyHoverText } from "@/components/ui";
+import MenuList from "@/components/panels/MenuList";
+import AboutPanel from "@/components/panels/AboutPanel";
+import ContactPanel from "@/components/panels/ContactPanel";
+import ProjectsPanel from "@/components/panels/ProjectsPanel";
+import GptPrivacyCaseStudy from "@/components/panels/GptPrivacyCaseStudy";
 
-/* ---------------- Typewriter ---------------- */
-function Typewriter({
-  text,
-  speed = 60,
-  startDelay = 0,
-  className = "",
-  cursorClassName = "",
-  ariaLabel,
-}: {
-  text: string;
-  speed?: number;
-  startDelay?: number;
-  className?: string;
-  cursorClassName?: string;
-  ariaLabel?: string;
-}) {
-  const prefersReducedMotion = useReducedMotion();
-  const [shown, setShown] = useState(prefersReducedMotion ? text : "");
-  const [started, setStarted] = useState(prefersReducedMotion);
-
-  useEffect(() => {
-    if (prefersReducedMotion) return;
-
-    const timeoutId = window.setTimeout(() => {
-      setStarted(true);
-      let i = 0;
-      const intervalId = window.setInterval(() => {
-        i++;
-        setShown(text.slice(0, i));
-        if (i >= text.length) window.clearInterval(intervalId);
-      }, speed);
-    }, startDelay);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [prefersReducedMotion, speed, startDelay, text]);
-
-  const done = shown.length >= text.length;
-  return (
-    <span className={className} aria-label={ariaLabel ?? text} aria-live="polite" role="text">
-      {shown}
-      {!prefersReducedMotion && started && !done && (
-        <span
-          className={
-            cursorClassName ||
-            "inline-block translate-y-[0.1em] w-[0.6ch] h-[1.1em] align-baseline bg-current animate-[blink_1s_step-end_infinite]"
-          }
-          aria-hidden="true"
-        />
-      )}
-    </span>
-  );
-}
+type View = "list" | "about" | "contact" | "projects" | "project-gpt";
 
 /* ---------------- Intro ---------------- */
 function Intro() {
   return (
     <motion.div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black"
+      className="fixed inset-0 z-[100] flex items-center justify-center"
+      style={{ background: "var(--bg)" }}
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 0.98 }}
@@ -92,7 +35,8 @@ function Intro() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -6, opacity: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
-          className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-[0.25em] text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-500"
+          className="font-hero text-3xl sm:text-4xl md:text-5xl font-semibold italic tracking-wide"
+          style={{ color: "var(--accent-strong)" }}
         >
           Welcome
         </motion.h3>
@@ -107,7 +51,8 @@ function LoaderBars({ size = "medium" }: { size?: "medium" | "large" }) {
       {[0, 1, 2, 3, 4].map((i) => (
         <motion.div
           key={i}
-          className={`${size === "large" ? "w-3 h-10" : "w-2 h-7"} bg-indigo-400 rounded`}
+          className={`${size === "large" ? "w-3 h-10" : "w-2 h-7"} rounded`}
+          style={{ background: "var(--accent)" }}
           animate={{ scaleY: [0.4, 1, 0.4] }}
           transition={{ repeat: Infinity, duration: 1, ease: easeInOut, delay: i * 0.15 }}
         />
@@ -122,16 +67,13 @@ export default function Page() {
   const [introDone, setIntroDone] = useState(false);
   const [hoveringButton, setHoveringButton] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [overlayView, setOverlayView] =
-    useState<"list" | "about" | "contact" | "projects">("list");
+  const [overlayView, setOverlayView] = useState<View>("list");
 
   const prefersReducedMotion = useReducedMotion();
   const [windowSize, setWindowSize] = useState({ w: 0, h: 0 });
 
-  /* mouse takip */
   useEffect(() => {
     let frame = 0;
-    const pos = { x: 0.5, y: 0.5 } as const;
     const onMove = (e: MouseEvent) => {
       const nx = Math.min(Math.max(e.clientX / window.innerWidth, 0), 1);
       const ny = Math.min(Math.max(e.clientY / window.innerHeight, 0), 1);
@@ -161,29 +103,14 @@ export default function Page() {
       setIntroDone(true);
       return;
     }
-    const t = setTimeout(() => setIntroDone(true), 1800);
+    const t = setTimeout(() => setIntroDone(true), 1500);
     return () => clearTimeout(t);
   }, [prefersReducedMotion]);
 
-  /* hue anim */
-  const [hue, setHue] = useState(180);
-  useEffect(() => {
-    let raf = 0;
-    const animate = () => {
-      const target = mouse.x * 360;
-      setHue((prev) => prev + (target - prev) * 0.08);
-      raf = requestAnimationFrame(animate);
-    };
-    raf = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(raf);
-  }, [mouse.x]);
-
-  /* iletişim linkleri */
   const EMAIL = "mailto:eelifddikmen@gmail.com";
   const GITHUB_URL = "https://github.com/elifdikmn";
-  const LINKEDIN_URL = "https://www.linkedin.com/in/elifdikmen/";
+  const LINKEDIN_URL = "https://www.linkedin.com/in/elifdikmen";
 
-  /* ESC ile menüyü kapat */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMenuOpen(false);
     window.addEventListener("keydown", onKey);
@@ -203,11 +130,12 @@ export default function Page() {
     <div id="home">
       <AnimatePresence>{!introDone && <Intro />}</AnimatePresence>
 
-      <main className="relative min-h-screen overflow-hidden bg-black text-zinc-100 selection:bg-indigo-400/30 selection:text-white">
-        {/* BG efekti daima görünür */}
-        <BgFX mouse={mouse} hue={hue} windowSize={windowSize} hoveringButton={hoveringButton} />
+      <main
+        className="relative min-h-screen overflow-hidden"
+        style={{ background: "var(--bg)", color: "var(--text)" }}
+      >
+        <BgFX mouse={mouse} windowSize={windowSize} hoveringButton={hoveringButton} />
 
-        {/* Sağ üst ring grid buton */}
         <header className="absolute top-6 right-6 sm:top-8 sm:right-8 md:top-10 md:right-10 z-[70]">
           <SquareMenuButton
             open={menuOpen}
@@ -223,7 +151,6 @@ export default function Page() {
           />
         </header>
 
-        {/* Sayfa içeriği — menü açıkken tamamen kaybolur */}
         <motion.div
           key="pageContent"
           animate={menuOpen ? { opacity: 0, filter: "blur(14px)" } : { opacity: 1, filter: "blur(0px)" }}
@@ -234,42 +161,53 @@ export default function Page() {
             aria-label="Hero"
             className="relative z-20 mx-auto flex min-h-[calc(100vh-60px)] max-w-screen-2xl flex-col items-center justify-center px-4 sm:px-6 text-center"
           >
-            <h1 className="mb-4 font-bold font-hero italic tracking-[0.02em] text-[clamp(2.25rem,8vw,3rem)] leading-[0.95]">
-              <span className="neon-soft-wrap">
+            <p
+              className="mb-4 text-xs font-semibold uppercase tracking-[0.35em]"
+              style={{ color: "var(--text-faint)" }}
+            >
+              Data Science &amp; Machine Learning
+            </p>
+
+            <h1 className="mb-6 font-hero italic tracking-[0.01em] text-[clamp(2.5rem,9vw,4.5rem)] leading-[1.02]">
+              <span className="warm-glow-wrap">
                 {introDone ? (
                   <Typewriter
-                    text="HEY, I'M ELIF DIKMEN"
+                    text="Welcome, I'm Elif"
                     startDelay={200}
-                    speed={100}
+                    speed={70}
                     ariaLabel="Headline"
-                    className="neon-strong"
+                    className="font-semibold"
+                    cursorClassName="inline-block translate-y-[0.1em] w-[0.5ch] h-[0.9em] align-baseline"
                   />
                 ) : (
-                  <span className="opacity-0">HEY, I'M ELIF DIKMEN</span>
+                  <span className="opacity-0">Welcome, I&apos;m Elif</span>
                 )}
               </span>
             </h1>
 
             <motion.p
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={introDone ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0 }}
-              transition={{ duration: 1, delay: 0.3, ease: easeOut }}
-              className="mb-5 w-full max-w-[70ch] text-base sm:text-lg md:text-xl lg:text-1xl font-hero leading-relaxed text-white/90"
+              initial={{ opacity: 0, y: 20 }}
+              animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
+              transition={{ duration: 0.9, delay: 0.3, ease: easeOut }}
+              className="mb-8 w-full max-w-[62ch] text-base sm:text-lg md:text-xl leading-relaxed"
+              style={{ color: "var(--text-soft)" }}
             >
-              I'm a new graduated computer engineer passionate about data science, machine learning, and modern web
-              development. I enjoy creating user-centric solutions, working with data visualization, and building
-              AI-powered applications.
+              I&apos;m a Master of Science in Analytics student at Georgia Tech, specializing in Computational
+              Data Analysis. Based in Philadelphia, PA, I spend my days turning messy datasets into stories
+              worth telling — fueled by an amount of coffee I&apos;d rather not put a number on. Take a look
+              around, and thanks for stopping by.
             </motion.p>
 
-            <div className="mt-2 flex flex-wrap items-center justify-center font-hero gap-6 sm:gap-8 text-zinc-200 text-lg md:text-xl">
+            <div className="mt-2 flex flex-wrap items-center justify-center font-hero gap-6 sm:gap-8 text-lg md:text-xl">
               <button
                 type="button"
                 onClick={openProjectsOverlay}
                 onMouseEnter={() => setHoveringButton(true)}
                 onMouseLeave={() => setHoveringButton(false)}
-                className="group inline-flex items-center gap-3 opacity-0 animate-[fadeInUp_0.6s_2.2s_forwards]"
+                className="group inline-flex items-center gap-3 opacity-0 animate-[fadeInUp_0.6s_1.8s_forwards]"
+                style={{ color: "var(--text)" }}
               >
-                <span>→</span>
+                <span style={{ color: "var(--accent)" }}>→</span>
                 <WavyHoverText text="see my projects" className="link-underline" />
               </button>
 
@@ -278,16 +216,16 @@ export default function Page() {
                 onClick={openAboutOverlay}
                 onMouseEnter={() => setHoveringButton(true)}
                 onMouseLeave={() => setHoveringButton(false)}
-                className="group inline-flex items-center gap-3 opacity-0 animate-[fadeInUp_0.6s_2.4s_forwards]"
+                className="group inline-flex items-center gap-3 opacity-0 animate-[fadeInUp_0.6s_2s_forwards]"
+                style={{ color: "var(--text)" }}
               >
-                <span>→</span>
+                <span style={{ color: "var(--accent)" }}>→</span>
                 <WavyHoverText text="more about me" className="link-underline" />
               </button>
             </div>
           </section>
         </motion.div>
 
-        {/* Overlay Menü — list | about | contact */}
         <OverlayMenu
           open={menuOpen}
           onClose={() => setMenuOpen(false)}
@@ -299,20 +237,53 @@ export default function Page() {
         />
 
         <style jsx global>{`
-          html:focus-within { scroll-behavior: smooth; }
-          @keyframes blink { 0%,50%{opacity:1} 50.01%,100%{opacity:0} }
-          @keyframes fadeInUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-          .link-underline { position: relative; display: inline-block; }
-          .link-underline::after { content:""; position:absolute; left:0; bottom:-2px; width:0%; height:2px; background:currentColor; transition: width .4s ease; }
-          .link-underline:hover::after { width:100%; }
-          .neon-glow { text-shadow: 0 0 6px rgba(236,72,153,.55), 0 0 16px rgba(236,72,153,.45), 0 0 28px rgba(147,51,234,.35), 0 0 48px rgba(147,51,234,.25); filter:saturate(120%); }
+          html:focus-within {
+            scroll-behavior: smooth;
+          }
+          @keyframes blink {
+            0%,
+            50% {
+              opacity: 1;
+            }
+            50.01%,
+            100% {
+              opacity: 0;
+            }
+          }
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          .link-underline {
+            position: relative;
+            display: inline-block;
+          }
+          .link-underline::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 0%;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.4s ease;
+          }
+          .link-underline:hover::after {
+            width: 100%;
+          }
         `}</style>
       </main>
     </div>
   );
 }
 
-/* ---------------- Menü + Paneller ---------------- */
+/* ---------------- Overlay + Panels ---------------- */
 function OverlayMenu({
   open,
   onClose,
@@ -324,8 +295,8 @@ function OverlayMenu({
 }: {
   open: boolean;
   onClose: () => void;
-  view: "list" | "about" | "contact" | "projects";
-  setView: (v: "list" | "about" | "contact" | "projects") => void;
+  view: View;
+  setView: (v: View) => void;
   email: string;
   github: string;
   linkedin: string;
@@ -340,18 +311,19 @@ function OverlayMenu({
   const containerClass =
     view === "list"
       ? "relative z-[66] mx-auto w-full max-w-6xl px-4 sm:px-6 pt-[clamp(10vh,12vh,16vh)]"
-      : "relative z-[66] w-full  max-w-none px-4 sm:px-8 md:px-16 pt-[clamp(10vh,12vh,16vh)]";
+      : "relative z-[66] w-full max-w-none px-4 sm:px-8 md:px-16 pt-[clamp(8vh,10vh,14vh)]";
+
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-        className="fixed inset-0 z-[65] flex overflow-y-auto overflow-x-hidden bg-black/40 backdrop-blur-sm"
+          className="fixed inset-0 z-[65] flex overflow-y-auto overflow-x-hidden backdrop-blur-sm"
+          style={{ background: "color-mix(in srgb, var(--bg) 92%, transparent)" }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          {/* dışa tıkla kapat */}
-          <motion.div className="absolute inset-0" onClick={onClose} />
+          <motion.div className="absolute inset-0" onClick={view === "list" ? onClose : undefined} />
 
           <div className={containerClass}>
             <AnimatePresence mode="wait">
@@ -366,15 +338,22 @@ function OverlayMenu({
               )}
               {view === "about" && <AboutPanel key="about" onBack={() => setView("list")} />}
               {view === "contact" && (
-                <ContactPanel
-                  key="contact"
-                  email={email}
-                  github={github}
-                  linkedin={linkedin}
-                  onBack={() => setView("list")}
-                />
+                <ContactPanel key="contact" email={email} github={github} linkedin={linkedin} onBack={() => setView("list")} />
               )}
-              {view === "projects" && <ProjectsPanel key="projects" onBack={() => setView("list")} />}
+              {view === "projects" && (
+                <ProjectsPanel key="projects" onBack={() => setView("list")} onOpenGptCaseStudy={() => setView("project-gpt")} />
+              )}
+              {view === "project-gpt" && (
+                <motion.div
+                  key="project-gpt"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4, ease: easeOut }}
+                >
+                  <GptPrivacyCaseStudy onBack={() => setView("projects")} />
+                </motion.div>
+              )}
             </AnimatePresence>
           </div>
         </motion.div>
@@ -383,533 +362,42 @@ function OverlayMenu({
   );
 }
 
-/* ——— Menü Liste Görünümü ——— */
-function MenuList({
-  onSelectAbout,
-  onSelectContact,
-  onSelectProjects,
-  onClose,
-}: {
-  onSelectAbout: () => void;
-  onSelectContact: () => void;
-  onSelectProjects: () => void;
-  onClose: () => void;
-}) {
-  const router = useRouter();
-  const items: Array<{ n: string; label: string; onClick: () => void }> = [
-    { n: "01", label: "HOME", onClick: onClose },
-    { n: "02", label: "PROJECTS", onClick: onSelectProjects },
-    { n: "03", label: "ABOUT", onClick: onSelectAbout },
-    { n: "04", label: "CONTACT", onClick: onSelectContact },
-  ];
-
-  const container: Variants = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { when: "beforeChildren", staggerChildren: 0.08 } },
-    exit: { opacity: 0 },
-  };
-  const item: Variants = {
-    hidden: { opacity: 0, x: 30, filter: "blur(6px)" },
-    show: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.55, ease: easeOut } },
-  };
-
-  return (
-    <motion.div variants={container} initial="hidden" animate="show" exit="exit" className="mt-16">
-      <ul className="space-y-6 md:space-y-10">
-        {items.map((it) => (
-          <motion.li key={it.label} variants={item}>
-            <button
-              onClick={it.onClick}
-              className="group flex items-baseline gap-4 sm:gap-6 font-hero text-left text-white"
-            >
-              <span className="w-8 shrink-0 text-lg md:text-2xl font-bold text-white">{it.n}</span>
-              <span className="font-extrabold leading-none tracking-tight text-[clamp(28px,7vw,72px)]">
-                <WavyHoverText text={it.label} />
-                <span className="block h-[2px] max-w-0 bg-white/80 transition-all duration-300 group-hover:max-w-full" />
-              </span>
-            </button>
-          </motion.li>
-        ))}
-      </ul>
-    </motion.div>
-  );
-}
-
-/* ---- Global variants (diğer paneller kullanıyor) ---- */
-const container: Variants = {
-  hidden: { opacity: 0, y: -100 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: easeOut,
-      when: "beforeChildren",
-      staggerChildren: 0.25,
-    },
-  },
-};
-
-const item: Variants = {
-  hidden: { opacity: 0, y: 40 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: easeOut } },
-};
-
-/* ---------------- WavyHoverText ---------------- */
-function WavyHoverText({
-  text,
-  className = "",
-  waveOffset = 0.03,
-  lift = 8,
-  tilt = 6,
-}: {
-  text: string;
-  className?: string;
-  waveOffset?: number;
-  lift?: number;
-  tilt?: number;
-}) {
-  const controls = useAnimationControls();
-
-  return (
-    <motion.span
-      className={className}
-      onHoverStart={() =>
-        controls.start((i: number) => ({
-          y: [0, -lift, 0],
-          rotate: [0, tilt, 0],
-          transition: { duration: 0.5, ease: easeOut, delay: i * waveOffset },
-        }))
-      }
-      onHoverEnd={() =>
-        controls.start((i: number) => ({
-          y: 0,
-          rotate: 0,
-          transition: { duration: 0.3, ease: easeOut, delay: i * 0.01 },
-        }))
-      }
-      aria-label={text}
-      role="text"
-    >
-      {Array.from(text).map((ch, i) => (
-        <motion.span
-          key={`${ch}-${i}`}
-          custom={i}
-          animate={controls}
-          initial={{ y: 0, rotate: 0 }}
-          className="inline-block will-change-transform"
-          style={{ display: "inline-block" }}
-        >
-          {ch === " " ? "\u00A0" : ch}
-        </motion.span>
-      ))}
-    </motion.span>
-  );
-}
-
-/* ——— PROJECTS PANEL (Overlay) ——— */
-function ProjectsPanel({ onBack }: { onBack: () => void }) {
-  return (
-    <motion.div variants={container} initial="hidden" animate="show" exit="hidden" className="relative w-full text-white">
-      <motion.button
-        variants={item}
-        onClick={onBack}
-        className="mb-6 inline-flex items-center gap-2 rounded-md px-3 py-2 text-[clamp(18px,2.5vw,28px)] font-bold opacity-90 hover:opacity-100"
-      >
-        <ArrowLeft className="w-6 h-6 md:w-8 md:h-8" />
-        Back
-      </motion.button>
-
-      <div className="relative min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
-        <motion.h2 variants={item} className="text-[clamp(40px,10vw,120px)] font-extrabold mb-6 tracking-wide">
-          COMING SOON
-        </motion.h2>
-
-        <motion.p variants={item} className="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl">
-          But during that, you can check out my GitHub account or my resume:
-        </motion.p>
-
-        <motion.div variants={item} className="flex flex-col sm:flex-row gap-6 items-center">
-          <a
-            href="https://github.com/elifdikmn"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-[clamp(18px,2vw,24px)] font-bold text-indigo-300 hover:text-white transition"
-          >
-            ↗ GitHub
-          </a>
-
-          <a
-            href="/ElifCV.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-[clamp(18px,2vw,24px)] font-bold text-indigo-300 hover:text-white transition"
-          >
-            ↓ Resume
-          </a>
-        </motion.div>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ——— ABOUT PANEL (Overlay) ——— */
-function AboutPanel({ onBack }: { onBack: () => void }) {
-  return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      exit="hidden"
-      /* mobilde güvenlik kemeri: yatay taşmayı kapat */
-      className="relative w-full max-w-[100vw] overflow-x-hidden text-white"
-    >
-      {/* Back */}
-      <motion.button
-        variants={item}
-        onClick={onBack}
-        className="mb-6 inline-flex items-center gap-2 rounded-md px-3 py-2 text-[clamp(18px,2.5vw,28px)] font-bold opacity-90 hover:opacity-100"
-      >
-        <ArrowLeft className="w-6 h-6 md:w-8 md:h-8" />
-        Back
-      </motion.button>
-
-      {/* Grid: text + photo */}
-      <div className="relative min-h-[60vh] mx-auto px-4 sm:px-6 md:px-10">
-        <div className="grid lg:grid-cols-[1fr_minmax(340px,520px)] gap-8 items-start">
-          {/* Left: Heading + text */}
-          <motion.div variants={container} className="relative z-10 pt-4 md:pt-8 ">
-            {/* Başlık */}
-            <motion.h2
-              variants={item}
-              className="text-[clamp(28px,6vw,45px)] font-bold tracking-wide -mt-8 -mb-1 ml-0 md:ml-10"
-            >
-              ABOUT ME
-            </motion.h2>
-
-            {/* Çizgi — metinden bağımsız, responsive genişlik
-                (mobil kısa, masaüstü uzun) */}
-            <motion.div
-              variants={item}
-              className="
-                h-0.5 bg-white mb-5 ml-0 md:ml-10
-                w-[320px] sm:w-[180px] md:w-[200px] lg:w-200
-              "
-            />
-
-            {/* Metinler — mobilde margin sıfır, md+ aynı görünüm
-                (md:text-1xl sende vardı; masaüstü görünümü değiştirmemek için aynen bıraktım) */}
-            <motion.p
-              variants={item}
-              className="text-base sm:text-lg md:text-1xl font-hero leading-relaxed text-white/90 mb-4 ml-0 md:ml-10"
-            >
-              Hi, I’m Elif. Thanks for stopping by!
-            </motion.p>
-
-            <motion.p
-              variants={item}
-              className="text-base sm:text-lg md:text-1xl font-hero leading-relaxed text-white/90 mb-4 ml-0 md:ml-10"
-            >
-              I recently graduated from a Yeditepe University where I majored in a Computer Science,
-              where I built a strong foundation in software, data, and modern web technologies.
-              I’m especially interested in data science, machine learning, and turning complex information
-              into clear, human-centered experiences
-            </motion.p>
-
-            <motion.p
-              variants={item}
-              className="text-base sm:text-lg md:text-1xl font-hero leading-relaxed text-white/90 ml-0 md:ml-10"
-            >
-              More recently, I’ve been a Research Intern at the Università di Bologna in Italy,
-              contributing to collaborative CS research and broadening my perspective in an international
-              environment. I enjoy end-to-end problem solving: from data work (collecting, cleaning, modeling) to building
-              usable interfaces. Today, I’m looking to create products that are practical, performant,
-              and respectful of users—combining data, ML, and thoughtful design to make everyday experiences a little better.
-            </motion.p>
-
-            <motion.a
-              variants={item}
-              href="/ElifCV.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-[clamp(16px,2vw,18px)] font-bold text-indigo-300 hover:text-white transition mt-1 ml-0 md:ml-10"
-            >
-              ↓ resume
-            </motion.a>
-          </motion.div>
-
-          {/* Sağdaki foto — MASAÜSTÜ: aynen kalsın (lg+ görünür) */}
-          <motion.div
-            variants={item}
-            className="hidden lg:block fixed top-0 right-0 h-[600px] w-[350px] overflow-hidden shadow-2xl ring-2 ring-white/15 z-50"
-            style={{ borderRadius: "0 0 0 36px" }}
-          >
-            <motion.img
-              src="/elfi.jpg"
-              alt="Elif Dikmen portrait"
-              initial={{ scale: 1.05, opacity: 0 }}
-              animate={{ scale: 1.12, opacity: 1 }}
-              transition={{ duration: 1.0, ease: easeOut }}
-              className="h-full w-full object-cover object-center"
-              draggable={false}
-            />
-          </motion.div>
-        </div>
-
-        {/* MOBİL foto — altta daire (lg'de zaten gizli) */}
-        <motion.div variants={item} className="lg:hidden mt-8 flex justify-center">
-          <div className="relative h-40 w-40 overflow-hidden rounded-full ring-2 ring-white/20 shadow-xl">
-            <img src="/elfi.jpg" alt="Elif Dikmen portrait" className="h-full w-full object-cover" draggable={false} />
-          </div>
-        </motion.div>
-      </div>
-    </motion.div>
-  );
-}
-
-
-/* ——— CONTACT PANEL (Overlay) ——— */
-function ContactPanel({
-  email,
-  github,
-  linkedin,
-  onBack,
-}: {
-  email: string;
-  github: string;
-  linkedin: string;
-  onBack: () => void;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 100, scale: 0.9 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 50, scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 120, damping: 15 }}
-      className="text-white w-full max-w-3xl mx-auto px-4 sm:px-6 text-center"
-    >
-      <button
-        onClick={onBack}
-        className="mb-8 inline-flex items-center gap-1 rounded-md px-4 py-3 text-[clamp(18px,2.5vw,28px)] font-bold opacity-90 hover:opacity-100"
-      >
-        <ArrowLeft className="w-7 h-7 md:w-10 md:h-10" />
-        Back
-      </button>
-
-      <h3 className="text-[clamp(28px,8vw,64px)] font-extrabold tracking-[0.15em] leading-none">CONTACT</h3>
-      <div className="mt-5 mb-10 h-[2px] w-[72%] bg-white/75 mx-auto" />
-
-      <div className="flex flex-col items-center gap-8">
-        <motion.a
-          href={email}
-          className="inline-flex items-center gap-4 text-[clamp(20px,4.5vw,36px)] font-semibold no-underline"
-          whileHover={{ x: [0, -4, 4, -2, 2, 0] }}
-          transition={{ duration: 0.45, ease: easeOut }}
-        >
-          <Mail className="w-7 h-7 md:w-9 md:h-9" />
-          <span>Mail</span>
-        </motion.a>
-
-        <motion.a
-          href={linkedin}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-4 text-[clamp(20px,4.5vw,36px)] font-semibold no-underline"
-          whileHover={{ x: [0, -4, 4, -2, 2, 0] }}
-          transition={{ duration: 0.45, ease: easeOut }}
-        >
-          <Linkedin className="w-7 h-7 md:w-9 md:h-9" />
-          <span>LinkedIn</span>
-        </motion.a>
-
-        <motion.a
-          href={github}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-4 text-[clamp(20px,4.5vw,36px)] font-semibold no-underline"
-          whileHover={{ x: [0, -4, 4, -2, 2, 0] }}
-          transition={{ duration: 0.45, ease: easeOut }}
-        >
-          <Github className="w-7 h-7 md:w-9 md:h-9" />
-          <span>GitHub</span>
-        </motion.a>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ---------------- Daha Küçük Kare Menü Butonu ---------------- */
-function SquareMenuButton({
-  open,
-  onToggle,
-  onHoverChange,
-}: {
-  open: boolean;
-  onToggle: () => void;
-  onHoverChange: (v: boolean) => void;
-}) {
-  return (
-    <button
-      aria-label={open ? "Close menu" : "Open menu"}
-      aria-expanded={open}
-      onClick={onToggle}
-      onMouseEnter={() => onHoverChange(true)}
-      onMouseLeave={() => onHoverChange(false)}
-      className="group relative grid h-11 w-11 sm:h-12 sm:w-12 md:h-30 md:w-30 place-items-center text-white"
-    >
-      {/* Grid noktaları */}
-      <motion.div
-        key="grid"
-        initial={false}
-        animate={{
-          opacity: open ? 0 : 1,
-          scale: open ? 0.7 : 1,
-          rotate: open ? 10 : 0,
-        }}
-        transition={{ type: "spring", stiffness: 300, damping: 26 }}
-        className="absolute inset-0 grid place-items-center"
-      >
-        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 md:gap-2.5">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <span
-              key={i}
-              className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 rounded-full border-2 border-white/85 bg-transparent opacity-90 transition group-hover:scale-110 group-hover:opacity-100"
-            />
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Çarpı (close) */}
-      <motion.div
-        key="close"
-        initial={false}
-        animate={{
-          opacity: open ? 1 : 0,
-          scale: open ? 1 : 0.6,
-          rotate: open ? 0 : -10,
-        }}
-        transition={{ type: "spring", stiffness: 280, damping: 22 }}
-        className="relative"
-      >
-        <span className="absolute block h-[2px] w-5 sm:w-6 md:w-7 -rotate-45 bg-white rounded-full" />
-        <span className="absolute block h-[2px] w-5 sm:w-6 md:w-7  rotate-45 bg-white rounded-full" />
-        <span className="block h-7 w-7 md:h-9 md:w-9 opacity-0" />
-      </motion.div>
-    </button>
-  );
-}
-
-
-/* ---------------- Background FX ---------------- */
+/* ---------------- Background FX (soft & warm) ---------------- */
 function BgFX({
   mouse,
-  hue,
   windowSize,
   hoveringButton,
 }: {
   mouse: { x: number; y: number };
-  hue: number;
   windowSize: { w: number; h: number };
   hoveringButton: boolean;
 }) {
-  const hueCool = 200 + Math.max(0, Math.min(1, mouse.x)) * 80;
-  const s = 60 + (1 - Math.max(0, Math.min(1, mouse.y))) * 20;
-  const l1 = 50 + (1 - Math.max(0, Math.min(1, mouse.y))) * 8;
-  const l2 = 46 + (1 - Math.max(0, Math.min(1, mouse.y))) * 6;
-
-  const h1 = hueCool;
-  const h2 = (hueCool + 30) % 360;
-
   return (
-    <div className="absolute inset-0 z-0 pointer-events-none">
+    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
       {windowSize.w > 0 && windowSize.h > 0 && (
         <motion.div
-          className="pointer-events-none fixed top-0 left-0 z-50 rounded-full border-2 border-indigo-400/80"
-          style={{ width: 40, height: 40 }}
+          className="pointer-events-none fixed top-0 left-0 z-50 rounded-full border-2"
+          style={{ width: 36, height: 36, borderColor: "var(--accent)" }}
           animate={{
-            x: mouse.x * windowSize.w - 20,
-            y: mouse.y * windowSize.h - 20,
+            x: mouse.x * windowSize.w - 18,
+            y: mouse.y * windowSize.h - 18,
             scale: hoveringButton ? 1 : 0.5,
-            backgroundColor: hoveringButton ? "#000000" : "transparent",
+            backgroundColor: hoveringButton ? "var(--accent-soft-2)" : "transparent",
           }}
           transition={{ type: "spring", stiffness: 200, damping: 25 }}
         />
       )}
 
       <div
-        className="absolute inset-0 opacity-80 mix-blend-screen"
+        className="absolute inset-0 opacity-70"
         style={{
-          background: `radial-gradient(600px 420px at ${mouse.x * 100}% ${mouse.y * 100}%, hsl(${h1} ${s}% ${l1}% / 0.45), transparent 60%), radial-gradient(800px 620px at ${
-            (1 - mouse.x) * 100
-          }% ${(1 - mouse.y) * 100}%, hsl(${h2} ${s - 8}% ${l2}% / 0.35), transparent 65%)`,
+          background: `radial-gradient(700px 500px at ${mouse.x * 100}% ${mouse.y * 100}%, var(--accent-soft), transparent 65%)`,
         }}
       />
 
-      <motion.div
-        className="absolute inset-0 opacity-55"
-        animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-        transition={{ duration: 26, repeat: Infinity, ease: easeInOut }}
-      >
-        <div className="h-full w-full bg-[linear-gradient(-45deg,#0b0e14,#111826,#0f1b2d,#0c1220)] bg-[length:400%_400%]" />
-      </motion.div>
-
-      <div className="absolute -inset-10 md:-inset-20 opacity-[0.35]">
-        <div className="h-full w-full bg-[radial-gradient(closest-side,transparent,rgba(0,0,0,0.38))]" />
-      </div>
-
-      <div className="absolute inset-0">
-        <MorphBlob x={120} y={160} size={360} hue={`hsl(${h1} ${s}% ${l1}%)`} opacity={0.28} />
-        <MorphBlob x={"70vw" as any} y={520} size={460} hue={`hsl(${h2} ${Math.max(55, s - 10)}% ${Math.max(46, l2 - 2)}%)`} opacity={0.22} reverse />
-      </div>
+      <div className="absolute -top-24 -left-24 h-[420px] w-[420px] rounded-full blur-3xl" style={{ background: "var(--accent-soft)", opacity: 0.6 }} />
+      <div className="absolute -bottom-32 -right-16 h-[480px] w-[480px] rounded-full blur-3xl" style={{ background: "var(--accent-soft-2)", opacity: 0.5 }} />
+      <div className="absolute top-1/3 right-1/4 h-[280px] w-[280px] rounded-full blur-3xl" style={{ background: "var(--bg-soft)", opacity: 0.7 }} />
     </div>
-  );
-}
-
-function MorphBlob({
-  x,
-  y,
-  size = 400,
-  hue = "#7aa2ff",
-  opacity = 0.22,
-  reverse = false,
-}: {
-  x: number | string;
-  y: number;
-  size?: number;
-  hue?: string;
-  opacity?: number;
-  reverse?: boolean;
-}) {
-  const gradientId = useId();
-  const p1 =
-    "M 0 -80 C 30 -70, 70 -50, 80 0 C 90 50, 40 80, 0 90 C -40 80, -90 50, -80 0 C -70 -50, -30 -70, 0 -80 Z";
-  const p2 =
-    "M 0 -90 C 50 -60, 90 -40, 80 0 C 70 50, 30 90, 0 80 C -30 90, -80 50, -90 0 C -80 -40, -50 -60, 0 -90 Z";
-  const p3 =
-    "M 0 -85 C 60 -40, 85 -30, 90 0 C 85 40, 60 85, 0 90 C -60 85, -85 40, -90 0 C -85 -30, -60 -40, 0 -85 Z";
-  const seq = reverse ? [p3, p2, p1, p3] : [p1, p2, p3, p1];
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="-100 -100 200 200"
-      className="absolute"
-      style={{ left: typeof x === 'number' ? x : x, top: y, mixBlendMode: "screen" as any }}
-    >
-      <defs>
-        <radialGradient id={gradientId} cx="50%" cy="40%" r="60%">
-          <stop offset="0%" stopColor={hue} stopOpacity="0.9" />
-          <stop offset="60%" stopColor={hue} stopOpacity="0.3" />
-          <stop offset="100%" stopColor="#0d1117" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <motion.path
-        d={p1}
-        fill={`url(#${gradientId})`}
-        opacity={opacity}
-        animate={{ d: seq, rotate: reverse ? -10 : 10 }}
-        transition={{ repeat: Infinity, duration: 12, ease: easeInOut, repeatType: "reverse" }}
-      />
-    </svg>
   );
 }
