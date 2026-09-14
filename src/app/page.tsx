@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, AnimatePresence, easeOut, easeInOut } from "framer-motion";
+import { Mail, Github, Linkedin } from "lucide-react";
 import { SquareMenuButton } from "@/components/ui";
 import MenuList from "@/components/panels/MenuList";
 import AboutPanel from "@/components/panels/AboutPanel";
 import ContactPanel from "@/components/panels/ContactPanel";
 import ProjectsPanel from "@/components/panels/ProjectsPanel";
 import GptPrivacyCaseStudy from "@/components/panels/GptPrivacyCaseStudy";
+import { SKILL_GROUPS } from "@/lib/skills";
 
 type View = "list" | "about" | "contact" | "projects" | "project-gpt";
 
@@ -216,8 +218,7 @@ export default function Page() {
             aria-label="Hero"
             className="relative z-20 mx-auto max-w-screen-xl px-4 pb-16 pt-28 sm:px-6 sm:pt-32 md:pt-40"
           >
-            <div className="grid items-center gap-10 md:grid-cols-[minmax(0,1fr)_minmax(220px,300px)] md:gap-12">
-              <div className="mx-auto max-w-[640px] text-center md:mx-0 md:text-left">
+            <div className="mx-auto max-w-[720px] text-center">
                 <motion.p
                   initial={{ opacity: 0, y: 16 }}
                   animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
@@ -251,7 +252,7 @@ export default function Page() {
                   initial={{ opacity: 0, y: 16 }}
                   animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
                   transition={{ duration: 0.7, delay: 0.3, ease: easeOut }}
-                  className="mx-auto mb-6 max-w-[62ch] text-base leading-relaxed sm:text-lg md:mx-0"
+                  className="mx-auto mb-6 max-w-[62ch] text-base leading-relaxed sm:text-lg"
                   style={{ color: "var(--text-soft)" }}
                 >
                   I&apos;m a Computer Science graduate who spent a research internship at the Università di
@@ -265,7 +266,7 @@ export default function Page() {
                   initial={{ opacity: 0, y: 14 }}
                   animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
                   transition={{ duration: 0.7, delay: 0.4, ease: easeOut }}
-                  className="mx-auto mb-8 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium sm:text-sm md:mx-0"
+                  className="mx-auto mb-8 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium sm:text-sm"
                   style={{ borderColor: "var(--border)", background: "var(--bg-soft)", color: "var(--text-soft)" }}
                 >
                   <span
@@ -279,7 +280,7 @@ export default function Page() {
                   initial={{ opacity: 0, y: 14 }}
                   animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
                   transition={{ duration: 0.7, delay: 0.5, ease: easeOut }}
-                  className="flex flex-wrap items-center justify-center gap-4 md:justify-start"
+                  className="flex flex-wrap items-center justify-center gap-4"
                 >
                   <button
                     type="button"
@@ -312,26 +313,12 @@ export default function Page() {
                   </a>
                 </motion.div>
               </div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0 }}
-                transition={{ duration: 0.8, delay: 0.25, ease: easeOut }}
-                className="order-first mx-auto aspect-square w-[220px] overflow-hidden rounded-2xl border shadow-lg sm:aspect-[4/5] sm:w-full md:order-none"
-                style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-              >
-                <img
-                  src="/elfi.jpg"
-                  alt="Portrait of Elif Dikmen"
-                  className="h-full w-full object-cover"
-                  draggable={false}
-                />
-              </motion.div>
-            </div>
           </section>
 
           <HomeProjectsPreview sectionRef={projectsPreviewRef} onOpenProjects={openProjectsOverlay} />
           <HomeHighlights onOpenAbout={openAboutOverlay} onOpenProjects={openProjectsOverlay} />
+          <HomeSkillsPreview />
+          <HomeContact email={EMAIL} github={GITHUB_URL} linkedin={LINKEDIN_URL} />
           <HomeClosingCta onOpenAbout={openAboutOverlay} onOpenProjects={openProjectsOverlay} onOpenContact={openContactOverlay} />
         </motion.div>
 
@@ -455,6 +442,107 @@ function HomeProjectsPreview({
 }
 
 /* ---------------- Home highlights ---------------- */
+/* ---------------- Home skills preview ---------------- */
+function HomeSkillsPreview() {
+  return (
+    <section aria-label="Skills" className="relative z-20 mx-auto max-w-screen-xl px-4 py-16 sm:px-6 sm:py-20">
+      <p className="font-hero mb-2 text-lg italic" style={{ color: "var(--accent-strong)" }}>
+        Toolbox
+      </p>
+      <h2 className="font-hero mb-3 text-[clamp(28px,4vw,40px)] font-semibold tracking-tight">Skills &amp; Tools</h2>
+      <p className="mb-10 max-w-[60ch] text-base" style={{ color: "var(--text-soft)" }}>
+        What I&apos;ve actually used to ship the projects on this site — not an aspirational list.
+      </p>
+
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {SKILL_GROUPS.map((group, i) => (
+          <motion.div
+            key={group.name}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5, ease: easeOut, delay: i * 0.05 }}
+          >
+            <p className="mb-2 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--accent-strong)" }}>
+              {group.name}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {group.items.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border px-3 py-1 text-xs font-medium"
+                  style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text-soft)" }}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- Home contact preview ---------------- */
+function HomeContact({ email, github, linkedin }: { email: string; github: string; linkedin: string }) {
+  const links = [
+    { href: email, label: "eelifddikmen@gmail.com", sub: "Email", Icon: Mail, external: false },
+    { href: linkedin, label: "linkedin.com/in/elifdikmen", sub: "LinkedIn", Icon: Linkedin, external: true },
+    { href: github, label: "github.com/elifdikmn", sub: "GitHub", Icon: Github, external: true },
+  ];
+
+  return (
+    <section
+      aria-label="Contact"
+      className="relative z-20 border-y py-16 sm:py-20"
+      style={{ borderColor: "var(--border)", background: "var(--bg-soft)" }}
+    >
+      <div className="mx-auto max-w-screen-xl px-4 sm:px-6">
+        <p className="font-hero mb-2 text-lg italic" style={{ color: "var(--accent-strong)" }}>
+          Say hello
+        </p>
+        <h2 className="font-hero mb-3 text-[clamp(28px,4vw,40px)] font-semibold tracking-tight">Let&apos;s talk</h2>
+        <p className="mb-10 max-w-[60ch] text-base" style={{ color: "var(--text-soft)" }}>
+          Whether it&apos;s about a role, a project, or just data science things — my inbox is open.
+        </p>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          {links.map(({ href, label, sub, Icon, external }, i) => (
+            <motion.a
+              key={sub}
+              href={href}
+              target={external ? "_blank" : undefined}
+              rel={external ? "noopener noreferrer" : undefined}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.5, ease: easeOut, delay: i * 0.08 }}
+              className="flex items-center gap-3 rounded-2xl border p-5 no-underline transition hover:-translate-y-0.5"
+              style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+            >
+              <span
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full"
+                style={{ background: "var(--accent-soft)", color: "var(--accent-strong)" }}
+              >
+                <Icon className="h-4 w-4" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-faint)" }}>
+                  {sub}
+                </span>
+                <span className="block truncate text-sm font-semibold" style={{ color: "var(--text)" }}>
+                  {label}
+                </span>
+              </span>
+            </motion.a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function HomeHighlights({
   onOpenAbout,
   onOpenProjects,
