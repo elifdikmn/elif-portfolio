@@ -15,6 +15,11 @@ const item: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: easeOut } },
 };
 
+const cardReveal: Variants = {
+  hidden: { opacity: 0, y: 36 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: easeOut } },
+};
+
 function StatPill({ value, label }: { value: string; label: string }) {
   return (
     <div
@@ -75,7 +80,10 @@ export default function ProjectsPanel({
       <div className="flex flex-col gap-8">
         {/* ---------------- Football Match Prediction ---------------- */}
         <motion.article
-          variants={item}
+          variants={cardReveal}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.15 }}
           className="overflow-hidden rounded-[1.75rem] border p-6 sm:p-8"
           style={{ borderColor: "var(--border)", background: "var(--surface)" }}
         >
@@ -142,7 +150,10 @@ export default function ProjectsPanel({
 
         {/* ---------------- MNQ Tick Data ---------------- */}
         <motion.article
-          variants={item}
+          variants={cardReveal}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.15 }}
           className="overflow-hidden rounded-[1.75rem] border p-6 sm:p-8"
           style={{ borderColor: "var(--border)", background: "var(--bg-soft)" }}
         >
@@ -166,7 +177,10 @@ export default function ProjectsPanel({
 
         {/* ---------------- GPT Plugin Privacy ---------------- */}
         <motion.article
-          variants={item}
+          variants={cardReveal}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.15 }}
           className="overflow-hidden rounded-[1.75rem] border p-6 sm:p-8"
           style={{ borderColor: "var(--border)", background: "var(--surface)" }}
         >
