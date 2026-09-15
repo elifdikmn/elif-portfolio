@@ -1,8 +1,9 @@
 "use client";
 
 import { motion, easeOut, type Variants } from "framer-motion";
-import { ArrowLeft, Download, GraduationCap, MapPin } from "lucide-react";
+import { ArrowLeft, GraduationCap, MapPin } from "lucide-react";
 import SkillGroups from "@/components/SkillGroups";
+import { WavyHoverText } from "@/components/ui";
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -103,11 +104,11 @@ export default function AboutPanel({ onBack }: { onBack: () => void }) {
           href="/ElifCV.pdf"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-          style={{ background: "var(--accent)" }}
+          className="group inline-flex items-center gap-3"
+          style={{ color: "var(--text)" }}
         >
-          <Download className="h-4 w-4" />
-          Download resume
+          <span style={{ color: "var(--accent)" }}>→</span>
+          <WavyHoverText text="download resume" className="link-underline" />
         </motion.a>
 
         <motion.div variants={item} className="mt-12">

@@ -135,10 +135,6 @@ export default function Page() {
     setOverlayView("projects");
     setMenuOpen(true);
   };
-  const openContactOverlay = () => {
-    setOverlayView("contact");
-    setMenuOpen(true);
-  };
 
   return (
     <div id="home">
@@ -257,7 +253,6 @@ export default function Page() {
           <HomeHighlights onOpenAbout={openAboutOverlay} onOpenProjects={openProjectsOverlay} />
           <HomeSkillsPreview />
           <HomeContact email={EMAIL} github={GITHUB_URL} linkedin={LINKEDIN_URL} />
-          <HomeClosingCta onOpenAbout={openAboutOverlay} onOpenProjects={openProjectsOverlay} onOpenContact={openContactOverlay} />
         </motion.div>
 
         <OverlayMenu
@@ -532,73 +527,6 @@ function HomeHighlights({
   );
 }
 
-/* ---------------- Home closing CTA ---------------- */
-function HomeClosingCta({
-  onOpenAbout,
-  onOpenProjects,
-  onOpenContact,
-}: {
-  onOpenAbout: () => void;
-  onOpenProjects: () => void;
-  onOpenContact: () => void;
-}) {
-  return (
-    <section aria-label="Get in touch" className="relative z-20 mx-auto max-w-screen-md px-4 py-20 text-center sm:px-6 sm:py-24">
-      <motion.h2
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.4 }}
-        transition={{ duration: 0.55, ease: easeOut }}
-        className="font-hero mb-4 text-[clamp(26px,4vw,36px)] font-semibold tracking-tight"
-      >
-        Want the full story?
-      </motion.h2>
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.4 }}
-        transition={{ duration: 0.55, delay: 0.1, ease: easeOut }}
-        className="mx-auto mb-9 max-w-[56ch] text-base leading-relaxed"
-        style={{ color: "var(--text-soft)" }}
-      >
-        From my Computer Science degree, to Bologna, to Georgia Tech — here&apos;s how it all connects. Or
-        skip ahead to see what I&apos;ve actually built.
-      </motion.p>
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.4 }}
-        transition={{ duration: 0.55, delay: 0.2, ease: easeOut }}
-        className="flex flex-wrap items-center justify-center gap-4"
-      >
-        <button
-          type="button"
-          onClick={onOpenAbout}
-          className="rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-          style={{ background: "var(--accent)" }}
-        >
-          Read my About page
-        </button>
-        <button
-          type="button"
-          onClick={onOpenProjects}
-          className="rounded-full border px-6 py-3 text-sm font-semibold transition hover:border-[var(--accent)]"
-          style={{ borderColor: "var(--border)", color: "var(--text)" }}
-        >
-          View my projects
-        </button>
-        <button
-          type="button"
-          onClick={onOpenContact}
-          className="rounded-full border px-6 py-3 text-sm font-semibold transition hover:border-[var(--accent)]"
-          style={{ borderColor: "var(--border)", color: "var(--text)" }}
-        >
-          Get in touch
-        </button>
-      </motion.div>
-    </section>
-  );
-}
 
 /* ---------------- Overlay + Panels ---------------- */
 function OverlayMenu({

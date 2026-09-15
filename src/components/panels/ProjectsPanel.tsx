@@ -41,6 +41,18 @@ function SubLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
+function GroupHeading({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <motion.div variants={item} className="mb-2 mt-4 first:mt-0">
+      <h3 className="font-hero text-2xl font-semibold italic tracking-tight sm:text-3xl">{title}</h3>
+      <p className="mt-2 max-w-[60ch] text-sm" style={{ color: "var(--text-faint)" }}>
+        {subtitle}
+      </p>
+      <div className="mt-4 h-px w-full" style={{ background: "var(--border)" }} />
+    </motion.div>
+  );
+}
+
 type FlowStep = { label: string; detail: string };
 type Chart = { src: string; alt: string; caption: string };
 
@@ -300,6 +312,11 @@ export default function ProjectsPanel({
       <motion.div variants={item} className="mb-10 mt-3 h-[3px] w-24 rounded-full" style={{ background: "var(--accent)" }} />
 
       <div className="flex flex-col gap-8">
+        <GroupHeading
+          title="Personal projects"
+          subtitle="Built on my own time — from a first idea to a working system, end to end."
+        />
+
         {/* ---------------- Football Match Prediction ---------------- */}
         <ProjectDeepDive
           index="01"
@@ -362,43 +379,141 @@ export default function ProjectsPanel({
           </a>
         </ProjectDeepDive>
 
-        {/* ---------------- MNQ Tick Data ---------------- */}
+        {/* ---------------- SQL Job Market Analysis ---------------- */}
         <ProjectDeepDive
           index="02"
-          tag="Quantitative finance · Time series"
-          title="MNQ & MES Tick Data Statistical Analysis"
-          description="A statistical breakdown of intraday futures market structure, built from tick-level data — how much price rotates each session, when volume spikes, whether one session's direction predicts the next, and how the Initial Balance range classifies a day's volatility regime."
-          highlight="NY Opening Hour rotations run 58–78% larger than the rest of the session, on both instruments"
-          problem="Most 'what usually happens during the trading day' advice is anecdotal. This project quantifies actual intraday futures market structure straight from tick data — rotation size by session, volume timing, cross-session directional edge, and volatility regime — for MNQ (Jun 23–Sep 7, 2025, 56 days) and MES (Aug 11–Sep 7, 2025, ~20 days)."
+          tag="SQL · Job market analytics"
+          title="Data Analyst Job Market Analysis"
+          description="A SQL-only deep dive into 2023 remote Data Analyst job postings — no pandas, no notebooks, just CTEs, multi-table joins, and GROUP BY aggregations run directly in PostgreSQL."
+          highlight="$184K–$256K top-10 salary range · SQL required in 8 of the 10 highest-paying postings"
+          problem="Everyone has an opinion about which skills you 'need' for a data job. This project set out to answer that with real 2023 job-posting data instead of anecdotes — which roles pay the most, which skills actually show up in those roles, and where demand and pay genuinely overlap."
           approach={[
-            "Resampled tick-level OHLCV into 1-min, 30-min, and 5-second bars per instrument (75,218 1-min bars / 881,393 5-second bars for MNQ alone).",
-            "Measured harmonic rotations (confirmed swing high-to-low moves) and 1-minute fractal pivots per session — Asia / London / NY, full session vs. opening hour — computing mean, median, P75, and P90.",
-            "Classified each day's Initial Balance (first 60 min after NYSE open) as Compressed / Normal / Expanded using ±1 standard deviation cutoffs, and tracked VPOC (Volume Point of Control) crossings per day type.",
-            "Computed conditional probabilities (e.g. P(NY up | London up)) and Pearson correlations for both returns and volatility across every session pair.",
+            "Queried a 2023 job-postings dataset directly in PostgreSQL — no pandas, no notebooks, just SQL end to end.",
+            "Used CTEs, multi-table joins, and GROUP BY aggregations to isolate remote Data Analyst roles with disclosed salaries.",
+            "Cross-referenced skill frequency against average salary to separate “in-demand” from “high-paying” — they turned out not to be the same list.",
           ]}
           flow={[
-            { label: "Data Collection", detail: "Tick-level OHLCV for MNQ & MES, resampled to 1-min/30-min/5s" },
-            { label: "Rotation Analysis", detail: "Harmonic swings + 1-min fractal pivots, per session" },
-            { label: "IB & VPOC Regime", detail: "Compressed/Normal/Expanded via ±1σ on Initial Balance range" },
-            { label: "Cross-Session Stats", detail: "Conditional probabilities + return/volatility correlations" },
-            { label: "Interactive Dashboard", detail: "Chart.js app for exploring every finding by session" },
+            { label: "Job Postings DB", detail: "2023 remote Data Analyst postings loaded into PostgreSQL" },
+            { label: "SQL Analysis", detail: "CTEs, multi-table joins, GROUP BY aggregations" },
+            { label: "Two Rankings", detail: "Skill demand (frequency) vs. skill pay (avg. salary)" },
+            { label: "Insights", detail: "Where high demand and high pay actually overlap" },
           ]}
-          tools={["Python", "pandas", "NumPy", "Tick-level OHLCV data", "Chart.js", "Correlation & conditional-probability analysis"]}
+          tools={["SQL", "PostgreSQL", "VS Code", "Git / GitHub"]}
           results={[
-            "NY Opening Hour rotations are the standout edge on both instruments: MNQ median 24.5 pts (78% larger than the full NY session's 13.75 pts); MES median 4.75 pts (58% larger than 3.00 pts).",
-            "80.4% of MNQ days classify as Normal Initial Balance (55–207 pt range, ~29 VPOC crosses/day) — the dominant regime, vs. only 5.4% Compressed and 14.3% Expanded.",
-            "Return correlations between sessions sit near zero (0.01–0.09) — one session's direction barely predicts the next. Volatility correlations are the real signal: Asia→London r=0.51, London→NY r=0.47 for MNQ.",
-            "09:30 (NYSE open) volume is ~40× the overnight baseline for MNQ and ~23× for MES — by a wide margin the single highest-liquidity minute of the day.",
+            "Top 10 highest-paying remote Data Analyst postings ranged from $184K to $255,830.",
+            "SQL was the most-requested skill among those top-paying postings, appearing in 8 of 10; Python and Tableau followed closely.",
+            "By overall demand, SQL, Excel, Python, Tableau, and Power BI led — but the highest average salaries went to less common tools like PySpark ($208K), Bitbucket ($189K), and Couchbase ($160.5K), pointing toward cloud and engineering-adjacent skills as the real premium.",
           ]}
-          charts={[]}
-          dashboardUrl="/projects/mnq/pareto-stat-dashboard.html"
-          dashboardAddress="pareto-stat.local/mnq-mes"
+          charts={[
+            {
+              src: "/projects/sql-job-market/top_paying_roles.png",
+              alt: "Bar chart of average salary for the top 10 highest-paying remote Data Analyst postings",
+              caption: "Top 10 highest-paying remote Data Analyst postings, by average yearly salary.",
+            },
+            {
+              src: "/projects/sql-job-market/top_skills_demand.png",
+              alt: "Bar chart of the most frequently requested skills among those top-paying postings",
+              caption: "Most-requested skills among the top 10 highest-paying postings — SQL leads at 8 of 10.",
+            },
+          ]}
+          githubUrl="https://github.com/elifdikmn/SQL_Analyze_Job"
           background="var(--bg-soft)"
+        />
+
+        {/* ---------------- Online Appointment System ---------------- */}
+        <ProjectDeepDive
+          index="03"
+          tag="Software engineering · Mobile app"
+          title="Online Appointment System"
+          description="A mobile scheduling platform that lets university students book face-to-face meetings with professors — replacing email back-and-forth with real-time availability, instant-meeting requests, and calendar-based scheduling."
+          highlight="A 5-person team project: full requirements analysis and UML design before a single screen was built"
+          problem="Students trying to reach professors were stuck emailing back and forth with no visibility into real availability, and professors risked double-booked or missed meetings. This project set out to replace that with a structured, real-time scheduling system, built the way a software engineering course expects: requirements first, architecture second, code third."
+          approach={[
+            "Ran a full requirements-analysis pass first — domain background, competing-software review, functional/non-functional requirements, and a prioritized use-case list — before writing any UI.",
+            "Modeled the system in UML ahead of implementation: a class diagram, a state diagram, an activity diagram, and sequence diagrams for login, scheduling, viewing, and cancelling an appointment.",
+            "Designed a relational schema (Student, Professor, Appointment, AppointmentCalendar, InstantMeeting, Notification) and a UML package/component breakdown separating User Management, Appointment Management, Notifications, and Database Access.",
+            "Built the client in Flutter for cross-platform delivery, backed by a PHP + MySQL API, with a 'Currently Available' toggle professors can flip for instant, non-scheduled meetings.",
+          ]}
+          flow={[
+            { label: "Requirements Analysis", detail: "Domain background, competing software, use-case priority list" },
+            { label: "UML Design", detail: "Class, state, activity & sequence diagrams before any code" },
+            { label: "Database Schema", detail: "Student/Professor/Appointment/Notification relational model" },
+            { label: "Flutter Client", detail: "Cross-platform UI: login, calendar, instant meetings" },
+            { label: "PHP + MySQL Backend", detail: "Scheduling, notifications, availability API" },
+          ]}
+          tools={["Flutter", "Dart", "PHP", "MySQL", "UML", "Figma", "Draw.io"]}
+          results={[
+            "Delivered a full requirements-to-architecture pipeline before implementation: domain analysis, a prioritized use-case list, and four UML diagram types (class, state, activity, sequence).",
+            "Designed a 6-entity relational schema (User/Student/Professor, Appointment, AppointmentCalendar, InstantMeeting, Notification) enforcing one-to-many appointment ownership per professor.",
+            "The non-functional spec targets institutional scale: login within 30 seconds, up to 40,000 concurrent users, and 24/7 availability with 3 years of activity-log retention.",
+          ]}
+          charts={[
+            {
+              src: "/projects/online-appointment/app-flow-mockup.png",
+              alt: "Figma mockup of the full appointment booking flow, from login to confirming an appointment",
+              caption: "Full booking flow mockup — login → professor list → schedule → confirm.",
+            },
+            {
+              src: "/projects/online-appointment/er_diagram.png",
+              alt: "Entity-relationship diagram for the appointment system's database",
+              caption: "Entity-relationship diagram — Student/Professor, Appointment, Notification, Instant Meeting.",
+            },
+          ]}
+          moreCharts={[
+            {
+              src: "/projects/online-appointment/class_diagram.png",
+              alt: "UML class diagram for the appointment system",
+              caption: "UML class diagram — User, Student, Professor, Appointment, Notification, Appointment Calendar.",
+            },
+          ]}
+          githubUrl="https://github.com/elifdikmn/Online-Appointment-System"
+        />
+
+        {/* ---------------- Database Management System ---------------- */}
+        <ProjectDeepDive
+          index="04"
+          tag="SQL · Database design"
+          title="University Exam & Weekly Plan Management System"
+          description="A relational database and PHP web app modeling a university's academic structure — faculties, departments, staff, courses, and exams — with role-based dashboards for Assistants, Secretaries, Department Heads, and Deans."
+          highlight="Personally built the entire PHP interface layer — every role's dashboard, login, and exam/course logic"
+          problem="Exam scheduling and assistant-workload tracking at a university is normally scattered across spreadsheets and email — there's no single place to see the exam calendar, who's assigned to what, or how workload is distributed across assistants. This project set out to model that as a properly normalized relational database with a real web front end on top."
+          approach={[
+            "Designed a 6-table normalized schema (faculty, department, employee, courses, exam, weeklyplan) with foreign-key relationships enforcing referential integrity across the academic hierarchy.",
+            "Modeled every staff role — Instructor, Assistant, Secretary, Head of Department — as a single employee table distinguished by an ENUM title field, instead of separate tables per role.",
+            "Wrote role-specific SQL: JOIN-heavy queries for the department head's exam schedule and assistant-workload report (COUNT + GROUP BY), gated by session-based per-role authentication.",
+            "Built and owned the full PHP interface layer: login/session handling, the assistant dashboard (view and self-assign courses, view weekly plan), and the head-of-department dashboard (full exam schedule + workload report).",
+          ]}
+          flow={[
+            { label: "Schema Design", detail: "6 tables, foreign keys across faculty/department/employee/courses/exam" },
+            { label: "ER Modeling", detail: "Entity-relationship diagram for the full academic hierarchy" },
+            { label: "Role-Based Auth", detail: "Session-gated PHP pages per employee title" },
+            { label: "SQL Reporting", detail: "JOINs + GROUP BY for exam schedules & workload scoring" },
+          ]}
+          tools={["MySQL", "PHP", "SQL", "Session-based auth"]}
+          results={[
+            "Normalized the university's academic structure into 6 relational tables (faculty, department, employee, courses, exam, weeklyplan), every relationship enforced via foreign keys.",
+            "Personally implemented the PHP interface layer for every role — Assistant, Secretary, Head of Department — including login, course self-assignment, and multi-table JOIN reports.",
+            "Built a workload-scoring report (a SQL COUNT of weekly-plan records per assistant, grouped by assistant) giving department heads direct visibility into assignment balance.",
+          ]}
+          charts={[
+            {
+              src: "/projects/database-management/er_diagram.png",
+              alt: "Entity-relationship diagram for the university exam and weekly plan management database",
+              caption: "Entity-relationship diagram — faculty, department, employee, courses, exam, weeklyplan.",
+            },
+          ]}
+          githubUrl="https://github.com/elifdikmn/Database-Management-Systems"
+          background="var(--bg-soft)"
+        />
+
+        <GroupHeading
+          title="Experience"
+          subtitle="Built during internships, on real production data and real team codebases."
         />
 
         {/* ---------------- GPT Plugin Privacy ---------------- */}
         <ProjectDeepDive
-          index="03"
+          index="05"
           tag="Data privacy · NLP · RAG"
           title="GPT Plugin Privacy Risk Analysis & RAG Assistant"
           description="What do GPT plugins actually collect — and would you ever find out from reading their privacy policy? A statistics + ML analysis of 12,811 real plugin parameters, turned into a Retrieval-Augmented Generation chatbot you can question yourself."
@@ -447,44 +562,37 @@ export default function ProjectsPanel({
           </button>
         </ProjectDeepDive>
 
-        {/* ---------------- SQL Job Market Analysis ---------------- */}
+        {/* ---------------- MNQ Tick Data ---------------- */}
         <ProjectDeepDive
-          index="04"
-          tag="SQL · Job market analytics"
-          title="Data Analyst Job Market Analysis"
-          description="A SQL-only deep dive into 2023 remote Data Analyst job postings — no pandas, no notebooks, just CTEs, multi-table joins, and GROUP BY aggregations run directly in PostgreSQL."
-          highlight="$184K–$256K top-10 salary range · SQL required in 8 of the 10 highest-paying postings"
-          problem="Everyone has an opinion about which skills you 'need' for a data job. This project set out to answer that with real 2023 job-posting data instead of anecdotes — which roles pay the most, which skills actually show up in those roles, and where demand and pay genuinely overlap."
+          index="06"
+          tag="Quantitative finance · Time series"
+          title="MNQ & MES Tick Data Statistical Analysis"
+          description="A statistical breakdown of intraday futures market structure, built from tick-level data — how much price rotates each session, when volume spikes, whether one session's direction predicts the next, and how the Initial Balance range classifies a day's volatility regime."
+          highlight="NY Opening Hour rotations run 58–78% larger than the rest of the session, on both instruments"
+          problem="Most 'what usually happens during the trading day' advice is anecdotal. This project quantifies actual intraday futures market structure straight from tick data — rotation size by session, volume timing, cross-session directional edge, and volatility regime — for MNQ (Jun 23–Sep 7, 2025, 56 days) and MES (Aug 11–Sep 7, 2025, ~20 days)."
           approach={[
-            "Queried a 2023 job-postings dataset directly in PostgreSQL — no pandas, no notebooks, just SQL end to end.",
-            "Used CTEs, multi-table joins, and GROUP BY aggregations to isolate remote Data Analyst roles with disclosed salaries.",
-            "Cross-referenced skill frequency against average salary to separate “in-demand” from “high-paying” — they turned out not to be the same list.",
+            "Resampled tick-level OHLCV into 1-min, 30-min, and 5-second bars per instrument (75,218 1-min bars / 881,393 5-second bars for MNQ alone).",
+            "Measured harmonic rotations (confirmed swing high-to-low moves) and 1-minute fractal pivots per session — Asia / London / NY, full session vs. opening hour — computing mean, median, P75, and P90.",
+            "Classified each day's Initial Balance (first 60 min after NYSE open) as Compressed / Normal / Expanded using ±1 standard deviation cutoffs, and tracked VPOC (Volume Point of Control) crossings per day type.",
+            "Computed conditional probabilities (e.g. P(NY up | London up)) and Pearson correlations for both returns and volatility across every session pair.",
           ]}
           flow={[
-            { label: "Job Postings DB", detail: "2023 remote Data Analyst postings loaded into PostgreSQL" },
-            { label: "SQL Analysis", detail: "CTEs, multi-table joins, GROUP BY aggregations" },
-            { label: "Two Rankings", detail: "Skill demand (frequency) vs. skill pay (avg. salary)" },
-            { label: "Insights", detail: "Where high demand and high pay actually overlap" },
+            { label: "Data Collection", detail: "Tick-level OHLCV for MNQ & MES, resampled to 1-min/30-min/5s" },
+            { label: "Rotation Analysis", detail: "Harmonic swings + 1-min fractal pivots, per session" },
+            { label: "IB & VPOC Regime", detail: "Compressed/Normal/Expanded via ±1σ on Initial Balance range" },
+            { label: "Cross-Session Stats", detail: "Conditional probabilities + return/volatility correlations" },
+            { label: "Interactive Dashboard", detail: "Chart.js app for exploring every finding by session" },
           ]}
-          tools={["SQL", "PostgreSQL", "VS Code", "Git / GitHub"]}
+          tools={["Python", "pandas", "NumPy", "Tick-level OHLCV data", "Chart.js", "Correlation & conditional-probability analysis"]}
           results={[
-            "Top 10 highest-paying remote Data Analyst postings ranged from $184K to $255,830.",
-            "SQL was the most-requested skill among those top-paying postings, appearing in 8 of 10; Python and Tableau followed closely.",
-            "By overall demand, SQL, Excel, Python, Tableau, and Power BI led — but the highest average salaries went to less common tools like PySpark ($208K), Bitbucket ($189K), and Couchbase ($160.5K), pointing toward cloud and engineering-adjacent skills as the real premium.",
+            "NY Opening Hour rotations are the standout edge on both instruments: MNQ median 24.5 pts (78% larger than the full NY session's 13.75 pts); MES median 4.75 pts (58% larger than 3.00 pts).",
+            "80.4% of MNQ days classify as Normal Initial Balance (55–207 pt range, ~29 VPOC crosses/day) — the dominant regime, vs. only 5.4% Compressed and 14.3% Expanded.",
+            "Return correlations between sessions sit near zero (0.01–0.09) — one session's direction barely predicts the next. Volatility correlations are the real signal: Asia→London r=0.51, London→NY r=0.47 for MNQ.",
+            "09:30 (NYSE open) volume is ~40× the overnight baseline for MNQ and ~23× for MES — by a wide margin the single highest-liquidity minute of the day.",
           ]}
-          charts={[
-            {
-              src: "/projects/sql-job-market/top_paying_roles.png",
-              alt: "Bar chart of average salary for the top 10 highest-paying remote Data Analyst postings",
-              caption: "Top 10 highest-paying remote Data Analyst postings, by average yearly salary.",
-            },
-            {
-              src: "/projects/sql-job-market/top_skills_demand.png",
-              alt: "Bar chart of the most frequently requested skills among those top-paying postings",
-              caption: "Most-requested skills among the top 10 highest-paying postings — SQL leads at 8 of 10.",
-            },
-          ]}
-          githubUrl="https://github.com/elifdikmn/SQL_Analyze_Job"
+          charts={[]}
+          dashboardUrl="/projects/mnq/pareto-stat-dashboard.html"
+          dashboardAddress="pareto-stat.local/mnq-mes"
           background="var(--bg-soft)"
         />
       </div>
