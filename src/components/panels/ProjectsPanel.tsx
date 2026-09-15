@@ -2,6 +2,7 @@
 
 import { motion, type Variants, easeOut } from "framer-motion";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Github } from "lucide-react";
+import ComputerMockup from "@/components/ComputerMockup";
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -56,6 +57,7 @@ function ProjectDeepDive({
   results,
   charts,
   dashboardUrl,
+  dashboardAddress,
   githubUrl,
   background = "var(--surface)",
   children,
@@ -72,6 +74,7 @@ function ProjectDeepDive({
   results: string[];
   charts: Chart[];
   dashboardUrl?: string;
+  dashboardAddress?: string;
   githubUrl?: string;
   background?: string;
   children?: React.ReactNode;
@@ -199,23 +202,15 @@ function ProjectDeepDive({
       {dashboardUrl && (
         <div className="relative mt-10">
           <SubLabel>Plots</SubLabel>
-          <div className="overflow-hidden rounded-xl border" style={{ borderColor: "var(--border)" }}>
-            <iframe
-              src={dashboardUrl}
-              title={`${title} — interactive dashboard`}
-              className="block w-full border-0"
-              style={{ height: 640 }}
-              loading="lazy"
-            />
-          </div>
-          <p className="mt-2 text-xs" style={{ color: "var(--text-faint)" }}>
-            Live embed of the actual dashboard — click through its own nav to explore other sections.
+          <ComputerMockup src={dashboardUrl} title={`${title} — interactive dashboard`} addressLabel={dashboardAddress ?? dashboardUrl} />
+          <p className="mt-3 text-center text-xs" style={{ color: "var(--text-faint)" }}>
+            Live prototype of the actual dashboard, running right here — click through its own nav to explore other sections.
           </p>
         </div>
       )}
 
-      <div className="relative mt-10 flex flex-wrap items-center gap-3">
-        {githubUrl && (
+      {githubUrl && (
+        <div className="relative mt-10 flex flex-wrap items-center gap-3">
           <a
             href={githubUrl}
             target="_blank"
@@ -225,24 +220,10 @@ function ProjectDeepDive({
           >
             <Github className="h-4 w-4" /> View on GitHub <ArrowUpRight className="h-4 w-4" />
           </a>
-        )}
-        {dashboardUrl && (
-          <a
-            href={dashboardUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={
-              githubUrl
-                ? "inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold transition hover:opacity-70"
-                : "inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-            }
-            style={githubUrl ? { borderColor: "var(--border)", color: "var(--accent-strong)" } : { background: "var(--accent)" }}
-          >
-            Open full interactive dashboard <ArrowUpRight className="h-4 w-4" />
-          </a>
-        )}
-        {children}
-      </div>
+          {children}
+        </div>
+      )}
+      {!githubUrl && children && <div className="relative mt-10 flex flex-wrap items-center gap-3">{children}</div>}
     </motion.article>
   );
 }
@@ -350,6 +331,7 @@ export default function ProjectsPanel({
           ]}
           charts={[]}
           dashboardUrl="/projects/mnq/pareto-stat-dashboard.html"
+          dashboardAddress="pareto-stat.local/mnq-mes"
           background="var(--bg-soft)"
         />
 
