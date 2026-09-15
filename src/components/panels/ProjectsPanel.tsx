@@ -345,21 +345,6 @@ export default function ProjectsPanel({
               alt: "Feature importance ranking for the live in-play match prediction model",
               caption: "Live-match model feature importance — half-time result code and score dominate.",
             },
-            {
-              src: "/projects/football/system_architecture.png",
-              alt: "System architecture pipeline diagram, from web scraping to prediction",
-              caption: "End-to-end pipeline: web scraping → data collection → preprocessing → feature engineering → ML → prediction.",
-            },
-            {
-              src: "/projects/football/random_forest_illustration.png",
-              alt: "Illustration of how a Random Forest classifier aggregates multiple decision trees",
-              caption: "Random Forest — the model selected for 6 of 8 leagues.",
-            },
-            {
-              src: "/projects/football/logistic_regression_sigmoid.png",
-              alt: "Sigmoid function curve used in logistic regression",
-              caption: "The sigmoid function — Logistic Regression, selected for the EPL and Turkish Süper Lig.",
-            },
           ]}
           appDemo={<FootballAppPhone />}
           githubUrl="https://github.com/elifdikmn/FootballMatchPrediction"
