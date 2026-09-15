@@ -141,7 +141,7 @@ function ProjectDeepDive({
         <SubLabel>How it works</SubLabel>
         <div className="flex flex-wrap items-stretch gap-3">
           {flow.map((step, i) => (
-            <div key={step.label} className="flex items-center gap-3">
+            <div key={step.label} className="flex items-stretch gap-3">
               <div
                 className="w-[180px] rounded-2xl border p-4"
                 style={{ borderColor: "var(--border)", background: "var(--bg-soft)" }}
@@ -155,7 +155,7 @@ function ProjectDeepDive({
                 </p>
               </div>
               {i < flow.length - 1 && (
-                <ArrowRight className="hidden h-4 w-4 shrink-0 sm:block" style={{ color: "var(--text-faint)" }} />
+                <ArrowRight className="hidden h-4 w-4 shrink-0 self-center sm:block" style={{ color: "var(--text-faint)" }} />
               )}
             </div>
           ))}
