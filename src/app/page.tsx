@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, AnimatePresence, easeOut, easeInOut } from "framer-motion";
 import { Mail, Github, Linkedin } from "lucide-react";
 import { SquareMenuButton, Typewriter, WavyHoverText } from "@/components/ui";
@@ -99,6 +99,13 @@ export default function Page() {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {
@@ -618,6 +625,11 @@ function OverlayMenu({
     return () => el.classList.remove("overflow-hidden");
   }, [open]);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (open) scrollRef.current?.scrollTo({ top: 0 });
+  }, [open, view]);
+
   const containerClass =
     view === "list"
       ? "relative z-[66] mx-auto w-full max-w-6xl px-4 sm:px-6 pt-[clamp(10vh,12vh,16vh)]"
@@ -627,6 +639,7 @@ function OverlayMenu({
     <AnimatePresence>
       {open && (
         <motion.div
+          ref={scrollRef}
           className="fixed inset-0 z-[65] flex overflow-y-auto overflow-x-hidden backdrop-blur-sm"
           style={{ background: "color-mix(in srgb, var(--bg) 92%, transparent)" }}
           initial={{ opacity: 0 }}
