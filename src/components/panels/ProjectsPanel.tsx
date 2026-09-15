@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, type Variants, easeOut } from "framer-motion";
 import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, ChevronUp, Github } from "lucide-react";
 import ComputerMockup from "@/components/ComputerMockup";
@@ -58,6 +58,7 @@ type Chart = { src: string; alt: string; caption: string };
 
 /* ---------------- Full project deep-dive ---------------- */
 function ProjectDeepDive({
+  id,
   index,
   tag,
   title,
@@ -77,6 +78,7 @@ function ProjectDeepDive({
   background = "var(--surface)",
   children,
 }: {
+  id?: string;
   index: string;
   tag: string;
   title: string;
@@ -99,11 +101,12 @@ function ProjectDeepDive({
   const [showMore, setShowMore] = useState(false);
   return (
     <motion.article
+      id={id}
       variants={cardReveal}
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.1 }}
-      className="relative overflow-hidden rounded-[1.75rem] border p-6 sm:p-8 md:p-10"
+      className="relative overflow-hidden rounded-[1.75rem] border p-6 sm:p-8 md:p-10 scroll-mt-24"
       style={{ borderColor: "var(--border)", background }}
     >
       <span
@@ -284,12 +287,22 @@ export default function ProjectsPanel({
   onOpenGptCaseStudy,
   onOpenFootballCaseStudy,
   onOpenOnlineAppointmentCaseStudy,
+  scrollToId,
 }: {
   onBack: () => void;
   onOpenGptCaseStudy: () => void;
   onOpenFootballCaseStudy: () => void;
   onOpenOnlineAppointmentCaseStudy: () => void;
+  scrollToId?: string | null;
 }) {
+  useEffect(() => {
+    if (!scrollToId) return;
+    const t = setTimeout(() => {
+      document.getElementById(scrollToId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 350);
+    return () => clearTimeout(t);
+  }, [scrollToId]);
+
   return (
     <motion.div
       variants={container}
@@ -321,6 +334,7 @@ export default function ProjectsPanel({
 
         {/* ---------------- GPT Plugin Privacy ---------------- */}
         <ProjectDeepDive
+          id="gpt-privacy"
           index="01"
           tag="Data privacy · NLP · RAG"
           title="GPT Plugin Privacy Risk Analysis & RAG Assistant"
@@ -372,6 +386,7 @@ export default function ProjectsPanel({
 
         {/* ---------------- MNQ Tick Data ---------------- */}
         <ProjectDeepDive
+          id="mnq"
           index="02"
           tag="Quantitative finance · Time series"
           title="MNQ & MES Tick Data Statistical Analysis"
@@ -411,6 +426,7 @@ export default function ProjectsPanel({
 
         {/* ---------------- Football Match Prediction ---------------- */}
         <ProjectDeepDive
+          id="football"
           index="03"
           tag="Sports analytics · Classical ML"
           title="Football Match Prediction"
@@ -473,6 +489,7 @@ export default function ProjectsPanel({
 
         {/* ---------------- SQL Job Market Analysis ---------------- */}
         <ProjectDeepDive
+          id="sql-job-market"
           index="04"
           tag="SQL · Job market analytics"
           title="Data Analyst Job Market Analysis"
@@ -514,6 +531,7 @@ export default function ProjectsPanel({
 
         {/* ---------------- Online Appointment System ---------------- */}
         <ProjectDeepDive
+          id="online-appointment"
           index="05"
           tag="Software engineering · Mobile app"
           title="Online Appointment System"
@@ -565,6 +583,7 @@ export default function ProjectsPanel({
 
         {/* ---------------- Database Management System ---------------- */}
         <ProjectDeepDive
+          id="database-management"
           index="06"
           tag="SQL · Database design"
           title="University Exam & Weekly Plan Management System"

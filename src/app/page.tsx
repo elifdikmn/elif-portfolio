@@ -79,6 +79,7 @@ export default function Page() {
   const [hoveringButton, setHoveringButton] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [overlayView, setOverlayView] = useState<View>("list");
+  const [projectScrollTarget, setProjectScrollTarget] = useState<string | null>(null);
 
   const prefersReducedMotion = useReducedMotion();
   const [windowSize, setWindowSize] = useState({ w: 0, h: 0 });
@@ -139,7 +140,8 @@ export default function Page() {
     setOverlayView("about");
     setMenuOpen(true);
   };
-  const openProjectsOverlay = () => {
+  const openProjectsOverlay = (projectId?: string) => {
+    setProjectScrollTarget(projectId ?? null);
     setOverlayView("projects");
     setMenuOpen(true);
   };
@@ -233,7 +235,7 @@ export default function Page() {
             <div className="mt-2 flex flex-wrap items-center justify-center font-hero gap-6 sm:gap-8 text-lg md:text-xl">
               <button
                 type="button"
-                onClick={openProjectsOverlay}
+                onClick={() => openProjectsOverlay()}
                 onMouseEnter={() => setHoveringButton(true)}
                 onMouseLeave={() => setHoveringButton(false)}
                 className="group inline-flex items-center gap-3 opacity-0 animate-[fadeInUp_0.6s_1.8s_forwards]"
@@ -258,7 +260,6 @@ export default function Page() {
           </section>
 
           <HomeProjectsPreview onOpenProjects={openProjectsOverlay} />
-          <HomeHighlights onOpenAbout={openAboutOverlay} onOpenProjects={openProjectsOverlay} />
           <HomeSkillsPreview />
           <HomeContact email={EMAIL} github={GITHUB_URL} linkedin={LINKEDIN_URL} />
         </motion.div>
@@ -271,6 +272,7 @@ export default function Page() {
           email={EMAIL}
           github={GITHUB_URL}
           linkedin={LINKEDIN_URL}
+          scrollToProjectId={projectScrollTarget}
         />
 
         <style jsx global>{`
@@ -321,12 +323,12 @@ export default function Page() {
 }
 
 /* ---------------- Home projects preview ---------------- */
-function HomeProjectsPreview({ onOpenProjects }: { onOpenProjects: () => void }) {
+function HomeProjectsPreview({ onOpenProjects }: { onOpenProjects: (projectId?: string) => void }) {
   const previews = [
-    { tag: "Sports analytics", title: "Football Match Prediction", stat: "67.8% live-model accuracy" },
-    { tag: "Quantitative finance", title: "MNQ Tick Data Analysis", stat: "Write-up in progress" },
-    { tag: "Data privacy · RAG", title: "GPT Plugin Privacy Risk Analysis", stat: "12,811 records analyzed" },
-    { tag: "SQL · job market", title: "Data Analyst Job Market Analysis", stat: "$184K–$256K salary range" },
+    { id: "football", tag: "Sports analytics", title: "Football Match Prediction", stat: "67.8% live-model accuracy" },
+    { id: "mnq", tag: "Quantitative finance", title: "MNQ Tick Data Analysis", stat: "Write-up in progress" },
+    { id: "gpt-privacy", tag: "Data privacy · RAG", title: "GPT Plugin Privacy Risk Analysis", stat: "12,811 records analyzed" },
+    { id: "sql-job-market", tag: "SQL · job market", title: "Data Analyst Job Market Analysis", stat: "$184K–$256K salary range" },
   ];
 
   return (
@@ -345,7 +347,7 @@ function HomeProjectsPreview({ onOpenProjects }: { onOpenProjects: () => void })
           <motion.button
             key={p.title}
             type="button"
-            onClick={onOpenProjects}
+            onClick={() => onOpenProjects(p.id)}
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
@@ -366,7 +368,7 @@ function HomeProjectsPreview({ onOpenProjects }: { onOpenProjects: () => void })
 
       <button
         type="button"
-        onClick={onOpenProjects}
+        onClick={() => onOpenProjects()}
         className="mt-8 text-sm font-semibold transition hover:opacity-70"
         style={{ color: "var(--accent-strong)" }}
       >
@@ -376,7 +378,6 @@ function HomeProjectsPreview({ onOpenProjects }: { onOpenProjects: () => void })
   );
 }
 
-/* ---------------- Home highlights ---------------- */
 /* ---------------- Home skills preview ---------------- */
 function HomeSkillsPreview() {
   return (
@@ -412,10 +413,7 @@ function HomeContact({ email, github, linkedin }: { email: string; github: strin
         <p className="font-hero mb-2 text-lg italic" style={{ color: "var(--accent-strong)" }}>
           Say hello
         </p>
-        <h2 className="font-hero mb-3 text-[clamp(28px,4vw,40px)] font-semibold tracking-tight">Let&apos;s talk</h2>
-        <p className="mb-10 max-w-[60ch] text-base" style={{ color: "var(--text-soft)" }}>
-          Whether it&apos;s about a role, a project, or just data science things — my inbox is open.
-        </p>
+        <h2 className="font-hero mb-10 text-[clamp(28px,4vw,40px)] font-semibold tracking-tight">Let&apos;s talk</h2>
 
         <div className="grid gap-4 sm:grid-cols-3">
           {links.map(({ href, label, sub, Icon, external }, i) => (
@@ -453,89 +451,6 @@ function HomeContact({ email, github, linkedin }: { email: string; github: strin
   );
 }
 
-function HomeHighlights({
-  onOpenAbout,
-  onOpenProjects,
-}: {
-  onOpenAbout: () => void;
-  onOpenProjects: () => void;
-}) {
-  const cards = [
-    {
-      label: "Currently studying",
-      title: "OMSA @ Georgia Tech",
-      body: "An Online Master of Science in Analytics, specializing in Computational Data Analysis — going deeper into the statistics and machine learning behind every model I build.",
-      linkText: "More about my path →",
-      onClick: onOpenAbout,
-    },
-    {
-      label: "What I love",
-      title: "Machine Learning",
-      body: "The process of teaching a model to find the signal in the noise. It's the thread running through every project on this site.",
-      linkText: "See it in action →",
-      onClick: onOpenProjects,
-    },
-    {
-      label: "Recently completed",
-      title: "Research Internship — Università di Bologna",
-      body: "A research internship on data privacy that turned into the GPT Plugin Privacy project on this site — a full analysis pipeline plus a RAG chatbot to explore the results.",
-      linkText: "Read the full story →",
-      onClick: onOpenAbout,
-    },
-  ];
-
-  return (
-    <section
-      aria-label="Quick introduction"
-      className="relative z-20 border-y py-16 sm:py-20"
-      style={{ borderColor: "var(--border)", background: "var(--bg-soft)" }}
-    >
-      <div className="mx-auto max-w-screen-xl px-4 sm:px-6">
-        <p className="font-hero mb-2 text-lg italic" style={{ color: "var(--accent-strong)" }}>
-          Right now
-        </p>
-        <h2 className="font-hero mb-3 text-[clamp(28px,4vw,40px)] font-semibold tracking-tight">
-          A quick introduction
-        </h2>
-        <p className="mb-10 max-w-[60ch] text-base" style={{ color: "var(--text-soft)" }}>
-          Three things that sum up where I am and what I&apos;m chasing next.
-        </p>
-
-        <div className="grid gap-6 md:grid-cols-3">
-          {cards.map((card, i) => (
-            <motion.div
-              key={card.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.55, ease: easeOut, delay: i * 0.08 }}
-              className="rounded-[1.5rem] border p-6"
-              style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-            >
-              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-faint)" }}>
-                {card.label}
-              </p>
-              <h3 className="font-hero mt-2 text-xl font-semibold">{card.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
-                {card.body}
-              </p>
-              <button
-                type="button"
-                onClick={card.onClick}
-                className="mt-4 text-sm font-semibold transition hover:opacity-70"
-                style={{ color: "var(--accent-strong)" }}
-              >
-                {card.linkText}
-              </button>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-
 /* ---------------- Overlay + Panels ---------------- */
 function OverlayMenu({
   open,
@@ -545,6 +460,7 @@ function OverlayMenu({
   email,
   github,
   linkedin,
+  scrollToProjectId,
 }: {
   open: boolean;
   onClose: () => void;
@@ -553,6 +469,7 @@ function OverlayMenu({
   email: string;
   github: string;
   linkedin: string;
+  scrollToProjectId?: string | null;
 }) {
   useEffect(() => {
     const el = document.documentElement;
@@ -595,17 +512,18 @@ function OverlayMenu({
                   onClose={onClose}
                 />
               )}
-              {view === "about" && <AboutPanel key="about" onBack={() => setView("list")} />}
+              {view === "about" && <AboutPanel key="about" onBack={onClose} />}
               {view === "contact" && (
-                <ContactPanel key="contact" email={email} github={github} linkedin={linkedin} onBack={() => setView("list")} />
+                <ContactPanel key="contact" email={email} github={github} linkedin={linkedin} onBack={onClose} />
               )}
               {view === "projects" && (
                 <ProjectsPanel
                   key="projects"
-                  onBack={() => setView("list")}
+                  onBack={onClose}
                   onOpenGptCaseStudy={() => setView("project-gpt")}
                   onOpenFootballCaseStudy={() => setView("project-football")}
                   onOpenOnlineAppointmentCaseStudy={() => setView("project-online-appointment")}
+                  scrollToId={scrollToProjectId}
                 />
               )}
               {view === "project-gpt" && (
