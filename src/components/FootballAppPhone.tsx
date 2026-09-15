@@ -126,13 +126,6 @@ export default function FootballAppPhone() {
           />
         ))}
       </div>
-
-      <p className="max-w-sm text-center text-xs" style={{ color: "var(--text-faint)" }}>
-        Real screenshots from the actual iOS app — except &ldquo;Check Out Why,&rdquo; which was never captured
-        before submission, so it&apos;s recreated here from the model&apos;s real feature-importance data. Scroll
-        inside the screen to see the rest of it, and tap the visible buttons (Select Leagues, Detail, Check Out
-        Why, Back, Events/Standings) to navigate like in the real app.
-      </p>
     </div>
   );
 }
