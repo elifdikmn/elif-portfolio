@@ -12,6 +12,7 @@ import GptPrivacyCaseStudy from "@/components/panels/GptPrivacyCaseStudy";
 import FootballCaseStudy from "@/components/panels/FootballCaseStudy";
 import OnlineAppointmentCaseStudy from "@/components/panels/OnlineAppointmentCaseStudy";
 import SkillGroups from "@/components/SkillGroups";
+import ScrollToTopButton from "@/components/ScrollToTopButton";
 
 type View =
   | "list"
@@ -264,6 +265,8 @@ export default function Page() {
           <HomeContact email={EMAIL} github={GITHUB_URL} linkedin={LINKEDIN_URL} />
         </motion.div>
 
+        {!menuOpen && <ScrollToTopButton />}
+
         <OverlayMenu
           open={menuOpen}
           onClose={() => setMenuOpen(false)}
@@ -489,19 +492,20 @@ function OverlayMenu({
       : "relative z-[66] w-full max-w-none px-4 sm:px-8 md:px-16 pt-[clamp(8vh,10vh,14vh)]";
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          ref={scrollRef}
-          className="fixed inset-0 z-[65] flex overflow-y-auto overflow-x-hidden backdrop-blur-sm"
-          style={{ background: "color-mix(in srgb, var(--bg) 92%, transparent)" }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <motion.div className="absolute inset-0" onClick={view === "list" ? onClose : undefined} />
+    <>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            ref={scrollRef}
+            className="fixed inset-0 z-[65] flex overflow-y-auto overflow-x-hidden backdrop-blur-sm"
+            style={{ background: "color-mix(in srgb, var(--bg) 92%, transparent)" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div className="absolute inset-0" onClick={view === "list" ? onClose : undefined} />
 
-          <div className={containerClass}>
+            <div className={containerClass}>
             <AnimatePresence mode="wait">
               {view === "list" && (
                 <MenuList
@@ -561,9 +565,12 @@ function OverlayMenu({
               )}
             </AnimatePresence>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {open && view !== "list" && <ScrollToTopButton target={scrollRef} />}
+    </>
   );
 }
 
