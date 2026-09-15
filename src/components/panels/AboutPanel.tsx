@@ -2,7 +2,7 @@
 
 import { motion, easeOut, type Variants } from "framer-motion";
 import { ArrowLeft, Download, GraduationCap, MapPin } from "lucide-react";
-import { SKILL_GROUPS } from "@/lib/skills";
+import SkillGroups from "@/components/SkillGroups";
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -114,30 +114,13 @@ export default function AboutPanel({ onBack }: { onBack: () => void }) {
             Download resume
           </motion.a>
 
-          <motion.div variants={item} className="mt-12 max-w-[62ch]">
+          <motion.div variants={item} className="mt-12 max-w-[70ch]">
             <h3 className="font-hero text-xl font-semibold italic tracking-tight">Skills &amp; tools</h3>
             <p className="mt-1 text-sm" style={{ color: "var(--text-faint)" }}>
               What I&apos;ve actually used to ship the projects on this site — not an aspirational list.
             </p>
-            <div className="mt-5 flex flex-col gap-4">
-              {SKILL_GROUPS.map((group) => (
-                <div key={group.name}>
-                  <p className="mb-2 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--accent-strong)" }}>
-                    {group.name}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {group.items.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full border px-3 py-1 text-xs font-medium"
-                        style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text-soft)" }}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
+            <div className="mt-6">
+              <SkillGroups />
             </div>
           </motion.div>
         </motion.div>

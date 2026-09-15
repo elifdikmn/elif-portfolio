@@ -17,6 +17,9 @@
   --accent-soft: #f1ddd0;
   --accent-soft-2: #e9c9b8;
 
+  /* secondary accent — muted sage, used for skill-group headings */
+  --heading-alt: #5f6f4d;
+
   --background: var(--bg);
   --foreground: var(--text);
 }

@@ -20,22 +20,6 @@ const cardReveal: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: easeOut } },
 };
 
-function StatPill({ value, label }: { value: string; label: string }) {
-  return (
-    <div
-      className="rounded-2xl border px-4 py-3 text-center"
-      style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-    >
-      <p className="font-hero text-2xl font-semibold" style={{ color: "var(--accent-strong)" }}>
-        {value}
-      </p>
-      <p className="mt-0.5 text-[11px] uppercase tracking-wide" style={{ color: "var(--text-faint)" }}>
-        {label}
-      </p>
-    </div>
-  );
-}
-
 function SectionTag({ children }: { children: React.ReactNode }) {
   return (
     <span
@@ -73,6 +57,7 @@ function ProjectDeepDive({
   charts,
   githubUrl,
   background = "var(--surface)",
+  children,
 }: {
   index: string;
   tag: string;
@@ -87,6 +72,7 @@ function ProjectDeepDive({
   charts: Chart[];
   githubUrl: string;
   background?: string;
+  children?: React.ReactNode;
 }) {
   return (
     <motion.article
@@ -206,15 +192,18 @@ function ProjectDeepDive({
         </div>
       </div>
 
-      <a
-        href={githubUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="relative mt-10 inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-        style={{ background: "var(--accent)" }}
-      >
-        <Github className="h-4 w-4" /> View on GitHub <ArrowUpRight className="h-4 w-4" />
-      </a>
+      <div className="relative mt-10 flex flex-wrap items-center gap-3">
+        <a
+          href={githubUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+          style={{ background: "var(--accent)" }}
+        >
+          <Github className="h-4 w-4" /> View on GitHub <ArrowUpRight className="h-4 w-4" />
+        </a>
+        {children}
+      </div>
     </motion.article>
   );
 }
@@ -320,53 +309,55 @@ export default function ProjectsPanel({
         </motion.article>
 
         {/* ---------------- GPT Plugin Privacy ---------------- */}
-        <motion.article
-          variants={cardReveal}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.15 }}
-          className="overflow-hidden rounded-[1.75rem] border p-6 sm:p-8"
-          style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+        <ProjectDeepDive
+          index="03"
+          tag="Data privacy · NLP · RAG"
+          title="GPT Plugin Privacy Risk Analysis & RAG Assistant"
+          description="What do GPT plugins actually collect — and would you ever find out from reading their privacy policy? A statistics + ML analysis of 12,811 real plugin parameters, turned into a Retrieval-Augmented Generation chatbot you can question yourself."
+          highlight="90.3% of audited parameters were never disclosed in the plugin's own privacy policy"
+          problem="GPT plugins (Actions) can request almost anything from a user, but there's no standard way to see what a plugin actually collects in aggregate, or whether its privacy policy is honest about it. This project set out to quantify that gap across thousands of real plugins instead of a handful of manual reads."
+          approach={[
+            "Sourced 12,811 parameter-level records from 4,592 real GPT plugins (Wu et al. 2025, IMC '25), labeled across 25 data categories.",
+            "Defined 4 categories as 'sensitive' using a GDPR/HIPAA-style 'special category data' definition, then ran a chi-square test on whether plugins document sensitive parameters less often.",
+            "Trained two independent classifiers (TF-IDF+LogReg vs. spaCy embeddings+LogReg) to predict a parameter's category from its name alone, and K-Means clustered plugins by their category mix.",
+            "Built a RAG chatbot on top: FAISS retrieval over three indices (records, findings, policy audit), Claude Haiku for phrasing, and a verified facts table that a post-hoc checker cross-references against every generated number.",
+          ]}
+          flow={[
+            { label: "EDA", detail: "Category distribution + sensitive-data taxonomy" },
+            { label: "Statistical test", detail: "Chi-square + Cramér's V on description-writing rates" },
+            { label: "Classification", detail: "TF-IDF+LogReg vs. spaCy embeddings, 25-class" },
+            { label: "Clustering", detail: "K-Means (K=2–10) profiled by category mix" },
+            { label: "RAG assistant", detail: "FAISS + Claude Haiku, grounded in a facts table" },
+          ]}
+          tools={["Python", "pandas", "NumPy", "scikit-learn", "spaCy", "FAISS", "sentence-transformers", "Anthropic Claude API", "FastAPI", "React"]}
+          results={[
+            "Only 7.3% of all 12,811 records (931) fall into a sensitive category — but 90.3% of a separate, audited sample were never disclosed in the plugin's actual privacy policy at all.",
+            "TF-IDF + Logistic Regression predicts a parameter's category from its name alone at 68.9% accuracy (46.8% macro-F1) on the 25-class problem.",
+            "Clustering surfaces functional groups (finance, travel, messaging) with sensitive-data share spread gradually from 0% to 16.1% — no clean 'risky vs. safe' split.",
+          ]}
+          charts={[
+            {
+              src: "/projects/gpt-privacy/rq1_category_distribution.png",
+              alt: "Bar chart of the 25 data categories requested by GPT plugins, sensitive ones highlighted",
+              caption: "All 25 data categories, sorted by record count — four sensitive categories highlighted.",
+            },
+            {
+              src: "/projects/gpt-privacy/rq3_confusion_matrix.png",
+              alt: "Confusion matrix for the category classifier",
+              caption: "Confusion matrix for the TF-IDF + Logistic Regression classifier.",
+            },
+          ]}
+          githubUrl="https://github.com/elifdikmn/DataPrivacy"
         >
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <SectionTag>Data privacy · NLP · RAG</SectionTag>
-            <a
-              href="https://github.com/elifdikmn/DataPrivacy"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold transition hover:opacity-70"
-              style={{ color: "var(--accent-strong)" }}
-            >
-              <Github className="h-4 w-4" /> View repository <ArrowUpRight className="h-3.5 w-3.5" />
-            </a>
-          </div>
-
-          <h3 className="font-hero text-2xl font-semibold sm:text-3xl">
-            GPT Plugin Privacy Risk Analysis &amp; RAG Assistant
-          </h3>
-          <p className="mt-3 max-w-[70ch] text-[15px] leading-relaxed sm:text-base" style={{ color: "var(--text-soft)" }}>
-            What do GPT plugins actually collect? I analyzed 12,811 parameter records from 4,592 real GPT
-            plugins — statistics, classification models, and clustering — then built a Retrieval-Augmented
-            Generation chatbot on top so anyone can ask the findings a question and get a grounded,
-            chart-backed answer.
-          </p>
-
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatPill value="7.3%" label="Sensitive data" />
-            <StatPill value="68.9%" label="Model accuracy" />
-            <StatPill value="90.3%" label="Never disclosed" />
-            <StatPill value="12,811" label="Records analyzed" />
-          </div>
-
           <button
             type="button"
             onClick={onOpenGptCaseStudy}
-            className="mt-6 inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-            style={{ background: "var(--accent)" }}
+            className="inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold transition hover:opacity-70"
+            style={{ borderColor: "var(--border)", color: "var(--accent-strong)" }}
           >
-            Open the full case study <ArrowUpRight className="h-4 w-4" />
+            Open the full 6-part case study <ArrowUpRight className="h-4 w-4" />
           </button>
-        </motion.article>
+        </ProjectDeepDive>
 
         {/* ---------------- SQL Job Market Analysis ---------------- */}
         <ProjectDeepDive

@@ -9,7 +9,7 @@ import AboutPanel from "@/components/panels/AboutPanel";
 import ContactPanel from "@/components/panels/ContactPanel";
 import ProjectsPanel from "@/components/panels/ProjectsPanel";
 import GptPrivacyCaseStudy from "@/components/panels/GptPrivacyCaseStudy";
-import { SKILL_GROUPS } from "@/lib/skills";
+import SkillGroups from "@/components/SkillGroups";
 
 type View = "list" | "about" | "contact" | "projects" | "project-gpt";
 
@@ -378,32 +378,7 @@ function HomeSkillsPreview() {
         What I&apos;ve actually used to ship the projects on this site — not an aspirational list.
       </p>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {SKILL_GROUPS.map((group, i) => (
-          <motion.div
-            key={group.name}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5, ease: easeOut, delay: i * 0.05 }}
-          >
-            <p className="mb-2 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--accent-strong)" }}>
-              {group.name}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {group.items.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full border px-3 py-1 text-xs font-medium"
-                  style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text-soft)" }}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </motion.div>
-        ))}
-      </div>
+      <SkillGroups />
     </section>
   );
 }
