@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion, type Variants, easeOut } from "framer-motion";
 import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, ChevronUp, Github } from "lucide-react";
 import ComputerMockup from "@/components/ComputerMockup";
-import FootballAppPhone from "@/components/FootballAppPhone";
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -271,9 +270,11 @@ function ProjectDeepDive({
 export default function ProjectsPanel({
   onBack,
   onOpenGptCaseStudy,
+  onOpenFootballCaseStudy,
 }: {
   onBack: () => void;
   onOpenGptCaseStudy: () => void;
+  onOpenFootballCaseStudy: () => void;
 }) {
   return (
     <motion.div
@@ -315,9 +316,10 @@ export default function ProjectsPanel({
           ]}
           flow={[
             { label: "Data Collection", detail: "Web scraping + APIs + open datasets across 8 leagues" },
+            { label: "Preprocessing", detail: "Date formatting, team-name mapping, label encoding, schema alignment" },
             { label: "Feature Engineering", detail: "Elo, xG, form ratios, odds-implied probabilities" },
             { label: "Model Training", detail: "LogReg / Random Forest / XGBoost, GridSearchCV, temporal split" },
-            { label: "Live Match Engine", detail: "Half-time score, cards, live odds refresh predictions in-play" },
+            { label: "Prediction", detail: "Half-time score, cards, live odds refresh predictions in-play" },
             { label: "iOS App", detail: "Swift client: match list, standings, pre-match & live predictions" },
           ]}
           tools={["Python", "pandas", "NumPy", "scikit-learn", "XGBoost", "Flask", "SQLite", "Matplotlib", "Seaborn", "GridSearchCV", "Swift / Xcode"]}
@@ -339,31 +341,17 @@ export default function ProjectsPanel({
               caption: "Feature importance — market-implied probabilities and xG differentials dominate.",
             },
           ]}
-          moreCharts={[
-            {
-              src: "/projects/football/live_feature_importance.png",
-              alt: "Feature importance ranking for the live in-play match prediction model",
-              caption: "Live-match model feature importance — half-time result code and score dominate.",
-            },
-            {
-              src: "/projects/football/system_architecture.svg",
-              alt: "Diagram of the end-to-end pipeline, from web scraping to prediction",
-              caption: "End-to-end pipeline: web scraping → data collection → preprocessing → feature engineering → ML → prediction.",
-            },
-            {
-              src: "/projects/football/random_forest_illustration.svg",
-              alt: "Illustration of five decision trees voting together in a Random Forest ensemble",
-              caption: "Random Forest — an ensemble of decision trees combined by majority vote, the selected model for 6 of 8 leagues.",
-            },
-            {
-              src: "/projects/football/logistic_regression_sigmoid.svg",
-              alt: "The sigmoid function curve underlying logistic regression, with the decision boundary at 0.5",
-              caption: "The sigmoid function — Logistic Regression, selected for the EPL and Turkish Süper Lig.",
-            },
-          ]}
-          appDemo={<FootballAppPhone />}
           githubUrl="https://github.com/elifdikmn/FootballMatchPrediction"
-        />
+        >
+          <button
+            type="button"
+            onClick={onOpenFootballCaseStudy}
+            className="inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold transition hover:opacity-70"
+            style={{ borderColor: "var(--border)", color: "var(--accent-strong)" }}
+          >
+            Open the full case study <ArrowUpRight className="h-4 w-4" />
+          </button>
+        </ProjectDeepDive>
 
         {/* ---------------- MNQ Tick Data ---------------- */}
         <ProjectDeepDive

@@ -9,9 +9,10 @@ import AboutPanel from "@/components/panels/AboutPanel";
 import ContactPanel from "@/components/panels/ContactPanel";
 import ProjectsPanel from "@/components/panels/ProjectsPanel";
 import GptPrivacyCaseStudy from "@/components/panels/GptPrivacyCaseStudy";
+import FootballCaseStudy from "@/components/panels/FootballCaseStudy";
 import SkillGroups from "@/components/SkillGroups";
 
-type View = "list" | "about" | "contact" | "projects" | "project-gpt";
+type View = "list" | "about" | "contact" | "projects" | "project-gpt" | "project-football";
 
 /* ---------------- Intro ---------------- */
 function Intro() {
@@ -650,7 +651,12 @@ function OverlayMenu({
                 <ContactPanel key="contact" email={email} github={github} linkedin={linkedin} onBack={() => setView("list")} />
               )}
               {view === "projects" && (
-                <ProjectsPanel key="projects" onBack={() => setView("list")} onOpenGptCaseStudy={() => setView("project-gpt")} />
+                <ProjectsPanel
+                  key="projects"
+                  onBack={() => setView("list")}
+                  onOpenGptCaseStudy={() => setView("project-gpt")}
+                  onOpenFootballCaseStudy={() => setView("project-football")}
+                />
               )}
               {view === "project-gpt" && (
                 <motion.div
@@ -661,6 +667,17 @@ function OverlayMenu({
                   transition={{ duration: 0.4, ease: easeOut }}
                 >
                   <GptPrivacyCaseStudy onBack={() => setView("projects")} />
+                </motion.div>
+              )}
+              {view === "project-football" && (
+                <motion.div
+                  key="project-football"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4, ease: easeOut }}
+                >
+                  <FootballCaseStudy onBack={() => setView("projects")} />
                 </motion.div>
               )}
             </AnimatePresence>
