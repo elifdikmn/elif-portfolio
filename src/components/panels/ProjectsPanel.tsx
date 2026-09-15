@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Variants, easeOut } from "framer-motion";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Clock3, Github } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Github } from "lucide-react";
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -55,6 +55,7 @@ function ProjectDeepDive({
   tools,
   results,
   charts,
+  dashboardUrl,
   githubUrl,
   background = "var(--surface)",
   children,
@@ -70,7 +71,8 @@ function ProjectDeepDive({
   tools: string[];
   results: string[];
   charts: Chart[];
-  githubUrl: string;
+  dashboardUrl?: string;
+  githubUrl?: string;
   background?: string;
   children?: React.ReactNode;
 }) {
@@ -178,30 +180,67 @@ function ProjectDeepDive({
         </ul>
       </div>
 
-      <div className="relative mt-10">
-        <SubLabel>Plots</SubLabel>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {charts.map((c) => (
-            <figure key={c.src} className="overflow-hidden rounded-xl border bg-white" style={{ borderColor: "var(--border)" }}>
-              <img src={c.src} alt={c.alt} className="w-full object-contain" />
-              <figcaption className="px-3 py-2 text-xs" style={{ color: "var(--text-faint)" }}>
-                {c.caption}
-              </figcaption>
-            </figure>
-          ))}
+      {charts.length > 0 && (
+        <div className="relative mt-10">
+          <SubLabel>Plots</SubLabel>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {charts.map((c) => (
+              <figure key={c.src} className="overflow-hidden rounded-xl border bg-white" style={{ borderColor: "var(--border)" }}>
+                <img src={c.src} alt={c.alt} className="w-full object-contain" />
+                <figcaption className="px-3 py-2 text-xs" style={{ color: "var(--text-faint)" }}>
+                  {c.caption}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {dashboardUrl && (
+        <div className="relative mt-10">
+          <SubLabel>Plots</SubLabel>
+          <div className="overflow-hidden rounded-xl border" style={{ borderColor: "var(--border)" }}>
+            <iframe
+              src={dashboardUrl}
+              title={`${title} — interactive dashboard`}
+              className="block w-full border-0"
+              style={{ height: 640 }}
+              loading="lazy"
+            />
+          </div>
+          <p className="mt-2 text-xs" style={{ color: "var(--text-faint)" }}>
+            Live embed of the actual dashboard — click through its own nav to explore other sections.
+          </p>
+        </div>
+      )}
 
       <div className="relative mt-10 flex flex-wrap items-center gap-3">
-        <a
-          href={githubUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-          style={{ background: "var(--accent)" }}
-        >
-          <Github className="h-4 w-4" /> View on GitHub <ArrowUpRight className="h-4 w-4" />
-        </a>
+        {githubUrl && (
+          <a
+            href={githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+            style={{ background: "var(--accent)" }}
+          >
+            <Github className="h-4 w-4" /> View on GitHub <ArrowUpRight className="h-4 w-4" />
+          </a>
+        )}
+        {dashboardUrl && (
+          <a
+            href={dashboardUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={
+              githubUrl
+                ? "inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold transition hover:opacity-70"
+                : "inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+            }
+            style={githubUrl ? { borderColor: "var(--border)", color: "var(--accent-strong)" } : { background: "var(--accent)" }}
+          >
+            Open full interactive dashboard <ArrowUpRight className="h-4 w-4" />
+          </a>
+        )}
         {children}
       </div>
     </motion.article>
@@ -282,31 +321,37 @@ export default function ProjectsPanel({
         />
 
         {/* ---------------- MNQ Tick Data ---------------- */}
-        <motion.article
-          variants={cardReveal}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.15 }}
-          className="overflow-hidden rounded-[1.75rem] border p-6 sm:p-8"
-          style={{ borderColor: "var(--border)", background: "var(--bg-soft)" }}
-        >
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <SectionTag>Quantitative finance · Time series</SectionTag>
-            <span
-              className="inline-flex items-center gap-1.5 text-sm font-semibold"
-              style={{ color: "var(--text-faint)" }}
-            >
-              <Clock3 className="h-4 w-4" /> Write-up in progress
-            </span>
-          </div>
-
-          <h3 className="font-hero text-2xl font-semibold sm:text-3xl">MNQ Tick Data Analysis</h3>
-          <p className="mt-3 max-w-[70ch] text-[15px] leading-relaxed sm:text-base" style={{ color: "var(--text-soft)" }}>
-            A tick-level analysis of Micro E-mini Nasdaq-100 (MNQ) futures data. I&apos;m still finishing the
-            full methodology write-up and pulling the final charts together, so this card is intentionally
-            light for now — full results, visualizations, and code will replace this placeholder soon.
-          </p>
-        </motion.article>
+        <ProjectDeepDive
+          index="02"
+          tag="Quantitative finance · Time series"
+          title="MNQ & MES Tick Data Statistical Analysis"
+          description="A statistical breakdown of intraday futures market structure, built from tick-level data — how much price rotates each session, when volume spikes, whether one session's direction predicts the next, and how the Initial Balance range classifies a day's volatility regime."
+          highlight="NY Opening Hour rotations run 58–78% larger than the rest of the session, on both instruments"
+          problem="Most 'what usually happens during the trading day' advice is anecdotal. This project quantifies actual intraday futures market structure straight from tick data — rotation size by session, volume timing, cross-session directional edge, and volatility regime — for MNQ (Jun 23–Sep 7, 2025, 56 days) and MES (Aug 11–Sep 7, 2025, ~20 days)."
+          approach={[
+            "Resampled tick-level OHLCV into 1-min, 30-min, and 5-second bars per instrument (75,218 1-min bars / 881,393 5-second bars for MNQ alone).",
+            "Measured harmonic rotations (confirmed swing high-to-low moves) and 1-minute fractal pivots per session — Asia / London / NY, full session vs. opening hour — computing mean, median, P75, and P90.",
+            "Classified each day's Initial Balance (first 60 min after NYSE open) as Compressed / Normal / Expanded using ±1 standard deviation cutoffs, and tracked VPOC (Volume Point of Control) crossings per day type.",
+            "Computed conditional probabilities (e.g. P(NY up | London up)) and Pearson correlations for both returns and volatility across every session pair.",
+          ]}
+          flow={[
+            { label: "Data Collection", detail: "Tick-level OHLCV for MNQ & MES, resampled to 1-min/30-min/5s" },
+            { label: "Rotation Analysis", detail: "Harmonic swings + 1-min fractal pivots, per session" },
+            { label: "IB & VPOC Regime", detail: "Compressed/Normal/Expanded via ±1σ on Initial Balance range" },
+            { label: "Cross-Session Stats", detail: "Conditional probabilities + return/volatility correlations" },
+            { label: "Interactive Dashboard", detail: "Chart.js app for exploring every finding by session" },
+          ]}
+          tools={["Python", "pandas", "NumPy", "Tick-level OHLCV data", "Chart.js", "Correlation & conditional-probability analysis"]}
+          results={[
+            "NY Opening Hour rotations are the standout edge on both instruments: MNQ median 24.5 pts (78% larger than the full NY session's 13.75 pts); MES median 4.75 pts (58% larger than 3.00 pts).",
+            "80.4% of MNQ days classify as Normal Initial Balance (55–207 pt range, ~29 VPOC crosses/day) — the dominant regime, vs. only 5.4% Compressed and 14.3% Expanded.",
+            "Return correlations between sessions sit near zero (0.01–0.09) — one session's direction barely predicts the next. Volatility correlations are the real signal: Asia→London r=0.51, London→NY r=0.47 for MNQ.",
+            "09:30 (NYSE open) volume is ~40× the overnight baseline for MNQ and ~23× for MES — by a wide margin the single highest-liquidity minute of the day.",
+          ]}
+          charts={[]}
+          dashboardUrl="/projects/mnq/pareto-stat-dashboard.html"
+          background="var(--bg-soft)"
+        />
 
         {/* ---------------- GPT Plugin Privacy ---------------- */}
         <ProjectDeepDive
