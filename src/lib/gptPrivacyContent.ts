@@ -13,8 +13,8 @@ export const chatSuggestions: {
   {
     q: "What data are collected by GPT Actions?",
     a: "Across 12,811 parameter records from 4,592 plugins, the distribution is skewed: App usage data (20.1%), Identifier (14.7%), and Other (13.4%) alone account for 48.2% of everything collected. The 25 categories come straight from the source dataset's own taxonomy.",
-    chart: `${CHART_BASE}/rq1_category_distribution.png`,
-    chartAlt: "Bar chart of the 25 data categories requested by GPT plugins, sorted by record count",
+    chart: `${CHART_BASE}/treemap_main_categories.html`,
+    chartAlt: "Interactive treemap of the main data categories requested by GPT plugins, sized by record count",
   },
   {
     q: "What percentage of collected data is sensitive?",

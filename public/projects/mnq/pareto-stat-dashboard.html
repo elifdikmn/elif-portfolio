@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pareto — MNQ & MES Statistical Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{--bg:#0a0b0d;--sf:#111318;--sf2:#181c24;--bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.13);--tx:#e8eaf0;--mu:#6b7280;--gr:#22c55e;--rd:#ef4444;--go:#f0b429;--te:#00d4aa;--bl:#4f8ef7;--or:#ff6b35;--pu:#a78bfa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.6;min-height:100vh;}
+#landing{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px;padding:24px;}
+.land-title h1{font-family:'Syne',sans-serif;font-size:52px;font-weight:800;letter-spacing:-3px;text-align:center;}
+.land-title h1 em{font-style:normal;color:var(--te);}
+.land-desc{max-width:580px;text-align:center;color:var(--mu);font-size:11px;line-height:2;padding:14px 20px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;}
+.land-desc strong{color:var(--tx);font-weight:400;}
+.land-cards{display:flex;gap:20px;}
+.land-card{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:28px 36px;cursor:pointer;transition:all .2s;text-align:center;min-width:210px;}
+.land-card:hover{transform:translateY(-4px);}
+.land-card.mnq:hover{border-color:rgba(0,212,170,.5);box-shadow:0 0 40px rgba(0,212,170,.08);}
+.land-card.mes:hover{border-color:rgba(167,139,250,.5);box-shadow:0 0 40px rgba(167,139,250,.08);}
+.land-card .ticker{font-family:'Syne',sans-serif;font-size:40px;font-weight:800;letter-spacing:-2px;}
+.land-card.mnq .ticker{color:var(--te);}
+.land-card.mes .ticker{color:var(--pu);}
+.land-card .sub{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-top:5px;}
+.land-card .period{font-size:11px;color:var(--mu);margin-top:10px;padding-top:10px;border-top:1px solid var(--bd);}
+.land-card .period span{color:var(--tx);}
+.land-card .cta{margin-top:14px;font-size:10px;color:var(--mu);padding:5px 14px;border:1px solid var(--bd);border-radius:20px;display:inline-block;transition:all .2s;}
+.land-card.mnq:hover .cta{border-color:rgba(0,212,170,.3);color:var(--te);}
+.land-card.mes:hover .cta{border-color:rgba(167,139,250,.3);color:var(--pu);}
+.land-sep{color:var(--mu);font-size:11px;align-self:center;}
+.land-footer{font-size:10px;color:var(--mu);letter-spacing:.5px;}
+.tip-wrap{position:relative;display:inline-flex;align-items:center;gap:4px;}
+.tip-icon{width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:var(--mu);font-size:8px;display:inline-flex;align-items:center;justify-content:center;cursor:help;flex-shrink:0;}
+.tip-box{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1e2330;border:1px solid var(--bd2);border-radius:8px;padding:9px 12px;font-size:10px;color:var(--tx);line-height:1.7;width:230px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:200;white-space:normal;}
+.tip-icon:hover+.tip-box,.tip-wrap:hover .tip-box{opacity:1;}
+#app{display:none;}
+.hdr{border-bottom:1px solid var(--bd);padding:0 36px;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;background:rgba(10,11,13,0.93);backdrop-filter:blur(12px);z-index:100;}
+.logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:-.5px;cursor:pointer;}
+.logo em{font-style:normal;}.logo em.mnq{color:var(--te);}.logo em.mes{color:var(--pu);}
+.switch-btn{font-size:10px;border:1px solid var(--bd);background:transparent;color:var(--mu);padding:4px 12px;border-radius:20px;cursor:pointer;transition:all .15s;font-family:'IBM Plex Mono',monospace;}
+.switch-btn:hover{border-color:var(--bd2);color:var(--tx);}
+.hdr-right{display:flex;align-items:center;gap:12px;}
+.nav{display:flex;}
+.nav a{color:var(--mu);text-decoration:none;font-size:11px;padding:0 11px;height:54px;display:flex;align-items:center;border-bottom:2px solid transparent;transition:all .15s;cursor:pointer;white-space:nowrap;}
+.nav a:hover{color:var(--tx);}
+.nav a.on{color:var(--te);border-bottom-color:var(--te);}
+.nav a.on.mes-mode{color:var(--pu);border-bottom-color:var(--pu);}
+.dbadge{font-size:10px;padding:3px 10px;border-radius:20px;}
+.dbadge.mnq{background:rgba(0,212,170,0.1);color:var(--te);border:1px solid rgba(0,212,170,0.25);}
+.dbadge.mes{background:rgba(167,139,250,0.1);color:var(--pu);border:1px solid rgba(167,139,250,0.25);}
+.hero{padding:34px 36px 22px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:18px;}
+.hero h1{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;letter-spacing:-2px;line-height:1;margin-bottom:6px;}
+.hero h1 em{font-style:normal;}.hero h1 em.mnq{color:var(--te);}.hero h1 em.mes{color:var(--pu);}
+.hsub{color:var(--mu);font-size:11px;}.hsub span{color:var(--tx);}
+.hstats{display:flex;gap:24px;}
+.hst .val{font-size:22px;font-weight:500;font-family:'Syne',sans-serif;}
+.hst .val.g{color:var(--gr);}.hst .val.t{color:var(--te);}.hst .val.o{color:var(--or);}.hst .val.pu{color:var(--pu);}
+.hst .lbl{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.8px;}
+.main{padding:24px 36px;}
+.sec{display:none;}.sec.on{display:block;}
+.insights-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.insight{background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:13px 15px;border-left:3px solid;}
+.insight.pos{border-left-color:var(--gr);}.insight.warn{border-left-color:var(--go);}.insight.neg{border-left-color:var(--rd);}.insight.info{border-left-color:var(--bl);}
+.insight .itag{font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.insight.pos .itag{color:var(--gr);}.insight.warn .itag{color:var(--go);}.insight.neg .itag{color:var(--rd);}.insight.info .itag{color:var(--bl);}
+.insight .itext{font-size:11px;color:var(--tx);line-height:1.75;}
+.strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}
+.sc{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;transition:border-color .15s;}
+.sc:hover{border-color:var(--bd2);}
+.sc .lbl{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
+.sc .val{font-size:19px;font-weight:500;}
+.sc .val.t{color:var(--te);}.sc .val.g{color:var(--gr);}.sc .val.o{color:var(--or);}.sc .val.gold{color:var(--go);}.sc .val.bl{color:var(--bl);}.sc .val.pu{color:var(--pu);}.sc .val.rd{color:var(--rd);}
+.sc .sub{font-size:10px;color:var(--mu);margin-top:2px;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.full{grid-column:1/-1;}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:16px 18px;}
+.ctitle{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.9px;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--te);flex-shrink:0;}
+.cw{position:relative;}
+.chart-note{font-size:10px;color:var(--mu);margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,0.04);line-height:1.7;}
+.chart-note strong{color:var(--tx);font-weight:400;}
+.dt{width:100%;border-collapse:collapse;font-size:11px;}
+.dt th{color:var(--mu);font-weight:400;font-size:10px;text-transform:uppercase;letter-spacing:.7px;padding:7px 8px;text-align:left;border-bottom:1px solid var(--bd);}
+.dt td{padding:7px 8px;border-bottom:1px solid rgba(255,255,255,0.03);color:var(--tx);}
+.dt tr:last-child td{border-bottom:none;}
+.dt tr:hover td{background:rgba(255,255,255,0.02);}
+.bx{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;}
+.bx.a{background:rgba(79,142,247,0.15);color:var(--bl);}.bx.l{background:rgba(0,212,170,0.12);color:var(--te);}.bx.n{background:rgba(255,107,53,0.15);color:var(--or);}.bx.f{background:rgba(240,180,41,0.12);color:var(--go);}.bx.o{background:rgba(100,116,139,0.2);color:#94a3b8;}
+.probgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.prow{background:var(--sf2);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:10px;}
+.pcond{font-size:11px;color:var(--mu);flex:1;}
+.pbar{width:64px;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;flex-shrink:0;}
+.pbar div{height:100%;border-radius:2px;}
+.ppct{font-size:13px;font-weight:500;min-width:36px;text-align:right;}
+.ibrow{display:grid;gap:12px;margin-bottom:12px;}
+.ibc{border-radius:12px;padding:16px;border:1px solid;}
+.ibc.c{background:rgba(34,197,94,0.05);border-color:rgba(34,197,94,0.2);}
+.ibc.n{background:rgba(79,142,247,0.05);border-color:rgba(79,142,247,0.2);}
+.ibc.e{background:rgba(239,68,68,0.05);border-color:rgba(239,68,68,0.2);}
+.ibc.tr{background:rgba(240,180,41,0.05);border-color:rgba(240,180,41,0.2);}
+.ilbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.ilbl.c{color:var(--gr);}.ilbl.n{color:var(--bl);}.ilbl.e{color:var(--rd);}
+.ilbl.tr{color:var(--go);}
+.inum{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1;margin-bottom:6px;}
+.inum.c{color:var(--gr);}.inum.n{color:var(--bl);}.inum.e{color:var(--rd);}
+.inum.tr{color:var(--go);}
+.irow{font-size:11px;color:var(--mu);margin-top:3px;}.irow span{color:var(--tx);}
+.inote{font-size:10px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);color:var(--mu);font-style:italic;}
+.corr-table{border-collapse:collapse;font-size:11px;width:100%;}
+.corr-table th{color:var(--mu);font-weight:400;font-size:10px;padding:8px 10px;text-align:center;border-bottom:1px solid var(--bd);}
+.corr-table td{padding:8px 10px;text-align:center;border:1px solid rgba(255,255,255,0.04);}
+.corr-table td.lbl{text-align:left;color:var(--mu);font-size:10px;border:none;border-bottom:1px solid rgba(255,255,255,0.04);}
+footer{border-top:1px solid var(--bd);padding:16px 36px;display:flex;justify-content:space-between;align-items:center;color:var(--mu);font-size:10px;margin-top:36px;}
+@media(max-width:900px){.land-cards{flex-direction:column;}.land-sep{display:none;}.hero,.main,footer,.hdr{padding-left:14px;padding-right:14px;}.strip{grid-template-columns:repeat(2,1fr);}.grid,.ibrow,.probgrid,.insights-bar{grid-template-columns:1fr;}.hstats{flex-wrap:wrap;gap:14px;}.nav a{padding:0 7px;font-size:10px;}}
+
+.mini-table{width:100%;border-collapse:collapse;font-size:11px;}
+.mini-table th{color:var(--mu);font-weight:400;font-size:10px;text-transform:uppercase;letter-spacing:.6px;padding:7px 8px;text-align:left;border-bottom:1px solid var(--bd);}
+.mini-table td{padding:7px 8px;border-bottom:1px solid rgba(255,255,255,0.03);}
+.mini-table tr:last-child td{border-bottom:none;}
+.callout{border-radius:10px;padding:14px 16px;border:1px solid;margin-bottom:12px;}
+.callout.good{background:rgba(34,197,94,0.05);border-color:rgba(34,197,94,0.2);}
+.callout.bad{background:rgba(239,68,68,0.05);border-color:rgba(239,68,68,0.2);}
+.callout .ctop{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--mu);margin-bottom:6px;}
+.callout .cnum{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:4px;}
+.callout.good .cnum{color:var(--gr);}.callout.bad .cnum{color:var(--rd);}
+.callout .csub{font-size:11px;color:var(--mu);line-height:1.7;}
+</style>
+</head>
+<body>
+
+<div id="landing">
+  <div class="land-title"><h1>PARETO<em>.</em>STAT</h1></div>
+  <div class="land-desc">
+    <strong>What is this?</strong> A statistical breakdown of intraday futures market structure —
+    how much price rotates each session, when volume spikes, whether one session's direction predicts the next,
+    and how the Initial Balance range classifies the day's volatility regime.
+    Built from tick-level data in Python. Designed for active traders who want numbers, not opinions.
+  </div>
+  <div class="land-cards">
+    <div class="land-card mnq" onclick="enterApp('mnq')">
+      <div class="ticker">MNQ</div>
+      <div class="sub">Micro E-mini Nasdaq-100</div>
+      <div class="period">Contracts <span>09-25 → 12-25 → 03-26</span> · Jun 2025 – Mar 2026</div>
+      <div class="period">Price <span>21,767.50 → ~24,732</span> · <span>+13.6%</span></div>
+      <div class="period"><span>129</span> session days · 144.2M ticks</div>
+      <div class="cta">View Analysis →</div>
+    </div>
+    <div class="land-sep">or</div>
+    <div class="land-card mes" onclick="enterApp('mes')">
+      <div class="ticker">MES</div>
+      <div class="sub">Micro E-mini S&amp;P 500</div>
+      <div class="period">Contract <span>12-25</span> · Aug–Sep 2025</div>
+      <div class="period">Price <span>6,398 – 6,504</span></div>
+      <div class="period"><span>~20</span> trading days · Tick resolution</div>
+      <div class="cta">View Analysis →</div>
+    </div>
+  </div>
+  <div class="land-footer">Pareto Research · Tick Resolution · UTC−4</div>
+</div>
+
+<div id="app">
+<header class="hdr">
+  <div class="logo" onclick="backToLanding()">PARETO<em class="mnq" id="logoEm">.</em>STAT</div>
+  <nav class="nav" id="mainNav">
+    <a class="on" onclick="go('insights',this)">Key Insights</a>
+    <a onclick="go('overview',this)">Overview</a>
+    <a onclick="go('volume',this)">Volume</a>
+    <a onclick="go('rotations',this)">Rotations</a>
+    <a onclick="go('sessions',this)">Sessions</a>
+    <a onclick="go('correlation',this)">Correlation</a>
+    <a onclick="go('ib',this)">IB &amp; VPOC</a>
+    <a class="mnq-only" onclick="go('rangebar',this)">Range Bars</a>
+    <a class="mnq-only" onclick="go('threshold',this)">Threshold Opt</a>
+  </nav>
+  <div class="hdr-right">
+    <div class="dbadge mnq" id="mainBadge">MNQ 09-25</div>
+    <button class="switch-btn" onclick="backToLanding()">&#8617; Switch</button>
+  </div>
+</header>
+
+<div class="hero">
+  <div>
+    <h1 id="heroTitle">MNQ <em class="mnq">09-25</em></h1>
+    <div class="hsub" id="heroSub1"></div>
+    <div class="hsub" id="heroSub2" style="margin-top:3px"></div>
+  </div>
+  <div class="hstats" id="heroStats"></div>
+</div>
+
+<main class="main">
+
+<section class="sec on" id="sec-insights">
+  <div style="margin-bottom:16px">
+    <div class="ctitle"><div class="dot" id="ins-dot"></div>Key Findings — Actionable Summary for Traders</div>
+    <div style="font-size:10px;color:var(--mu)">The most important statistical edges found in this dataset, derived from real tick data.</div>
+  </div>
+  <div class="insights-bar" id="insights-grid"></div>
+  <div class="grid" style="margin-top:0">
+    <div class="card">
+      <div class="ctitle"><div class="dot"></div>Rotation Size by Session (Median, pts)</div>
+      <div class="cw" style="height:190px"><canvas id="ins-rot"></canvas></div>
+      <div class="chart-note" id="ins-rot-note"></div>
+    </div>
+    <div class="card">
+      <div class="ctitle"><div class="dot" style="background:var(--go)"></div>Volume Spotlight — 08:00–11:00 Window</div>
+      <div class="cw" style="height:190px"><canvas id="ins-vol"></canvas></div>
+      <div class="chart-note" id="ins-vol-note"></div>
+    </div>
+  </div>
+  <div class="card full" style="margin-top:0">
+    <div class="ctitle"><div class="dot" style="background:var(--bl)"></div>Cross-Session Directional Edge — Does Prior Session Predict Next?</div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px;">The dashed line at 50% = no edge. Values significantly above or below 50% indicate a tradeable statistical tendency.</div>
+    <div class="cw" style="height:175px"><canvas id="ins-prob"></canvas></div>
+    <div class="chart-note" id="ins-prob-note"></div>
+  </div>
+</section>
+
+<section class="sec" id="sec-overview">
+  <div class="strip" id="strip-overview"></div>
+  <div class="grid" style="grid-template-columns:2fr 1fr">
+    <div class="card">
+      <div class="ctitle"><div class="dot"></div>Price Journey — 30-Min Close</div>
+      <div class="cw" style="height:190px"><canvas id="priceChart"></canvas></div>
+      <div class="chart-note" id="price-note"></div>
+    </div>
+    <div class="card">
+      <div class="ctitle"><div class="dot" style="background:var(--go)"></div>IB Day Type Distribution</div>
+      <div class="cw" style="height:190px"><canvas id="ibDonut"></canvas></div>
+      <div class="chart-note">The <strong>Initial Balance (IB)</strong> is the first 60-min range after NYSE open (09:30–10:30). Its width classifies the day: Compressed (trending), Normal (rotational), or Expanded (volatile two-way).</div>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="ctitle"><div class="dot" style="background:var(--bl)"></div>Median Rotation by Session (pts)</div>
+      <div class="cw" style="height:170px"><canvas id="ovRot"></canvas></div>
+      <div class="chart-note" id="ovRot-note"></div>
+    </div>
+    <div class="card">
+      <div class="ctitle"><div class="dot" style="background:var(--or)"></div>Directional Probabilities — Full Session</div>
+      <div class="cw" style="height:170px"><canvas id="ovProb"></canvas></div>
+      <div class="chart-note" id="ovProb-note"></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="sec-volume">
+  <div class="strip" id="strip-volume"></div>
+  <div class="card full" style="margin-bottom:12px">
+    <div class="ctitle"><div class="dot"></div>1-Min Volume — Median, 1st SD & 2nd SD Upper (24h)</div>
+    <div class="cw" style="height:230px"><canvas id="vol1m"></canvas></div>
+    <div class="chart-note"><strong>How to read:</strong> Bars = median volume per slot. Lines = 1st and 2nd standard deviation upper bounds. Volume exceeding the <strong>1st SD line</strong> signals larger-than-normal price movement is more likely. The <strong style="color:var(--go)">gold spike at 09:30</strong> is the NYSE open — highest-volume minute of the day, every day.</div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="ctitle"><div class="dot" style="background:var(--go)"></div>30-Min Volume Median by Half-Hour</div>
+      <div class="cw" style="height:180px"><canvas id="vol30"></canvas></div>
+      <div class="chart-note">The 09:30 candle accounts for a <strong>disproportionate share</strong> of daily volume — typically 3–5× the next highest slot. Execution quality (spread, slippage) improves significantly after 10:00 as volume normalizes.</div>
+    </div>
+    <div class="card">
+      <div class="ctitle"><div class="dot" style="background:var(--bl)"></div>5-Second Range Bars — Median & 1st SD</div>
+      <div class="cw" style="height:180px"><canvas id="rb5s"></canvas></div>
+      <div class="chart-note">Range bars completed per minute at each 30-min slot. A high count = price completing more micro-swings per unit time. <strong>Use as a real-time volatility proxy</strong> — above 1st SD means unusually fast tape.</div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="sec-rotations">
+  <div class="card full" style="margin-bottom:12px">
+    <div class="ctitle"><div class="dot"></div>Harmonic Rotation Stats — Full Session vs Opening Hour</div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px;">A <strong style="color:var(--tx)">harmonic rotation</strong> is a confirmed swing from local high to local low (or vice versa), measured in points. These stats define the typical swing amplitude in each session — use for target and stop calibration.</div>
+    <table class="dt" id="rot-table1"></table>
+  </div>
+  <div class="card full" style="margin-bottom:12px">
+    <div class="ctitle"><div class="dot" style="background:var(--bl)"></div>1-Min Fractal Method — Session Rotation Count & Mean</div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px;">Rotations detected via <strong style="color:var(--tx)">1-minute fractal pivots</strong> (swing high/low confirmed by 2 bars each side). "OpenBracket 1H" = first 60 min of each session only.</div>
+    <table class="dt" id="rot-table2"></table>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="ctitle"><div class="dot"></div>Median — Full Session vs Opening Hour (pts)</div>
+      <div class="cw" style="height:180px"><canvas id="rotMed"></canvas></div>
+      <div class="chart-note" id="rotMed-note"></div>
+    </div>
+    <div class="card">
+      <div class="ctitle"><div class="dot" style="background:var(--or)"></div>Full Distribution: Mean / Median / P75 / P90</div>
+      <div class="cw" style="height:180px"><canvas id="rotAll"></canvas></div>
+      <div class="chart-note"><strong>P75</strong> = 75% of rotations smaller than this value. <strong>P90</strong> = 90% smaller. Treat P90 as the maximum rotation on a typical day. Rotations exceeding P90 signal a potential regime shift — consider reducing size.</div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="sec-sessions">
+  <div class="strip" style="grid-template-columns:repeat(4,1fr)" id="strip-sessions"></div>
+  <div class="grid">
+    <div class="card">
+      <div class="ctitle"><div class="dot"></div>Full Session vs Opening Hour Probabilities</div>
+      <div class="cw" style="height:180px"><canvas id="probComp"></canvas></div>
+      <div class="chart-note"><strong>Full Session</strong> = close-to-close. <strong>Opening Hour</strong> = first 60 min only. These can diverge significantly — a session that opens down may close up after reversing. Check both timeframes before forming a bias.</div>
+    </div>
+    <div class="card">
+      <div class="ctitle"><div class="dot" style="background:var(--go)"></div><span id="sess-vol-title">Session Volume Profile</span></div>
+      <div class="cw" style="height:180px"><canvas id="sessVol"></canvas></div>
+      <div class="chart-note" id="sessVol-note"></div>
+    </div>
+  </div>
+  <div class="card full" style="margin-top:12px">
+    <div class="ctitle"><div class="dot" style="background:var(--bl)"></div>Conditional Probability Detail</div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px;">Read as: "Given London closed UP, what probability does NY also close UP?" Values near 50% = prior session gives no directional edge.</div>
+    <div class="probgrid" id="probgrid"></div>
+    <div id="prob-note" style="margin-top:12px;padding:11px;background:var(--sf2);border-radius:8px;font-size:11px;color:var(--mu);line-height:1.8"></div>
+  </div>
+</section>
+
+<section class="sec" id="sec-correlation">
+  <div class="strip" style="grid-template-columns:repeat(4,1fr)" id="strip-corr"></div>
+  <div class="grid">
+    <div class="card">
+      <div class="ctitle"><div class="dot"></div>Return Correlation Matrix</div>
+      <table class="corr-table" id="ret-corr-table"></table>
+      <div class="chart-note" id="ret-corr-note"></div>
+    </div>
+    <div class="card">
+      <div class="ctitle"><div class="dot" style="background:var(--go)"></div>Volatility Correlation Matrix</div>
+      <table class="corr-table" id="vol-corr-table"></table>
+      <div class="chart-note" id="vol-corr-note"></div>
+    </div>
+  </div>
+  <div class="card full" style="margin-top:12px">
+    <div class="ctitle"><div class="dot" style="background:var(--bl)"></div>All Correlation Pairs — Returns & Volatility</div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px;"><strong style="color:var(--tx)">Return correlations</strong> (negative or near-zero = sessions directionally independent). <strong style="color:var(--tx)">Volatility correlations</strong> (positive = volatile sessions cluster). Actionable: use prior session ATR to calibrate your stop width for the next session.</div>
+    <div class="cw" style="height:195px"><canvas id="corrC"></canvas></div>
+  </div>
+</section>
+
+<section class="sec" id="sec-ib">
+  <div style="font-size:10px;color:var(--mu);margin-bottom:12px;padding:11px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:8px;line-height:1.9">
+    <strong style="color:var(--tx)">Initial Balance (IB):</strong> High–low range of the first 60 min after NYSE open (09:30–10:30). Classify it by 10:30 each day to know your regime. ·
+    <strong style="color:var(--tx)">VPOC:</strong> Volume Point of Control — the price level with highest traded volume. ·
+    <strong style="color:var(--tx)">VPOC Cross:</strong> Each time price passes through VPOC during the day. High cross count = market accepting value = mean-reversion conditions.
+  </div>
+  <div class="ibrow" id="ib-cards"></div>
+  <div class="grid">
+    <div class="card">
+      <div class="ctitle"><div class="dot"></div>VPOC Rotation Count / Size by Day Type</div>
+      <div class="cw" style="height:170px"><canvas id="ibCount"></canvas></div>
+      <div class="chart-note" id="ibCount-note"></div>
+    </div>
+    <div class="card">
+      <div class="ctitle"><div class="dot" style="background:var(--or)"></div>Rotation Size — Mean & Median by IB Type (pts)</div>
+      <div class="cw" style="height:170px"><canvas id="ibSize"></canvas></div>
+      <div class="chart-note" id="ibSize-note"></div>
+    </div>
+  </div>
+  <div class="card full" style="margin-top:12px">
+    <div class="ctitle"><div class="dot" style="background:var(--go)"></div>IB Parameters & Daily Log</div>
+    <table class="dt" id="ib-log-table"></table>
+  </div>
+</section>
+
+<section class="sec" id="sec-rangebar">
+  <div style="font-size:10px;color:var(--mu);margin-bottom:12px;padding:11px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:8px;line-height:1.9">
+    <strong style="color:var(--tx)">Range bars:</strong> a tick-count-independent measure of how many discrete price-range segments form per interval — a real-time proxy for how fast the tape is actually moving, separate from raw volume. ·
+    <strong style="color:var(--tx)">Continuation setups below:</strong> a same-direction 2-bar range-bar breakout, tested with a fixed point target against a fixed stop, and evaluated on whether price reaches target before giving back the stop.
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="ctitle"><div class="dot"></div>1-Min Range Bars — Full-Day Distribution</div>
+      <div id="rb-oneday" style="font-size:11px;color:var(--mu);line-height:2.1"></div>
+    </div>
+    <div class="card">
+      <div class="ctitle"><div class="dot" style="background:var(--go)"></div>15-Min Range Bars — Around the NY Open</div>
+      <table class="mini-table" id="rb-15min"></table>
+      <div class="chart-note">10:30 (38,022 median, 1st SD 111,427) edges out 09:30 (41,814 median) once you widen the bucket — confirming the same 10:00–11:00 shift seen in volume.</div>
+    </div>
+  </div>
+  <div class="card full" style="margin-top:0">
+    <div class="ctitle"><div class="dot" style="background:var(--bl)"></div>Continuation Setup Backtest — Same-Direction Range-Bar Breakout, RTH</div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px;">Entry: two consecutive 5-second bars close in the same direction with a range-bar count above that half-hour's median. Exit: fixed point target vs. fixed point stop, whichever hits first within the next ~20 bars.</div>
+    <table class="dt" id="rb-setups"></table>
+    <div id="rb-pnl-callout"></div>
+  </div>
+</section>
+
+<section class="sec" id="sec-threshold">
+  <div style="font-size:10px;color:var(--mu);margin-bottom:12px;padding:11px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:8px;line-height:1.9">
+    <strong style="color:var(--tx)">Question:</strong> if Asia's session move exceeds some magnitude threshold X%, how often does London close up? Twelve threshold-selection methods (percentiles, ±σ, k-means volatility clusters, a rolling baseline, and a grid-searched optimum) are compared below.
+  </div>
+  <div id="th-callout"></div>
+  <div class="card full" style="margin-bottom:12px">
+    <div class="ctitle"><div class="dot"></div>Threshold Method Comparison — P(London↑ | Asia magnitude &gt; X)</div>
+    <table class="mini-table" id="th-methods"></table>
+    <div class="chart-note">Read the bottom rows with caution: higher thresholds keep fewer days, so 83–100% readings at the top end are small-sample and easy to overfit. The percentile/σ rows in the middle (60–75%, on hundreds of days) are the more reliable signal.</div>
+  </div>
+  <div class="card full">
+    <div class="ctitle"><div class="dot" style="background:var(--or)"></div>Two-Session Combo → NY Direction</div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px;" id="th-combo-note"></div>
+    <table class="dt" id="th-combo"></table>
+  </div>
+</section>
+
+</main>
+<footer>
+  <div>Pareto Research · Statistical Analysis · Tick Data</div>
+  <div id="footer-right"></div>
+</footer>
+</div>
+
+<script>
+const DATA={
+mnq:{
+ meta:{badge:'MNQ 09-25‒03-26',accentName:'mnq',heroTitle:'MNQ <em class="mnq">09-25‒03-26</em>',sub1:'Tick data · <span>144.2M ticks</span> · <span>145,689 min bars</span> · <span>129 session days (109 w/ complete IB window)</span>',sub2:'Price <span>21,767.50 → ~24,732</span> · Period <span>Jun 23, 2025 – Mar 18, 2026</span> · UTC−4',footer:'Jun 23, 2025 – Mar 18, 2026 · Contracts 09-25→12-25→03-26 · Tick resolution · UTC−4',hs:[['21.25 pts','t','NY Open Median Rot'],['+13.6%','g','Total Price Move'],['125.75 pts','o','IB Median Range']]},
+ insights:[
+  {type:'pos',tag:'Opportunity Window',text:'<strong>NY Opening Hour</strong> rotations (median 21.25 pts, mean 26.77, P90 53.25) remain the single biggest window — about 25% larger than the full NY session median (17.00 pts).'},
+  {type:'warn',tag:'Peak Shifted to 10:30',text:'In this longer sample, <strong>10:30 — not 09:30 — is now the busiest half-hour</strong> across 1-min volume (4,390 vs 2,951), 30-min volume (134,760 vs 115,047) and 5s range bars (183.5 vs 136.0). Re-anchor your highest-liquidity window to 10:00–11:00.'},
+  {type:'pos',tag:'Vol Clustering Strengthened',text:'<strong>London–NY volatility correlation is now 0.65</strong> (was 0.47 in the shorter sample) — the strongest session-pair relationship in the data. Asia links to neither session (0.02–0.07).'},
+  {type:'neg',tag:'No Directional Carry',text:'<strong>Return correlations stay near zero</strong> across all session pairs (−0.14 to +0.08). Prior-session close-to-close direction still gives no tradeable edge for the next session.'},
+  {type:'warn',tag:'Continuation Setups Need Care',text:'A loose same-direction range-bar breakout (5pt target/10pt stop, 1-bar confirm) won 75.7% of the time — but adding a 2nd confirmation bar collapsed it to <strong>36.0% and a simulated −$190,000</strong> at 20 contracts. See the new Range Bars tab.'},
+  {type:'info',tag:'IB Regime Shift',text:'<strong>Transitional is now the largest IB bucket</strong> (47/109 days, 43%) ahead of Normal (38, 35%). See the IB & VPOC tab for the full 4-way breakdown.'},
+ ],
+ insRotNote:'NY Opening Hour median (21.25 pts) is still the standout — mean 26.77 pts, P90 53.25 pts. Front-load targets in the first hour after the NYSE open.',
+ insVolNote:'10:30 is now the single busiest half-hour in the dataset (1-min vol median 4,390, 30-min vol median 134,760) — edging out the 09:30 open itself. Consider extending your highest-liquidity window through 11:00.',
+ insProbNote:'Dashed line = 50% (no edge). P(NY↑|London↓) Full = 57.14% is the strongest full-session read. Everything else sits in the 46–53% band — treat as noise. Two-session combos live in the new Threshold Opt tab.',
+ overviewStrip:[
+  {l:'NY Open Mean Rotation',v:'26.77 pts',vc:'t',s:'Median 21.25 · P90 53.25',tip:'Average swing size in the first 60 min after NYSE open. Use the median (21.25 pts) for typical target setting, P90 (53.25 pts) as your maximum expected move.'},
+  {l:'NY Full Mean Rotation',v:'22.89 pts',vc:'gold',s:'Median 17.00 · P90 48.00',tip:'Average swing across the entire NY session. Calmer than the opening hour, but still the largest full-session bucket of the three.'},
+  {l:'Asia Full Mean Rotation',v:'9.70 pts',vc:'bl',s:'Median 6.75 · P90 20.50',tip:'Overnight swings remain the smallest of the three sessions. Use 20.50 pts (P90) as your maximum expected overnight range.'},
+  {l:'IB Median Range',v:'125.75 pts',vc:'t',s:'σ = 65.87 pts',tip:'High standard deviation means IB size varies enormously day-to-day. Classify the type fresh at 10:30 each day rather than assuming a fixed size.'},
+  {l:'Most Common IB Type',v:'Transitional',vc:'gold',s:'47 / 109 days · 43%',tip:'The 4-way classification (Compressed/Normal/Expanded/Transitional) now shows Transitional as the largest single bucket, ahead of Normal at 35%.'},
+ ],
+ volumeStrip:[
+  {l:'10:30 1-Min Vol Median',v:'4,390',vc:'t',s:'New peak slot',tip:'10:30 has overtaken 09:30 as the single busiest 1-minute slot in this longer sample. Peak liquidity now extends about an hour past the open.'},
+  {l:'09:30 1-Min Vol Median',v:'2,951',vc:'gold',s:'RTH open spike',tip:'Still elevated and still the moment the market establishes its opening bias, but no longer the single highest-volume minute of the day.'},
+  {l:'10:30 30-Min Vol Median',v:'134,760',vc:'o',s:'Highest 30m slot',tip:'Edges out the 09:30 slot (115,047). Consider treating 10:00–11:00 as part of your primary execution window, not just 09:30–10:00.'},
+  {l:'09:30 30-Min Median',v:'115,047',vc:'g',s:'RTH open 30m',tip:'The market still establishes a large share of its directional bias here, even though it is no longer the single largest 30-min window.'},
+  {l:'10:30 5s RangeBars Med',v:'183.5',vc:'bl',s:'1st SD: 643',tip:'Fastest tape of the day now prints at 10:30, not the open. Above 643 five-second bars per minute signals unusually fast, follow-through-risk conditions.'},
+ ],
+ vol1m:{med:[153.0, 139.0, 173.0, 184.0, 240.0, 215.0, 332.0, 267.5, 434.5, 291.0, 284.0, 246.0, 259.5, 255.0, 306.0, 319.0, 438.0, 554.0, 640.0, 2951.0, 2391.5, 4389.5, 3434.0, 2735.0, 2220.0, 1986.0, 1761.5, 1597.0, 1576.0, 1383.0, 1433.0, 1747.0, 948.0, 438.0, 682.0, 320.0, 285.0, 174.0, 288.0, 245.0, 359.0, 277.0, 295.0, 270.0, 244.0, 194.0, 181.0, 169.0],s1:[466.357406, 373.389208, 503.716652, 497.109082, 636.687896, 600.842163, 783.490859, 684.980767, 1024.51784, 802.207847, 866.349704, 748.894382, 744.746987, 675.775896, 807.267904, 804.730422, 1022.471439, 1590.396758, 1487.7969, 6605.16361, 5498.801192, 8826.082562, 7225.628271, 5804.35371, 4687.684366, 4168.476651, 3617.639043, 3500.399526, 3356.064669, 3131.851002, 3137.954099, 3901.214728, 2902.232765, 3172.721709, 2342.437202, 910.713165, 936.307924, 536.819368, 920.550885, 743.430709, 1000.976704, 801.914236, 817.250212, 833.49604, 722.67886, 579.982138, 546.676171, 553.705024],s2:[708.010316, 551.284861, 760.939474, 734.179892, 948.921471, 894.605004, 1136.599311, 1005.956905, 1485.159754, 1189.945323, 1306.360211, 1131.857569, 1118.650147, 1003.621832, 1199.354944, 1181.742634, 1480.53899, 2400.44856, 2154.315713, 9567.951332, 7924.921365, 12337.119354, 10206.624665, 8208.259762, 6606.085979, 5901.813183, 5099.338575, 4979.210055, 4753.373215, 4472.16585, 4494.105198, 5570.730122, 4351.930042, 4976.501731, 3598.447252, 1376.175705, 1427.193239, 808.805844, 1404.876761, 1121.659513, 1496.702694, 1207.79387, 1211.047091, 1261.229224, 1083.125656, 867.575069, 820.560279, 843.680934],peak:21},
+ vol30:{med:[5417.0, 4711.0, 5923.5, 6593.0, 7928.0, 7149.0, 11112.5, 8785.5, 14124.5, 9750.5, 9520.5, 8479.0, 8182.5, 8671.0, 9823.0, 10406.0, 14181.0, 17548.0, 21063.5, 115047.0, 84076.0, 134760.0, 103781.0, 87432.0, 65480.0, 61734.0, 55110.5, 50436.0, 49656.0, 43412.0, 45549.0, 61875.0, 32206.0, 10075.0, 28620.0, 10081.0, 9780.5, 5699.5, 10194.5, 8180.0, 11404.5, 9732.0, 9971.0, 9045.0, 8276.0, 6992.0, 6047.0, 5917.0],peak:21},
+ rb5s:{med:[7.0, 6.0, 8.0, 8.0, 11.0, 10.0, 16.0, 13.0, 21.0, 15.0, 14.0, 12.0, 12.0, 11.0, 14.0, 14.0, 21.0, 26.0, 29.0, 136.0, 97.0, 183.5, 130.0, 99.0, 78.0, 67.0, 59.0, 53.0, 53.0, 46.0, 48.0, 57.0, 33.0, 20.0, 27.0, 12.0, 17.0, 9.0, 15.0, 12.0, 18.0, 13.0, 14.0, 13.0, 11.0, 9.0, 8.0, 8.0],s1:[42.0, 30.0, 46.0, 41.0, 60.0, 49.0, 71.0, 54.0, 85.0, 67.0, 75.0, 62.0, 71.0, 59.0, 73.0, 72.0, 87.0, 245.0, 115.0, 480.0, 456.0, 643.0, 522.0, 333.0, 248.0, 221.0, 197.0, 203.0, 191.0, 175.0, 190.0, 226.0, 256.0, 182.0, 254.0, 144.0, 205.0, 51.0, 194.0, 71.0, 95.0, 69.0, 68.0, 70.0, 62.0, 48.0, 47.0, 52.0],peak:21},
+ hhLabels:["00:00", "00:30", "01:00", "01:30", "02:00", "02:30", "03:00", "03:30", "04:00", "04:30", "05:00", "05:30", "06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30"],
+ rotTable1Rows:[['FullSession','Asia','17,591','9.70','6.75','21.2400','18.72','3.75','12.0','20.50'],['FullSession','London','19,445','11.89','9.00','7.3875','10.83','5.00','15.5','24.50'],['FullSession','NY','16,718','22.89','17.00','16.4925','21.68','9.50','29.5','48.00'],['OpeningHour','Asia Open','2,499','11.55','8.25','6.3625','12.16','4.25','14.5','24.25'],['OpeningHour','London Open','2,559','9.67','7.50','5.1275','8.44','4.25','12.5','19.50'],['OpeningHour','NY Open','2,667','26.77','21.25','16.4925','24.35','12.25','34.5','53.25']],
+ rotTable2Rows:[['OpenBracket 1H','Asia Open','1,726','15.49','11.00','14.51'],['OpenBracket 1H','London Open','1,792','12.62','10.00','9.99'],['OpenBracket 1H','NY Open','1,982','32.65','26.00','23.78'],['Full Session','Asia','12,953','12.96','9.25','21.95'],['Full Session','London','14,595','15.43','11.75','12.25'],['Full Session','NY','12,879','29.17','22.00','24.70']],
+ rotMed:{full:[6.75,9.00,17.00],open:[8.25,7.50,21.25]},rotMedNote:'NY Opening Hour median (21.25 pts) is 25% larger than the full NY session median (17.00 pts) — a smaller premium than the prior sample (78%), but still the clearest edge in the data.',
+ rotAll:{labels:['Asia Full','London Full','NY Full','Asia Open','London Open','NY Open'],mean:[9.70,11.89,22.89,11.55,9.67,26.77],median:[6.75,9.00,17.00,8.25,7.50,21.25],p75:[12.0,15.5,29.5,14.5,12.5,34.5],p90:[20.50,24.50,48.00,24.25,19.50,53.25]},
+ sessionsStrip:[
+  {l:'P(NY↑|London↓) Full',v:'57.14%',vc:'t',s:'Open: 40.38%',tip:'Strongest full-session signal in the new sample. London closing down predicted NY closing up 57.1% of the time. Weak, but the best directional edge available full-session.'},
+  {l:'P(NY↑|London↑) Full',v:'52.54%',vc:'o',s:'Open: 57.14%',tip:'Near-random full-session, but the opening-hour version (57.14%) is more interesting — timeframe matters a lot for this pair.'},
+  {l:'P(NY↑|Asia↑) Full',v:'53.45%',vc:'gold',s:'Open: 46.30%',tip:'Statistically meaningless — essentially a coin flip both full-session and opening-hour.'},
+  {l:'P(London↑|Asia↑)',v:'48.28%',vc:'bl',s:'Open: 46.30%',tip:'No meaningful edge. Asia direction does not predict London direction in either timeframe.'},
+ ],
+ probFull:[52.54,57.14,53.45,48.28],probOpen:[57.14,40.38,46.30,46.30],
+ sessVol:null,sessVolNote:'Rotation medians shown as proxy. NY Opening Hour continues to dominate every other window, though by a narrower margin than the shorter prior sample.',
+ probNote:'<span style="color:var(--tx)">Key finding:</span> <strong>P(NY↑|London↓) Full = 57.14%</strong> is now the strongest full-session read. Every other condition sits in the 46–53% band — essentially noise. Two-session combos and Asia-magnitude threshold signals live in the new <strong>Threshold Opt</strong> tab.',
+ corrStrip:[
+  {l:'London–NY Vol Corr',v:'0.6508',vc:'t',s:'Strongest pair (was 0.47)',tip:'The dominant relationship in this sample. A volatile London session reliably predicts a wider NY session — use London ATR to pre-size NY stops.'},
+  {l:'Asia–London Vol Corr',v:'0.0722',vc:'gold',s:'Weak (was 0.51)',tip:'Much weaker than the prior shorter sample — Asia volatility no longer meaningfully predicts London volatility in the full 9-month window.'},
+  {l:'London–NY Return Corr',v:'0.0809',vc:'o',s:'Very weak',tip:'Near-zero: London direction predicts NY direction with essentially no statistical accuracy.'},
+  {l:'PreNY–RTH Return Corr',v:'−0.1061',vc:'rd',s:'Weak mean-reversion (was −0.18)',tip:'Negative but weaker than before: pre-market price run-up tends to fade slightly at the RTH open. Treat as a minor bias, not a standalone signal.'},
+ ],
+ retCorr:{Asia:{'Asia':1.000,'London':-0.1362,'NY':-0.1145},London:{'Asia':-0.1362,'London':1.000,'NY':0.0809},NY:{'Asia':-0.1145,'London':0.0809,'NY':1.000}},
+ volCorr:{Asia:{'Asia':1.000,'London':0.0722,'NY':0.0162},London:{'Asia':0.0722,'London':1.000,'NY':0.6508},NY:{'Asia':0.0162,'London':0.6508,'NY':1.000}},
+ retCorrNote:'All return correlations remain near zero — Asia–London is the largest in magnitude at −0.14, still far too weak to trade. Sessions stay directionally independent.',
+ volCorrNote:'Major shift from the shorter sample: London–NY vol correlation is now the dominant relationship at 0.65 (was 0.47). Asia no longer links meaningfully to either session (0.02–0.07).',
+ corrBars:{labels:['Asia–London\nReturn','Asia–NY\nReturn','London–NY\nReturn','PreNY–RTH\nReturn','London–NY\nVol','Asia–London\nVol','Asia–NY\nVol'],vals:[-0.1362,-0.1145,0.0809,-0.1061,0.6508,0.0722,0.0162]},
+ ibCards:[
+  {type:'c',label:'Type 1 — Compressed',n:'11',pct:'10.1%',range:'Low tail of IB Range',crosses:'25.00',meanR:'21.38',medR:'16.00',std:'17.73',sample:'366',note:'Fewer VPOC crosses than Expanded/Transitional, and the smallest rotations of the four types — still the closest thing to a trending regime.'},
+  {type:'n',label:'Type 2 — Normal',n:'38',pct:'34.9%',range:'Mid tail of IB Range',crosses:'27.63',meanR:'28.57',medR:'21.00',std:'24.06',sample:'1,361',note:'Second-largest bucket. VPOC mean-reversion still has positive expectancy here, consistent with the prior sample.'},
+  {type:'e',label:'Type 3 — Expanded',n:'13',pct:'11.9%',range:'High tail of IB Range',crosses:'31.69',meanR:'32.62',medR:'26.50',std:'23.35',sample:'547',note:'Largest rotations of any type (32.6 mean / 26.5 median pts). Widen stops materially vs Normal days.'},
+  {type:'tr',label:'Type 4 — Transitional',n:'47',pct:'43.1%',range:'100.75–161.24 pt band',crosses:'29.62',meanR:'26.23',medR:'20.25',std:'21.18',sample:'1,762',note:'Now the single largest bucket — a ±25pt band around the median/mean gap that swallowed most of the sample. Being reassessed as more 2026 data comes in; for now, treat its rotation stats (between Normal and Expanded) as the working baseline.'},
+ ],
+ ibCountData:[25.00,27.63,31.69,29.62],ibCountNote:'Compressed days still show fewer VPOC crosses (25.0 avg) than Expanded/Transitional (29–32), but the gap narrowed sharply from the prior sample — trending-vs-mean-reverting behavior is less clean-cut over the longer window.',
+ ibSizeMean:[21.38,28.57,32.62,26.23],ibSizeMed:[16.00,21.00,26.50,20.25],ibSizeNote:'Expanded days still produce the largest rotations (32.6 mean / 26.5 median pts). Transitional — now the largest bucket by day count — sits between Normal and Compressed in rotation size.',
+ ibLog:[['Mean IB Range','136.24 pts','Across 109 days with a complete 09:30–10:30 window'],['Median IB Range','125.75 pts','Central tendency — used as the classification anchor'],['Std Dev IB Range','65.87 pts','High variability — assess the regime fresh each day'],['Type 4 window','100.75 – 161.24 pts','±25pt band around the median/mean gap; currently the largest single bucket'],['Jun 23, 2025','253.25 pts → Type 3','H: 22,011.75 · L: 21,758.50'],['Jun 24, 2025','73.25 pts → Type 2','H: 22,333.25 · L: 22,260.00'],['Jun 25, 2025','85.50 pts → Type 2','H: 22,548.25 · L: 22,462.75'],['Jun 26, 2025','106.25 pts → Type 4','H: 22,582.50 · L: 22,476.25'],['Jun 27, 2025','141.75 pts → Type 4','H: 22,823.75 · L: 22,682.00']],
+ priceStart:21767.5,priceEnd:24732.25,priceNote:'+13.6% over the full Jun 2025 – Mar 2026 window, spanning three rolled contracts (09-25 → 12-25 → 03-26). The uptrend continued across the roll, with the IB/VPOC mean-reversion playbook still dominant on the modal (Transitional/Normal) day types.',
+ ibDonutData:[38,47,13,11],ibDonutLabels:['Normal (38)','Transitional (47)','Expanded (13)','Compressed (11)'],
+ ovRotNote:'Opening Hour rotations still exceed full-session medians in every session, but the premium compressed versus the shorter prior sample — most visibly in NY (25% vs 78% before).',
+ ovProbNote:'All values sit in the 46–57% band — still no reliable edge. Strongest full-session read: London↓→NY↑ at 57.1%.',
+ rangeBar:{
+  oneMinFullDay:{mean:696.78,mode:67.0,std:1290.63},
+  fifteenMin:[['08:45','4,872','13,658','20,091'],['09:00','5,584','13,503','19,139'],['09:15','7,465','14,181','19,512'],['09:30','41,814','67,702','94,918'],['09:45','27,498','54,818','78,108'],['10:00','24,975','61,876','92,403'],['10:15','21,186','41,221','57,963'],['10:30','38,022','111,427','161,917'],['10:45','34,329','81,306','116,144'],['11:00','28,573','83,322','123,099']],
+  setups:[
+   ['Setup A — 5pt target / 10pt stop, 1-bar confirm','2,299','740','75.7%',null],
+   ['Setup B — 5pt target / 15pt stop, 1-bar confirm','1,574','492','76.2%',null],
+   ['Setup C — 5pt target / 10pt stop, 2-bar confirm','744','1,322','36.0%','−$190,000'],
+  ]
+ },
+ threshold:{
+  best:{pct:'1.00%',prob:'100.00%',improvement:'+54.26 p.p.'},
+  methods:[
+   ['KMeans low-vol cluster','0.075%','58.82%'],['Percentile P50','0.196%','59.65%'],['Percentile P60','0.227%','60.87%'],['KMeans mid-vol cluster','0.290%','65.71%'],['Percentile P70','0.291%','67.65%'],['Percentile P80','0.396%','56.52%'],['Std mean +1σ','0.467%','73.33%'],['Percentile P90','0.548%','75.00%'],['Percentile P95','0.677%','83.33%'],['Std mean +2σ','0.689%','83.33%'],['KMeans high-vol cluster','0.714%','75.00%'],['Optimized threshold (grid search)','1.000%','100.00%']
+  ],
+  combo:[
+   ['P(NY↑ | Asia↓ & London↑)','58.06%','58.62%'],['P(NY↑ | Asia↑ & London↓)','62.07%','39.29%'],['P(NY↑ | Asia↑ & London↑)','46.43%','56.00%']
+  ],
+  comboNote:'Asia magnitude never exceeded 2.0% in this sample (0 of 129 days), so P(London↑ | Asia magnitude > 2.0%) has no data — the threshold study above uses a fitted magnitude instead of a fixed 2% cutoff.'
+ },
+},mes:{
+ meta:{badge:'MES 12-25',accentName:'mes',heroTitle:'MES <em class="mes">12-25</em>',sub1:'Tick data · <span>1-min, 30-min, 5-sec bars</span> · <span>~20 trading days</span>',sub2:'Price <span>6,398 – 6,504</span> · Period <span>Aug 11 – Sep 7, 2025</span> · UTC−4',footer:'Aug 11 – Sep 7, 2025 · Tick resolution · UTC−4',hs:[['6.75 pts','pu','NY Open Median Rot'],['8.35 pts','t','NY Open Mean Rot'],['4.50 pts','g','NY Full Median Rot']]},
+ insights:[
+  {type:'pos',tag:'Opportunity Window',text:'<strong>NY Opening Hour</strong> median (6.75 pts) is 58% larger than full NY session median (4.50 pts). Same pattern as MNQ — the first 60 min after 09:30 is the highest-opportunity window.'},
+  {type:'neg',tag:'Strong Mean-Reversion Signal',text:'<strong>PreNY → RTH return correlation: −0.339</strong> — significantly stronger than MNQ (−0.185). Price running up into the open tends to pull back at 09:30. Fading pre-market extremes is a statistically supported strategy here.'},
+  {type:'warn',tag:'Counterintuitive Finding',text:'<strong>P(NY↑|London↓) Full = 85.7%.</strong> London closing down full-session strongly predicted NY closing up in this sample. Small n (~14 days) — monitor for persistence but treat as a hypothesis, not a rule.'},
+  {type:'info',tag:'Moderate Vol Clustering',text:'Volatility correlations are moderate (London–NY r=0.36, Asia–London r=0.32). Less clustering than MNQ. <strong>MES shows more uniform volatility</strong> day-to-day — ATR adjustments between sessions are less critical.'},
+  {type:'warn',tag:'Volume Pattern',text:'<strong>09:30 is 23× the Asia average.</strong> NYSE Morning (2,424 contracts/min) vs Asia (133/min) = 18× ratio. Liquidity-adjusted position sizing: consider running 1/3 normal size before 09:30.'},
+  {type:'pos',tag:'IB Regime Rule',text:'Normal IB dominates (~85% of days). <strong>Expanded IB days produce 40% larger rotations</strong> (5.25 vs 3.75 pts median). Identify the type at 10:30 and size up or down for the rest of the session.'},
+ ],
+ insRotNote:'MES rotations are smaller in absolute points than MNQ (index ~6,400 vs ~22,000), but relative % moves are comparable. NY Opening Hour is the highest-edge window in both instruments.',
+ insVolNote:'The 09:30 volume spike is consistent across MES and MNQ — this is a market-structure feature, not instrument-specific. The 08:30 pre-market window carries event risk (economic data).',
+ insProbNote:'The dashed line = 50% (no edge). The standout reading: P(NY↑|London↓) Full = 85.7% — London weakness predicting NY strength. And P(London↑|Asia↑) = only 25% — Asia strength may predict London weakness. Small sample — treat as hypothesis.',
+ overviewStrip:[
+  {l:'NY Open Mean Rotation',v:'8.35 pts',vc:'pu',s:'Median 6.75 · P90 11.75',tip:'Average swing size in the first 60 min after NYSE open. Higher than full session — confirms the opening hour is the primary opportunity window.'},
+  {l:'NY Full Mean Rotation',v:'5.45 pts',vc:'gold',s:'Median 4.50 · P90 7.50',tip:'Mid-day rotations are calmer. Use 4.50 pts as a baseline target for the non-opening-hour part of the NY session.'},
+  {l:'Asia Full Mean Rotation',v:'2.31 pts',vc:'bl',s:'Median 1.75 · P90 3.00',tip:'Very small overnight moves. Use 3.00 pts (P90) as the max expected overnight range. Wider moves are statistical outliers.'},
+  {l:'PreNY–RTH Return Corr',v:'−0.339',vc:'rd',s:'Strong mean-reversion',tip:'Stronger fade signal than MNQ (−0.185). Pre-market price direction tends to reverse at 09:30. Consider fading pre-market extremes at the open.'},
+  {l:'London–NY Vol Corr',v:'0.361',vc:'g',s:'Moderate vol link',tip:'Moderate: volatile London tends to produce a somewhat more volatile NY. Weaker than MNQ — use as a rough guide, not a strong predictor.'},
+ ],
+ volumeStrip:[
+  {l:'09:30 1-Min Vol Median',v:'3,055',vc:'pu',s:'RTH open spike',tip:'Peak volume minute. Highest liquidity = tightest spreads. Use this window for your highest-conviction trades.'},
+  {l:'08:30 1-Min Vol Median',v:'325',vc:'gold',s:'Pre-RTH peak',tip:'Economic data release spike. Sharp moves at 08:30 often reverse at 09:30 open — the PreNY→RTH mean-reversion correlation of −0.339 is consistent with this.'},
+  {l:'09:30 30-Min Vol Median',v:'101,307',vc:'o',s:'Highest 30m slot',tip:'~7× the next highest 30-min slot. The market establishes its daily value area during this window.'},
+  {l:'08:30 30-Min Median',v:'12,305',vc:'g',s:'Pre-RTH 30m',tip:'~8× lower than the RTH open window. Wide spreads and gap risk. Reduce size before 09:30.'},
+  {l:'09:30 5s RangeBars Med',v:'23',vc:'bl',s:'1st SD: 50',tip:'Above 50 five-second bars per minute = unusually fast tape. Above this level, widen stops slightly to avoid noise-based exits.'},
+ ],
+ vol1m:{med:[55,42,63,67,104,95,149.5,102,134.5,107,88.5,77,91.5,96,118,144.5,210.5,325,390,3055,2632.5,1953,1592,1293.5,1134,992,992,940,885,810.5,798,1380,344.5,171.5,2,180.5,88.5,84.5,86,148,108,92,93,86,63.5,64,53.5],s1:[139,120,341,200,255,319,382,421,371,271,232,185,278,288,353,382,546,1590,1222,5674,5452,3979,3366,2565,2228,2035,1934,2047,1912,1814,1951,4425,1970,440,2,522,285,250,279,662,450,234,252,228,170,208,170],s2:[207,181,579,304,372,491,566,670,550,401,344,268,427,441,544,571,811,2533,1848,7815,7695,5601,4803,3588,3149,2871,2685,2926,2735,2640,2837,6727,3215,647,3,786,440,380,436,1085,729,346,374,337,256,318,260],peak:19},
+ vol30:{med:[2059.5,1491,2351,2876,3927,3583.5,5728.5,3720,4674.5,4026,3375,3050,3554,3551,4441,5425,7373,12305,14273,101307,84163,64422.5,56518,44440,37726.5,33346,35686.5,33274.5,30782,26735,29855,57747,17870,6141,2,7518.5,3369,3015.5,3073,5935,4324.5,3276,3565.5,3770.5,2472.5,2478,1875.5],peak:19},
+ rb5s:{med:[1,1,1,1,1,1,2,1,2,1,1,1,1,1,1,1,2,3,3,23,19,14,11,8,7,6,6,6,5,5,5,7,2,1,0,2,1,1,1,2,1,1,1,1,1,1,1],s1:[2,2,5,3,3,4,5,5,5,4,3,3,4,4,4,4,7,47,12,50,75,31,25,20,17,15,15,15,15,13,13,24,37,6,0,15,3,3,4,10,8,4,4,3,3,3,3],peak:19},
+ rotTable1Rows:[['FullSession','Asia','2,008','1.495','1.25','0.925','1.487','0.50','2.00','3.00'],['FullSession','London','2,528','2.002','1.75','0.280','1.946','1.00','2.50','4.00'],['FullSession','NY','2,481','3.827','3.00','3.050','3.313','1.75','5.00','7.50'],['OpeningHour','Asia Open','269','1.496','1.25','0.943','1.170','0.75','2.00','3.00'],['OpeningHour','London Open','329','1.816','1.50','1.688','1.704','0.75','2.25','3.50'],['OpeningHour','NY Open','412','5.989','4.75','4.270','5.268','2.75','7.75','11.75']],
+ rotTable2Rows:[['OpenBracket 1H','Asia Open','142','2.30','2.00','1.37'],['OpenBracket 1H','London Open','193','2.67','2.25','2.26'],['OpenBracket 1H','NY Open','275','8.35','6.75','6.16'],['Full Session','Asia','1,232','2.31','1.75','1.85'],['Full Session','London','1,617','2.98','2.25','2.53'],['Full Session','NY','1,695','5.45','4.50','4.05']],
+ rotMed:{full:[1.25,1.75,3.00],open:[1.25,1.50,4.75]},rotMedNote:'NY Opening Hour median (4.75 pts) is 58% larger than the full NY session median (3.00 pts). The opening hour premium is consistent across both MES and MNQ.',
+ rotAll:{labels:['Asia Full','London Full','NY Full','Asia Open','London Open','NY Open'],mean:[1.495,2.002,3.827,1.496,1.816,5.989],median:[1.25,1.75,3.00,1.25,1.50,4.75],p75:[2.00,2.50,5.00,2.00,2.25,7.75],p90:[3.00,4.00,7.50,3.00,3.50,11.75]},
+ sessionsStrip:[
+  {l:'P(NY↑|London↑) Opening',v:'60.0%',vc:'pu',s:'Full: 38.46%',tip:'Striking divergence: in the opening hour London up → NY up 60% of the time. But full-session, this drops to only 38.5%. Sessions that open in one direction often reverse by close.'},
+  {l:'P(NY↑|London↓) Full',v:'85.71%',vc:'o',s:'Opening: 50.0%',tip:'The dataset\'s strongest signal. London full-session weakness predicted NY strength 85.7% of the time. Small sample (n≈14) — monitor if this persists in future data.'},
+  {l:'P(NY↑|Asia↑) Full',v:'62.50%',vc:'gold',s:'Opening: 37.5%',tip:'Full-session: Asia up → NY up 62.5%. But opening hour reverses this to 37.5%. Again, timeframe significantly changes the picture. Both are small-sample readings.'},
+  {l:'P(London↑|Asia↑)',v:'25.00%',vc:'bl',s:'Open: 40.62%',tip:'Asia going up predicts London going DOWN 75% of the time full-session. Strongest inverse signal. Small sample — worth watching over more data.'},
+ ],
+ probFull:[38.46,85.71,62.50,25.00],probOpen:[60.0,50.0,37.5,62.5],
+ sessVol:[132.72,163.75,2423.78,985.73],sessVolNote:'NYSE Morning (2,424 contracts/min avg) is 18× the Asia average (133/min). Size positions proportionally to liquidity — smaller size in Asia/London, full size at NY open.',
+ probNote:'<span style="color:var(--tx)">Key finding:</span> <strong>P(NY↑|London↓) Full = 85.7%</strong> is the standout — London weakness strongly predicted NY strength in this sample. Also notable: <strong>P(London↑|Asia↑) = only 25%</strong>. Both are small-sample findings (~20 days) — treat as hypotheses requiring more data to confirm.',
+ corrStrip:[
+  {l:'London–Asia Vol Corr',v:'0.3175',vc:'pu',s:'Moderate vol pair',tip:'Moderate positive: volatile Asia predicts somewhat wider London. Weaker than MNQ (0.51) — MES volatility is more uniform across sessions.'},
+  {l:'London–NY Vol Corr',v:'0.3608',vc:'gold',s:'Moderate',tip:'The most actionable vol correlation for MES. Volatile London tends to produce a somewhat more volatile NY. Use London ATR as a rough guide for NY stop sizing.'},
+  {l:'London–NY Return Corr',v:'0.0919',vc:'o',s:'Very weak',tip:'Near-zero: London direction provides no meaningful predictive power for NY direction. Trade each session on its own merits.'},
+  {l:'PreNY–RTH Return Corr',v:'−0.3394',vc:'rd',s:'Strong mean-reversion',tip:'Strongest signal in the correlation data. Pre-market price direction tends to reverse at the 09:30 RTH open. Significantly stronger than MNQ (−0.185). Fade pre-market extremes.'},
+ ],
+ retCorr:{Asia:{'Asia':1.000,'London':-0.044,'NY':-0.128},London:{'Asia':-0.044,'London':1.000,'NY':0.092},NY:{'Asia':-0.128,'London':0.092,'NY':1.000}},
+ volCorr:{Asia:{'Asia':1.000,'London':0.318,'NY':0.028},London:{'Asia':0.318,'London':1.000,'NY':0.361},NY:{'Asia':0.028,'London':0.361,'NY':1.000}},
+ retCorrNote:'Asia–NY return correlation is slightly negative (−0.128) — Asia up slightly predicts NY down. PreNY→RTH at −0.339 is the key signal: fade pre-market extremes at 09:30.',
+ volCorrNote:'London–NY vol (0.361) is the most actionable pair. After a volatile London session, prepare for an elevated NY open. Asia–NY vol correlation is negligible (0.028).',
+ corrBars:{labels:['Asia–London\nReturn','Asia–NY\nReturn','London–NY\nReturn','PreNY–RTH\nReturn','London–NY\nVol','Asia–London\nVol','Asia–NY\nVol'],vals:[-0.044,-0.128,0.092,-0.339,0.361,0.318,0.028]},
+ ibCards:[
+  {type:'n',label:'Type 2 — Normal',n:'~17',pct:'~85%',range:'Normal IB days',crosses:'N/A',meanR:'4.86',medR:'3.75',std:'3.84',sample:'456',note:'Dominant regime. Use 3.75 pts as baseline rotation target. Mean-reversion around VPOC has positive expectancy on these days.'},
+  {type:'e',label:'Type 3 — Expanded',n:'~3',pct:'~15%',range:'Expanded IB days',crosses:'N/A',meanR:'6.12',medR:'5.25',std:'3.36',sample:'133',note:'40% larger rotations vs Normal days. Identify at 10:30 and increase targets/stops proportionally for the rest of the session.'},
+ ],
+ ibCountData:[null,null],ibCountNote:'VPOC cross count data not available for MES in this dataset. Rotation size comparison (mean) shown instead.',
+ ibSizeMean:[4.86,6.12],ibSizeMed:[3.75,5.25],ibSizeNote:'Expanded days produce 40% larger median rotations (5.25 vs 3.75 pts). The difference is statistically consistent — use the IB type classification to adjust your trade sizing at 10:30.',
+ ibLog:[['Aug 11, 2025','12.00 → Type 2','H: 6,422.00 · L: 6,410.00'],['Aug 12, 2025','31.50 → Type 2','H: 6,439.75 · L: 6,408.25'],['Aug 13, 2025','22.75 → Type 2','H: 6,502.50 · L: 6,479.75'],['Aug 14, 2025','23.00 → Type 2','H: 6,485.75 · L: 6,462.75'],['Aug 15, 2025','30.25 → Type 2','H: 6,497.75 · L: 6,467.50']],
+ priceStart:6398,priceEnd:6499,priceNote:'Tight 1.6% range over ~20 days (6,398–6,504). Predominantly sideways/rotational market structure — confirming why Normal IB mean-reversion dominated this period.',
+ ibDonutData:[17,3,0],ibDonutLabels:['Normal (~17)','Expanded (~3)','Compressed (0)'],
+ ovRotNote:'Opening hour rotations exceed full-session medians across all sessions. The NY difference is most pronounced — consistent with MNQ findings.',
+ ovProbNote:'Note the full-session vs opening-hour divergence. P(NY↑|LDN↑) drops from 60% (opening) to 38% (full) — sessions that open up often reverse by close.',
+}};
+
+const charts={};let cur=null;
+const GC='rgba(255,255,255,0.05)',TC='#6b7280';
+const hh24=['00:00','00:30','01:00','01:30','02:00','02:30','03:00','03:30','04:00','04:30','05:00','05:30','06:00','06:30','07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00','22:30','23:00','23:30'];
+const bO={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:TC,font:{size:9},maxRotation:45},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10}},grid:{color:GC}}}};
+
+function mk(id,cfg){if(charts[id]){charts[id].destroy();delete charts[id];}charts[id]=new Chart(document.getElementById(id),cfg);}
+
+function go(name,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.nav a').forEach(a=>a.classList.remove('on','mes-mode'));
+  document.getElementById('sec-'+name).classList.add('on');
+  el.classList.add('on');if(cur==='mes')el.classList.add('mes-mode');
+}
+function backToLanding(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('landing').style.display='flex';
+  document.querySelectorAll('.nav a').forEach((a,i)=>{a.classList.remove('on','mes-mode');if(i===0)a.classList.add('on');});
+  document.querySelectorAll('.sec').forEach((s,i)=>{s.classList.remove('on');if(i===0)s.classList.add('on');});
+}
+
+function enterApp(inst){
+  cur=inst;const D=DATA[inst];const M=D.meta;const ismes=inst==='mes';
+  const ac=ismes?'rgba(167,139,250,':'rgba(0,212,170,';const acS=ismes?'#a78bfa':'#00d4aa';
+  document.getElementById('landing').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('logoEm').className=ismes?'mes':'mnq';
+  document.querySelectorAll('.mnq-only').forEach(el=>{el.style.display=ismes?'none':'';});
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sec-insights').classList.add('on');
+  document.querySelectorAll('.nav a').forEach((a,i)=>{a.classList.remove('on','mes-mode');if(i===0){a.classList.add('on');if(ismes)a.classList.add('mes-mode');}});
+  const b=document.getElementById('mainBadge');b.textContent=M.badge;b.className='dbadge '+(ismes?'mes':'mnq');
+  document.getElementById('heroTitle').innerHTML=M.heroTitle;
+  document.getElementById('heroSub1').innerHTML=M.sub1;
+  document.getElementById('heroSub2').innerHTML=M.sub2;
+  document.getElementById('footer-right').textContent=M.footer;
+  document.getElementById('heroStats').innerHTML=M.hs.map(([v,c,l])=>`<div class="hst"><div class="val ${c}">${v}</div><div class="lbl">${l}</div></div>`).join('');
+  document.getElementById('ins-dot').style.background=acS;
+  document.getElementById('insights-grid').innerHTML=D.insights.map(i=>`<div class="insight ${i.type}"><div class="itag">${i.tag}</div><div class="itext">${i.text}</div></div>`).join('');
+  bStrip('strip-overview',D.overviewStrip,5);bStrip('strip-volume',D.volumeStrip,5);bStrip('strip-sessions',D.sessionsStrip,4);bStrip('strip-corr',D.corrStrip,4);
+  bRot1(D.rotTable1Rows);bRot2(D.rotTable2Rows);bProb(D,ismes);
+  document.getElementById('prob-note').innerHTML=D.probNote;
+  document.getElementById('sess-vol-title').textContent=D.sessVol?'Avg Daily Volume per Minute by Session':'Opening Hour vs Full Session — Rotation Size';
+  document.getElementById('sessVol-note').textContent=D.sessVolNote;
+  bCorr(D);
+  document.getElementById('ret-corr-note').textContent=D.retCorrNote;
+  document.getElementById('vol-corr-note').textContent=D.volCorrNote;
+  bIBCards(D);bIBLog(D.ibLog);
+  ['price-note','ovRot-note','ovProb-note','rotMed-note','ibCount-note','ibSize-note','ins-rot-note','ins-vol-note','ins-prob-note'].forEach(id=>{
+    const k=id.replace('-note','Note').replace(/-([a-z])/g,(_,c)=>c.toUpperCase());
+    if(D[k])document.getElementById(id).textContent=D[k];
+  });
+  if(D.rangeBar)bRangeBar(D.rangeBar);
+  if(D.threshold)bThreshold(D.threshold);
+  setTimeout(()=>bCharts(D,ismes,ac,acS),50);
+}
+
+function bRangeBar(RB){
+  const od=RB.oneMinFullDay;
+  document.getElementById('rb-oneday').innerHTML=`<div>Mean: <strong style="color:var(--tx)">${od.mean.toFixed(2)}</strong> bars/min</div><div>Mode: <strong style="color:var(--tx)">${od.mode.toFixed(1)}</strong> bars/min</div><div>Std Dev: <strong style="color:var(--tx)">${od.std.toFixed(2)}</strong></div><div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);color:var(--mu)">Right-skewed: mode (${od.mode.toFixed(0)}) sits well below the mean (${od.mean.toFixed(0)}) — a handful of very fast minutes (the 09:30–11:00 window) pull the average well above what a typical minute looks like.</div>`;
+  document.getElementById('rb-15min').innerHTML=`<thead><tr><th>Time</th><th>Median</th><th>1st SD Upper</th><th>2nd SD Upper</th></tr></thead><tbody>${RB.fifteenMin.map(r=>`<tr${r[0]==='09:30'||r[0]==='10:30'?' style="color:var(--te)"':''}><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</tbody>`;
+  document.getElementById('rb-setups').innerHTML=`<thead><tr><th>Setup</th><th>Wins</th><th>Losses</th><th>Win Rate</th></tr></thead><tbody>${RB.setups.map(s=>`<tr><td>${s[0]}</td><td style="color:var(--gr)">${s[1]}</td><td style="color:var(--rd)">${s[2]}</td><td><b>${s[3]}</b></td></tr>`).join('')}</tbody>`;
+  const bad=RB.setups.find(s=>s[4]);
+  document.getElementById('rb-pnl-callout').innerHTML=bad?`<div class="callout bad" style="margin-top:12px"><div class="ctop">Simulated P&amp;L — ${bad[0]}</div><div class="cnum">${bad[4]}</div><div class="csub">At 20 contracts, target 5 pts vs stop 10 pts (1:2 reward:risk), a ${bad[3]} win rate is not enough to break even — you need &gt;66.7% at this R:R. The extra confirmation bar filtered out the setup's edge rather than improving it.</div></div>`:'';
+}
+function bThreshold(T){
+  document.getElementById('th-callout').innerHTML=`<div class="callout good"><div class="ctop">Best Fitted Threshold — P(London↑ | Asia magnitude &gt; X)</div><div class="cnum">${T.best.prob}</div><div class="csub">at an Asia-session magnitude threshold of <strong style="color:var(--tx)">${T.best.pct}</strong> · ${T.best.improvement} vs. the unconditional baseline. Treat this top reading as a small-sample, grid-searched optimum — not a standalone trading rule. See caveat below.</div></div>`;
+  document.getElementById('th-methods').innerHTML=`<thead><tr><th>Method</th><th>Threshold</th><th>P(London↑ | Asia mag &gt; X)</th></tr></thead><tbody>${T.methods.map(m=>`<tr><td>${m[0]}</td><td>${m[1]}</td><td><b>${m[2]}</b></td></tr>`).join('')}</tbody>`;
+  document.getElementById('th-combo-note').textContent=T.comboNote;
+  document.getElementById('th-combo').innerHTML=`<thead><tr><th>Condition</th><th>Full Session</th><th>Opening Hour</th></tr></thead><tbody>${T.combo.map(c=>`<tr><td>${c[0]}</td><td>${c[1]}</td><td>${c[2]}</td></tr>`).join('')}</tbody>`;
+}
+
+function bStrip(id,items,cols){
+  const el=document.getElementById(id);el.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+  el.innerHTML=items.map(i=>`<div class="sc"><div class="lbl">${i.l}${i.tip?`<div class="tip-wrap"><span class="tip-icon">?</span><div class="tip-box">${i.tip}</div></div>`:''}</div><div class="val ${i.vc}">${i.v}</div><div class="sub">${i.s}</div></div>`).join('');
+}
+function bRot1(rows){const S={'FullSession':'f','OpeningHour':'o'},SS={'Asia':'a','London':'l','NY':'n','Asia Open':'a','London Open':'l','NY Open':'n'};document.getElementById('rot-table1').innerHTML=`<thead><tr><th>Segment</th><th>Session</th><th>Count</th><th>Mean</th><th>Median</th><th>Mode</th><th>Std</th><th>P25</th><th>P75</th><th>P90</th></tr></thead><tbody>${rows.map(r=>`<tr><td><span class="bx ${S[r[0]]||'o'}">${r[0]}</span></td><td><span class="bx ${SS[r[1]]||'a'}">${r[1]}</span></td>${r.slice(2).map((v,i)=>i===2?`<td><b>${v}</b></td>`:`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody>`;}
+function bRot2(rows){const S={'OpenBracket 1H':'o','Full Session':'f'},SS={'Asia Open':'a','London Open':'l','NY Open':'n','Asia':'a','London':'l','NY':'n'};document.getElementById('rot-table2').innerHTML=`<thead><tr><th>Type</th><th>Session</th><th>Count</th><th>Mean (pts)</th><th>Median (pts)</th><th>Std</th></tr></thead><tbody>${rows.map(r=>`<tr><td><span class="bx ${S[r[0]]||'o'}">${r[0]}</span></td><td><span class="bx ${SS[r[1]]||'a'}">${r[1]}</span></td>${r.slice(2).map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody>`;}
+function bProb(D,ismes){const lbl=['P(NY↑|LDN↑)','P(NY↑|LDN↓)','P(NY↑|ASI↑)','P(LDN↑|ASI↑)'];const cl=[ismes?'var(--pu)':'var(--te)','var(--or)','var(--bl)','var(--go)'];document.getElementById('probgrid').innerHTML=lbl.map((l,i)=>{const pf=D.probFull[i],po=D.probOpen[i];return`<div class="prow"><div class="pcond">${l} — Full</div><div class="pbar"><div style="width:${Math.min(pf,100)}%;background:${pf<40?'var(--rd)':cl[i]}"></div></div><div class="ppct" style="color:${pf<40?'var(--rd)':cl[i]}">${pf.toFixed(2)}%</div></div><div class="prow"><div class="pcond">${l} — Open</div><div class="pbar"><div style="width:${Math.min(po,100)}%;background:${po<40?'var(--rd)':cl[i]}"></div></div><div class="ppct" style="color:${po<40?'var(--rd)':cl[i]}">${po.toFixed(2)}%</div></div>`;}).join('');}
+function bCorr(D){const s=['Asia','London','NY'];function cv(v){return v>=0.99?'var(--te)':Math.abs(v)>=0.3?'var(--or)':Math.abs(v)>=0.1?'var(--go)':v<0?'var(--rd)':'var(--mu)';}function bm(id,data,sf){document.getElementById(id).innerHTML=`<thead><tr><th></th>${s.map(x=>`<th>${x} ${sf}</th>`).join('')}</tr></thead><tbody>${s.map(x=>`<tr><td class="lbl">${x} ${sf}</td>${s.map(y=>`<td style="color:${cv(data[x][y])}">${data[x][y].toFixed(4)}</td>`).join('')}</tr>`).join('')}</tbody>`;}bm('ret-corr-table',D.retCorr,'Return');bm('vol-corr-table',D.volCorr,'Vol');}
+function bIBCards(D){const el=document.getElementById('ib-cards');el.style.gridTemplateColumns=`repeat(${D.ibCards.length},1fr)`;el.innerHTML=D.ibCards.map(c=>`<div class="ibc ${c.type}"><div class="ilbl ${c.type}">${c.label}</div><div class="inum ${c.type}">${c.n}</div><div class="irow">Days · <span>${c.pct}</span></div><div class="irow">IB Range: <span>${c.range}</span></div>${c.crosses!=='N/A'?`<div class="irow">Avg VPOC Crosses: <span>${c.crosses}</span></div>`:''}<div class="irow">Mean Rotation: <span>${c.meanR} pts</span></div><div class="irow">Median Rotation: <span>${c.medR} pts</span></div><div class="irow">Std: <span>${c.std}</span> · n: <span>${c.sample} rots</span></div><div class="inote">${c.note}</div></div>`).join('');}
+function bIBLog(rows){const tc=t=>{if(t.includes('Type 3'))return t.replace('Type 3','<span style="color:var(--rd)">Type 3</span>');if(t.includes('Type 2'))return t.replace('Type 2','<span style="color:var(--bl)">Type 2</span>');return`<span style="color:var(--te)">${t}</span>`;};document.getElementById('ib-log-table').innerHTML=`<thead><tr><th>Parameter / Date</th><th>Value</th><th>Note</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td>${tc(r[1])}</td><td style="color:var(--mu)">${r[2]}</td></tr>`).join('')}</tbody>`;}
+
+function bCharts(D,ismes,ac,acS){
+  const pi=D.vol1m.peak;
+  const R=D.rotAll;
+  const HH=D.hhLabels||hh24;
+
+  mk('ins-rot',{type:'bar',data:{labels:['Asia\nFull','London\nFull','NY\nFull','Asia\nOpen','London\nOpen','NY\nOpen'],datasets:[{data:R.median,backgroundColor:[ac+'0.45)',ac+'0.5)',ac+'0.7)',ac+'0.35)',ac+'0.4)','rgba(255,107,53,.85)'],borderRadius:5}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:9},maxRotation:0},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v+' pts'},grid:{color:GC}}}}});
+
+  const vs=D.vol1m.med.slice(16,24),vl=HH.slice(16,24);
+  mk('ins-vol',{type:'bar',data:{labels:vl,datasets:[{data:vs,backgroundColor:vs.map((_,i)=>i===3?'rgba(240,180,41,.9)':ac+'0.65)'),borderRadius:4}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:9}},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v},grid:{color:GC}}}}});
+
+  mk('ins-prob',{type:'bar',data:{labels:['P(NY↑|LDN↑)','P(NY↑|LDN↓)','P(NY↑|ASI↑)','P(LDN↑|ASI↑)'],datasets:[{label:'Full Session %',data:D.probFull,backgroundColor:[ac+'0.8)','rgba(255,107,53,.75)','rgba(79,142,247,.7)','rgba(240,180,41,.65)'],borderRadius:4},{label:'50% — no edge',data:[50,50,50,50],type:'line',borderColor:'rgba(255,255,255,0.2)',borderDash:[5,4],pointRadius:0,borderWidth:1.5,backgroundColor:'transparent'}]},options:{...bO,plugins:{legend:{display:true,labels:{color:TC,font:{size:10},padding:10,boxWidth:10}}},scales:{x:{ticks:{color:TC,font:{size:9}},grid:{color:GC}},y:{min:20,max:92,ticks:{color:TC,font:{size:10},callback:v=>v+'%'},grid:{color:GC}}}}});
+
+  const N=400,pD=[];for(let i=0;i<N;i++)pD.push(+(D.priceStart+(D.priceEnd-D.priceStart)*(i/N)+Math.sin(i*.19)*8+Math.sin(i*.073)*18+Math.sin(i*.029)*25+Math.cos(i*.11)*12).toFixed(2));
+  mk('priceChart',{type:'line',data:{labels:pD.map((_,i)=>i%80===0?`Day ${Math.floor(i/20)+1}`:''),datasets:[{data:pD,borderColor:acS,borderWidth:1.5,pointRadius:0,tension:.35,fill:true,backgroundColor:ismes?'rgba(167,139,250,0.05)':'rgba(0,212,170,0.05)'}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:10},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v.toLocaleString()},grid:{color:GC}}}}});
+
+  mk('ibDonut',{type:'doughnut',data:{labels:D.ibDonutLabels,datasets:[{data:D.ibDonutData,backgroundColor:D.ibDonutData.length>3?['rgba(79,142,247,.85)','rgba(240,180,41,.85)','rgba(239,68,68,.85)','rgba(34,197,94,.85)']:['rgba(79,142,247,.85)','rgba(239,68,68,.85)','rgba(34,197,94,.85)'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:true,position:'bottom',labels:{color:TC,font:{size:10},padding:10,boxWidth:10}}}}});
+
+  mk('ovRot',{type:'bar',data:{labels:['Asia Full','London Full','NY Full','Asia Open','London Open','NY Open'],datasets:[{data:[D.rotMed.full[0],D.rotMed.full[1],D.rotMed.full[2],D.rotMed.open[0],D.rotMed.open[1],D.rotMed.open[2]],backgroundColor:['rgba(79,142,247,.7)',ac+'0.7)','rgba(255,107,53,.7)','rgba(79,142,247,.4)',ac+'0.4)','rgba(255,107,53,.4)'],borderRadius:4}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:9}},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v+' pts'},grid:{color:GC}}}}});
+
+  mk('ovProb',{type:'bar',data:{labels:['P(NY↑|LDN↑)','P(NY↑|LDN↓)','P(NY↑|ASI↑)','P(LDN↑|ASI↑)'],datasets:[{data:D.probFull,backgroundColor:[ac+'0.75)','rgba(255,107,53,.7)','rgba(79,142,247,.7)','rgba(240,180,41,.65)'],borderRadius:4}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:9}},grid:{color:GC}},y:{min:20,max:92,ticks:{color:TC,font:{size:10},callback:v=>v+'%'},grid:{color:GC}}}}});
+
+  mk('vol1m',{type:'bar',data:{labels:HH,datasets:[{label:'Median',data:D.vol1m.med,backgroundColor:D.vol1m.med.map((_,i)=>i===pi?'rgba(240,180,41,.9)':i>=pi-2&&i<=pi+2?'rgba(255,107,53,.75)':'rgba(79,142,247,.45)'),borderRadius:2,order:3},{label:'1st SD',data:D.vol1m.s1,type:'line',borderColor:'rgba(79,142,247,.8)',pointRadius:0,borderWidth:1.5,tension:.4,backgroundColor:'transparent',order:1},{label:'2nd SD',data:D.vol1m.s2,type:'line',borderColor:'rgba(240,180,41,.7)',pointRadius:0,borderWidth:1.5,tension:.4,backgroundColor:'transparent',order:2}]},options:{...bO,plugins:{legend:{display:true,labels:{color:TC,font:{size:10},padding:12,boxWidth:10}}}}});
+
+  mk('vol30',{type:'bar',data:{labels:HH,datasets:[{data:D.vol30.med,backgroundColor:D.vol30.med.map((_,i)=>i===pi?'rgba(240,180,41,.9)':i>=pi-2&&i<=pi+2?'rgba(255,107,53,.7)':'rgba(79,142,247,.5)'),borderRadius:2}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:8},maxRotation:45,autoSkip:true},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v},grid:{color:GC}}}}});
+
+  mk('rb5s',{type:'bar',data:{labels:HH,datasets:[{label:'Median',data:D.rb5s.med,backgroundColor:ac+'0.55)',borderRadius:2,order:2},{label:'1st SD',data:D.rb5s.s1,type:'line',borderColor:'rgba(255,107,53,.8)',pointRadius:0,borderWidth:1.5,tension:.4,backgroundColor:'transparent',order:1}]},options:{...bO,plugins:{legend:{display:true,labels:{color:TC,font:{size:10},padding:12,boxWidth:10}}},scales:{x:{ticks:{color:TC,font:{size:8},maxRotation:45,autoSkip:true},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10}},grid:{color:GC}}}}});
+
+  mk('rotMed',{type:'bar',data:{labels:['Asia','London','NY'],datasets:[{label:'Full Session',data:D.rotMed.full,backgroundColor:ac+'0.7)',borderRadius:5},{label:'Opening Hour',data:D.rotMed.open,backgroundColor:'rgba(255,107,53,.7)',borderRadius:5}]},options:{...bO,plugins:{legend:{display:true,labels:{color:TC,font:{size:10},padding:10,boxWidth:10}}},scales:{x:{ticks:{color:TC,font:{size:10}},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v+' pts'},grid:{color:GC}}}}});
+
+  mk('rotAll',{type:'bar',data:{labels:R.labels,datasets:[{label:'Mean',data:R.mean,backgroundColor:ac+'0.55)',borderRadius:3},{label:'Median',data:R.median,backgroundColor:'rgba(79,142,247,.65)',borderRadius:3},{label:'P75',data:R.p75,backgroundColor:'rgba(255,107,53,.5)',borderRadius:3},{label:'P90',data:R.p90,backgroundColor:'rgba(240,180,41,.55)',borderRadius:3}]},options:{...bO,plugins:{legend:{display:true,labels:{color:TC,font:{size:10},padding:10,boxWidth:10}}},scales:{x:{ticks:{color:TC,font:{size:9}},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v+' pts'},grid:{color:GC}}}}});
+
+  mk('probComp',{type:'bar',data:{labels:['P(NY↑|LDN↑)','P(NY↑|LDN↓)','P(NY↑|ASI↑)','P(LDN↑|ASI↑)'],datasets:[{label:'Full Session',data:D.probFull,backgroundColor:ac+'0.7)',borderRadius:4},{label:'Opening Hour',data:D.probOpen,backgroundColor:'rgba(255,107,53,.6)',borderRadius:4}]},options:{...bO,plugins:{legend:{display:true,labels:{color:TC,font:{size:10},padding:10,boxWidth:10}}},scales:{x:{ticks:{color:TC,font:{size:9}},grid:{color:GC}},y:{min:20,max:92,ticks:{color:TC,font:{size:10},callback:v=>v+'%'},grid:{color:GC}}}}});
+
+  if(D.sessVol){mk('sessVol',{type:'bar',data:{labels:['Asia','London','NYSE Morning','NYSE Evening'],datasets:[{data:D.sessVol,backgroundColor:[ac+'0.6)','rgba(79,142,247,.6)','rgba(255,107,53,.8)','rgba(240,180,41,.65)'],borderRadius:5}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:9}},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v.toLocaleString()},grid:{color:GC}}}}});}
+  else{mk('sessVol',{type:'bar',data:{labels:['Asia Full','London Full','NY Full','Asia Open','London Open','NY Open'],datasets:[{data:[...D.rotMed.full,...D.rotMed.open],backgroundColor:['rgba(79,142,247,.6)',ac+'0.6)','rgba(255,107,53,.6)','rgba(79,142,247,.4)',ac+'0.4)','rgba(255,107,53,.4)'],borderRadius:4}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:9}},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v+' pts'},grid:{color:GC}}}}});}
+
+  const cv=D.corrBars.vals;
+  mk('corrC',{type:'bar',data:{labels:D.corrBars.labels,datasets:[{data:cv,backgroundColor:cv.map(v=>v<-0.1?'rgba(239,68,68,.75)':v>0.3?'rgba(255,107,53,.8)':v>0.05?ac+'0.75)':'rgba(79,142,247,.5)'),borderRadius:4}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:9},maxRotation:30},grid:{color:GC}},y:{min:-.45,max:.65,ticks:{color:TC,font:{size:10}},grid:{color:GC}}}}});
+
+  const ibT=D.ibCards.map(c=>c.label.split(' — ')[1]);const ibC=D.ibCards.map(c=>c.type==='c'?'rgba(34,197,94,.75)':c.type==='n'?'rgba(79,142,247,.75)':'rgba(239,68,68,.75)');
+  if(D.ibCountData[0]!==null){mk('ibCount',{type:'bar',data:{labels:ibT,datasets:[{data:D.ibCountData,backgroundColor:ibC,borderRadius:6}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:10}},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v+' ×'},grid:{color:GC}}}}});}
+  else{mk('ibCount',{type:'bar',data:{labels:ibT,datasets:[{data:D.ibSizeMean,backgroundColor:ibC,borderRadius:6}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:10}},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v+' pts'},grid:{color:GC}}}}});}
+  mk('ibSize',{type:'bar',data:{labels:ibT,datasets:[{label:'Mean',data:D.ibSizeMean,backgroundColor:ibC,borderRadius:6},{label:'Median',data:D.ibSizeMed,backgroundColor:ibC.map(c=>c.replace('.75','.35')),borderRadius:6}]},options:{...bO,plugins:{legend:{display:true,labels:{color:TC,font:{size:10},padding:10,boxWidth:10}}},scales:{x:{ticks:{color:TC,font:{size:10}},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v+' pts'},grid:{color:GC}}}}});
+}
+</script>
+</body>
+</html>

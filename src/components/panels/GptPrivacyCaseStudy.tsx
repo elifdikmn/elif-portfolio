@@ -12,7 +12,7 @@ const fadeUp: Variants = {
 
 function SectionShell({
   index,
-  total = 6,
+  total = 5,
   eyebrow,
   title,
   children,
@@ -62,6 +62,22 @@ function Stat({ value, label }: { value: string; label: string }) {
         {value}
       </p>
       <p className="mt-2 max-w-[24ch] text-sm" style={{ color: "var(--text-soft)" }}>
+        {label}
+      </p>
+    </div>
+  );
+}
+
+function MiniStat({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="min-w-0 text-center sm:text-left">
+      <p
+        className="font-hero truncate text-xl font-bold leading-tight sm:text-2xl md:text-3xl"
+        style={{ color: "var(--accent-strong)" }}
+      >
+        {value}
+      </p>
+      <p className="mt-1 text-xs leading-snug sm:text-sm" style={{ color: "var(--text-soft)" }}>
         {label}
       </p>
     </div>
@@ -162,10 +178,10 @@ export default function GptPrivacyCaseStudy({ onBack }: { onBack: () => void }) 
                 — 12,811 parameter-level records collected by 4,592 unique GPT plugins (Actions), each labeled
                 with one of 25 <code>main_data_type</code> categories.
               </p>
-              <div className="grid grid-cols-3 gap-3">
-                <Stat value="12,811" label="parameter records" />
-                <Stat value="4,592" label="unique plugins" />
-                <Stat value="25" label="data categories" />
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                <MiniStat value="12,811" label="parameter records" />
+                <MiniStat value="4,592" label="unique plugins" />
+                <MiniStat value="25" label="data categories" />
               </div>
               <p className="mt-6 text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
                 Four of those 25 categories — Security credentials, Personal information, Health information,
@@ -373,42 +389,6 @@ export default function GptPrivacyCaseStudy({ onBack }: { onBack: () => void }) 
             so numbers are copied, never invented. Below is an interactive demo of that interface.
           </p>
           <ChatDemoPhone />
-        </SectionShell>
-
-        {/* 06 — Limitations & Takeaways */}
-        <SectionShell index="06" eyebrow="Limitations & takeaways" title="What this project is honest about">
-          <div className="grid gap-8 md:grid-cols-2">
-            <div>
-              <p className="mb-3 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--accent-strong)" }}>
-                Limitations
-              </p>
-              <ul className="flex flex-col gap-3 text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
-                <li>
-                  The RAG chatbot&apos;s <em>text</em> has occasionally mixed up numeric details (e.g. attributing
-                  one category&apos;s F1 score to a similar one) — the charts themselves are always the real,
-                  static notebook output.
-                </li>
-                <li>
-                  The embedding model uses spaCy vectors instead of sentence-transformers, because
-                  Hugging Face access was blocked by the analysis environment&apos;s network policy.
-                </li>
-                <li>Clustering is directionally useful but not sharply separated — silhouette scores of 0.17–0.25 across all tested K.</li>
-                <li>The &ldquo;Other&rdquo; reclassification was never validated against ground truth — it&apos;s a review-priority signal, not a verified relabeling.</li>
-                <li>The privacy-policy audit (RQ6) uses a separate, smaller sample with its own labeling taxonomy — not directly comparable to the main dataset.</li>
-              </ul>
-            </div>
-            <div>
-              <p className="mb-3 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--accent-strong)" }}>
-                What shows this is more than a toy project
-              </p>
-              <ul className="flex flex-col gap-3 text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
-                <li>A <code>project_facts.json</code> grounding table forces the LLM to copy verified numbers rather than recall or recompute them.</li>
-                <li>A post-hoc checker (<code>facts.verify_answer_numbers</code>) flags any generated number that doesn&apos;t appear in that table.</li>
-                <li>Three independent FAISS indices (records, findings, policy audit) are merged so small high-value findings don&apos;t get drowned out by 12,811 raw records.</li>
-                <li>Classical ML (TF-IDF + LogReg, 68.9% accuracy) was chosen deliberately over the source paper&apos;s 92.83%-accuracy GPT-4o classifier, to keep the pipeline local, free, and reproducible without an LLM API dependency.</li>
-              </ul>
-            </div>
-          </div>
         </SectionShell>
       </div>
     </div>
