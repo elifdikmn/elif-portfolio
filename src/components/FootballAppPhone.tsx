@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, ChevronDown, Menu, Sun } from "lucide-react";
+import { ArrowLeft, Calendar, ChevronDown, ChevronLeft, ChevronRight, Menu, Sun } from "lucide-react";
 
-type MatchEvent = { minute: number; team: string; type: "Goal" | "Card" | "subst" | "Var"; detail: string; player: string; assist?: string | null };
+type MatchEvent = { minute: number; team: string; type: "Goal" | "Card" | "RedCard" | "subst"; player: string; assist?: string | null };
 type StandingRow = [team: string, rank: number, points: number, played: number, win: number, draw: number, lose: number, gd: number];
 
 type Match = {
   id: string;
   league: string;
-  date: string;
   home: string;
   away: string;
   homeGoals: number;
@@ -17,62 +16,63 @@ type Match = {
   homeProb: number;
   drawProb: number;
   awayProb: number;
+  scorers?: string;
 };
 
-// Real cached fixtures + predictions from the FootballMatchPrediction repo (prediction_cache.json).
+// Real cached fixtures + predictions, from the FootballMatchPrediction repo's prediction_cache.json.
 const MATCHES: Match[] = [
-  { id: "1223953", league: "Serie A", date: "11 May", home: "Udinese", away: "Monza", homeGoals: 1, awayGoals: 2, homeProb: 32.12, drawProb: 34.88, awayProb: 33.0 },
-  { id: "1208378", league: "EPL", date: "11 May", home: "Newcastle", away: "Chelsea", homeGoals: 2, awayGoals: 0, homeProb: 24.83, drawProb: 42.14, awayProb: 33.03 },
-  { id: "1238155", league: "Turkish Süper Lig", date: "11 May", home: "Sivasspor", away: "BB Bodrumspor", homeGoals: 0, awayGoals: 0, homeProb: 34.12, drawProb: 20.99, awayProb: 44.89 },
-  { id: "1224264", league: "Bundesliga", date: "11 May", home: "Stuttgart", away: "Augsburg", homeGoals: 4, awayGoals: 0, homeProb: 34.02, drawProb: 30.1, awayProb: 35.87 },
-  { id: "1208802", league: "La Liga", date: "11 May", home: "Betis", away: "Osasuna", homeGoals: 1, awayGoals: 1, homeProb: 30.77, drawProb: 36.51, awayProb: 32.73 },
+  { id: "1223953", league: "Serie A", home: "Udinese", away: "Monza", homeGoals: 1, awayGoals: 2, homeProb: 32.12, drawProb: 34.88, awayProb: 33.0, scorers: "L. Lucca '75" },
+  { id: "1208378", league: "EPL", home: "Newcastle", away: "Chelsea", homeGoals: 2, awayGoals: 0, homeProb: 24.83, drawProb: 42.14, awayProb: 33.03, scorers: "S. Tonali '2, B. Guimarães '90" },
+  { id: "1238155", league: "Turkish Süper Lig", home: "Sivasspor", away: "BB Bodrumspor", homeGoals: 0, awayGoals: 0, homeProb: 34.12, drawProb: 20.99, awayProb: 44.89 },
+  { id: "1224264", league: "Bundesliga", home: "Stuttgart", away: "Augsburg", homeGoals: 4, awayGoals: 0, homeProb: 34.02, drawProb: 30.1, awayProb: 35.87, scorers: "A. Karazor '8, N. Woltemade '51" },
+  { id: "1208802", league: "La Liga", home: "Betis", away: "Osasuna", homeGoals: 1, awayGoals: 1, homeProb: 30.77, drawProb: 36.51, awayProb: 32.73, scorers: "C. Hernández '64" },
 ];
 
 // Real match events, deduplicated, from events_cache.json.
 const EVENTS: Record<string, MatchEvent[]> = {
   "1223953": [
-    { minute: 13, team: "Monza", type: "Card", detail: "Yellow Card", player: "Jean-Daniel Akpa Akpro" },
-    { minute: 46, team: "Udinese", type: "subst", detail: "Substitution", player: "Oier Zarraga", assist: "S. Lovrić" },
-    { minute: 50, team: "Udinese", type: "Card", detail: "Yellow Card", player: "Arthur Atta" },
-    { minute: 52, team: "Monza", type: "Goal", detail: "Goal", player: "G. Caprari" },
-    { minute: 65, team: "Monza", type: "subst", detail: "Substitution", player: "G. Castrovilli", assist: "K. Zeroli" },
-    { minute: 75, team: "Udinese", type: "Goal", detail: "Goal", player: "L. Lucca", assist: "J. Karlström" },
-    { minute: 90, team: "Monza", type: "Goal", detail: "Goal", player: "K. Baldé", assist: "K. Zeroli" },
-    { minute: 90, team: "Udinese", type: "Card", detail: "Yellow Card", player: "Lorenzo Lucca" },
+    { minute: 13, team: "Monza", type: "Card", player: "Jean-Daniel Akpa Akpro" },
+    { minute: 46, team: "Udinese", type: "subst", player: "Oier Zarraga", assist: "S. Lovrić" },
+    { minute: 50, team: "Udinese", type: "Card", player: "Arthur Atta" },
+    { minute: 52, team: "Monza", type: "Goal", player: "G. Caprari" },
+    { minute: 65, team: "Monza", type: "subst", player: "G. Castrovilli", assist: "K. Zeroli" },
+    { minute: 75, team: "Udinese", type: "Goal", player: "L. Lucca", assist: "J. Karlström" },
+    { minute: 90, team: "Monza", type: "Goal", player: "K. Baldé", assist: "K. Zeroli" },
+    { minute: 90, team: "Udinese", type: "Card", player: "Lorenzo Lucca" },
   ],
   "1208378": [
-    { minute: 2, team: "Newcastle", type: "Goal", detail: "Goal", player: "S. Tonali", assist: "J. Murphy" },
-    { minute: 36, team: "Chelsea", type: "Card", detail: "Red Card", player: "Nicolas Jackson" },
-    { minute: 45, team: "Chelsea", type: "Card", detail: "Yellow Card", player: "Enzo Fernández" },
-    { minute: 53, team: "Newcastle", type: "Card", detail: "Yellow Card", player: "Fabian Schär" },
-    { minute: 64, team: "Newcastle", type: "Card", detail: "Yellow Card", player: "Jacob Murphy" },
-    { minute: 84, team: "Newcastle", type: "Card", detail: "Yellow Card", player: "Bruno Guimarães" },
-    { minute: 90, team: "Newcastle", type: "Goal", detail: "Goal", player: "Bruno Guimarães", assist: "D. Burn" },
+    { minute: 2, team: "Newcastle", type: "Goal", player: "S. Tonali", assist: "J. Murphy" },
+    { minute: 36, team: "Chelsea", type: "RedCard", player: "Nicolas Jackson" },
+    { minute: 45, team: "Chelsea", type: "Card", player: "Enzo Fernández" },
+    { minute: 53, team: "Newcastle", type: "Card", player: "Fabian Schär" },
+    { minute: 64, team: "Newcastle", type: "Card", player: "Jacob Murphy" },
+    { minute: 84, team: "Newcastle", type: "Card", player: "Bruno Guimarães" },
+    { minute: 90, team: "Newcastle", type: "Goal", player: "Bruno Guimarães", assist: "D. Burn" },
   ],
   "1238155": [
-    { minute: 20, team: "BB Bodrumspor", type: "Card", detail: "Yellow Card", player: "Ahmet Aslan" },
-    { minute: 67, team: "BB Bodrumspor", type: "Card", detail: "Yellow Card", player: "Jonathan Okita" },
-    { minute: 72, team: "Sivasspor", type: "Card", detail: "Yellow Card", player: "Tolga Ciğerci" },
-    { minute: 87, team: "BB Bodrumspor", type: "Card", detail: "Yellow Card", player: "Taulant Seferi" },
-    { minute: 90, team: "Sivasspor", type: "Card", detail: "Yellow Card", player: "Uroš Radaković" },
+    { minute: 20, team: "BB Bodrumspor", type: "Card", player: "Ahmet Aslan" },
+    { minute: 67, team: "BB Bodrumspor", type: "Card", player: "Jonathan Okita" },
+    { minute: 72, team: "Sivasspor", type: "Card", player: "Tolga Ciğerci" },
+    { minute: 87, team: "BB Bodrumspor", type: "Card", player: "Taulant Seferi" },
+    { minute: 90, team: "Sivasspor", type: "Card", player: "Uroš Radaković" },
   ],
   "1224264": [
-    { minute: 8, team: "VfB Stuttgart", type: "Goal", detail: "Goal", player: "A. Karazor" },
-    { minute: 11, team: "FC Augsburg", type: "Card", detail: "Red Card", player: "Samuel Essende" },
-    { minute: 45, team: "VfB Stuttgart", type: "Card", detail: "Yellow Card", player: "Enzo Millot" },
-    { minute: 51, team: "VfB Stuttgart", type: "Goal", detail: "Goal", player: "N. Woltemade", assist: "E. Millot" },
-    { minute: 80, team: "VfB Stuttgart", type: "Goal", detail: "Goal", player: "E. Millot" },
-    { minute: 86, team: "FC Augsburg", type: "Card", detail: "Yellow Card", player: "Dimitrios Giannoulis" },
-    { minute: 87, team: "VfB Stuttgart", type: "Goal", detail: "Goal", player: "E. Demirović", assist: "C. Führich" },
+    { minute: 8, team: "VfB Stuttgart", type: "Goal", player: "A. Karazor" },
+    { minute: 11, team: "FC Augsburg", type: "RedCard", player: "Samuel Essende" },
+    { minute: 45, team: "VfB Stuttgart", type: "Card", player: "Enzo Millot" },
+    { minute: 51, team: "VfB Stuttgart", type: "Goal", player: "N. Woltemade", assist: "E. Millot" },
+    { minute: 80, team: "VfB Stuttgart", type: "Goal", player: "E. Millot" },
+    { minute: 86, team: "FC Augsburg", type: "Card", player: "Dimitrios Giannoulis" },
+    { minute: 87, team: "VfB Stuttgart", type: "Goal", player: "E. Demirović", assist: "C. Führich" },
   ],
   "1208802": [
-    { minute: 9, team: "Osasuna", type: "Card", detail: "Yellow Card", player: "Alejandro Catena" },
-    { minute: 23, team: "Real Betis", type: "Card", detail: "Yellow Card", player: "Romain Perraud" },
-    { minute: 45, team: "Osasuna", type: "Card", detail: "Yellow Card", player: "Ante Budimir" },
-    { minute: 64, team: "Real Betis", type: "Goal", detail: "Goal", player: "C. Hernández", assist: "Isco" },
-    { minute: 75, team: "Osasuna", type: "Goal", detail: "Goal", player: "A. Budimir", assist: "Aimar Oroz" },
-    { minute: 77, team: "Real Betis", type: "Card", detail: "Yellow Card", player: "Sergi Altimira" },
-    { minute: 90, team: "Real Betis", type: "Card", detail: "Yellow Card", player: "Antony" },
+    { minute: 9, team: "Osasuna", type: "Card", player: "Alejandro Catena" },
+    { minute: 23, team: "Real Betis", type: "Card", player: "Romain Perraud" },
+    { minute: 45, team: "Osasuna", type: "Card", player: "Ante Budimir" },
+    { minute: 64, team: "Real Betis", type: "Goal", player: "C. Hernández", assist: "Isco" },
+    { minute: 75, team: "Osasuna", type: "Goal", player: "A. Budimir", assist: "Aimar Oroz" },
+    { minute: 77, team: "Real Betis", type: "Card", player: "Sergi Altimira" },
+    { minute: 90, team: "Real Betis", type: "Card", player: "Antony" },
   ],
 };
 
@@ -120,20 +120,101 @@ const STANDINGS: Record<string, StandingRow[]> = {
   ],
 };
 
-const LEAGUES = ["All Leagues", "Serie A", "EPL", "Turkish Süper Lig", "Bundesliga", "La Liga"];
+const LEAGUES = ["Serie A", "EPL", "Turkish Süper Lig", "Bundesliga", "La Liga"];
+const DATES = ["18 May", "19 May", "20 May", "21 May", "22 May", "23 May", "24 May"];
 
-function eventIcon(type: MatchEvent["type"]) {
-  if (type === "Goal") return "⚽";
-  if (type === "Card") return "🟨";
-  return "🔁";
+function initials(name: string) {
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 }
 
-function ProbBar({ home, draw, away }: { home: number; draw: number; away: number }) {
+function Crest({ name, color }: { name: string; color: string }) {
   return (
-    <div className="flex h-1.5 w-full overflow-hidden rounded-full">
-      <div style={{ width: `${home}%`, background: "#ef4444" }} />
-      <div style={{ width: `${draw}%`, background: "#22c55e" }} />
-      <div style={{ width: `${away}%`, background: "#eab308" }} />
+    <div
+      className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-[10px] font-bold text-white"
+      style={{ background: color }}
+    >
+      {initials(name)}
+    </div>
+  );
+}
+
+const TEAM_COLORS: Record<string, string> = {
+  Udinese: "#000000",
+  Monza: "#c8102e",
+  Newcastle: "#241f20",
+  Chelsea: "#034694",
+  Sivasspor: "#8b0000",
+  "BB Bodrumspor": "#1c1c1c",
+  Stuttgart: "#e30613",
+  Augsburg: "#bb372f",
+  Betis: "#00954c",
+  Osasuna: "#0a3775",
+};
+
+function eventIcon(type: MatchEvent["type"]) {
+  if (type === "Goal") return <span className="text-[13px]">⚽</span>;
+  if (type === "RedCard") return <span className="h-3 w-2.5 rounded-[2px]" style={{ background: "#ef4444", display: "inline-block" }} />;
+  if (type === "Card") return <span className="h-3 w-2.5 rounded-[2px]" style={{ background: "#eab308", display: "inline-block" }} />;
+  return <span className="text-[12px] text-blue-400">⇄</span>;
+}
+
+function ProbRow({ home, draw, away }: { home: number; draw: number; away: number }) {
+  return (
+    <div>
+      <div className="mb-1.5 flex items-center justify-between text-[10px] text-white/60">
+        <span className="flex items-center gap-1">
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: "#ef4444" }} /> home: {home.toFixed(2)}%
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: "#22c55e" }} /> draw: {draw.toFixed(2)}%
+        </span>
+        <span className="flex items-center gap-1">
+          away: {away.toFixed(2)}% <span className="h-1.5 w-1.5 rounded-full" style={{ background: "#eab308" }} />
+        </span>
+      </div>
+      <div className="flex gap-1">
+        <div className="h-2 rounded-full" style={{ width: `${home}%`, background: "#ef4444" }} />
+        <div className="h-2 rounded-full" style={{ width: `${draw}%`, background: "#22c55e" }} />
+        <div className="h-2 rounded-full" style={{ width: `${away}%`, background: "#eab308" }} />
+      </div>
+    </div>
+  );
+}
+
+function MatchCard({ m, onDetail }: { m: Match; onDetail: (id: string) => void }) {
+  return (
+    <div className="rounded-2xl p-4" style={{ background: "#171a24" }}>
+      <div className="mb-2.5 flex items-center justify-between text-[10px] font-medium text-white/40">
+        <span>Home</span>
+        <button type="button" onClick={() => onDetail(m.id)} className="rounded-full px-3 py-1 text-[11px] font-semibold text-white" style={{ background: "#2563eb" }}>
+          Detail
+        </button>
+        <span>Away</span>
+      </div>
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <Crest name={m.home} color={TEAM_COLORS[m.home] ?? "#374151"} />
+          <span className="truncate text-[13px] font-semibold text-white">{m.home}</span>
+        </div>
+        <span className="font-hero shrink-0 px-2 text-[15px] font-bold" style={{ color: "#4ade80" }}>
+          {m.homeGoals} - {m.awayGoals}
+        </span>
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+          <span className="truncate text-right text-[13px] font-semibold text-white">{m.away}</span>
+          <Crest name={m.away} color={TEAM_COLORS[m.away] ?? "#374151"} />
+        </div>
+      </div>
+      {m.scorers && <p className="mb-3 truncate text-[10px] text-white/35">{m.scorers}</p>}
+      {!m.scorers && <div className="mb-3" />}
+      <ProbRow home={m.homeProb} draw={m.drawProb} away={m.awayProb} />
+      <button type="button" onClick={() => onDetail(m.id)} className="mt-3 w-full rounded-xl py-2.5 text-[12px] font-bold text-white" style={{ background: "#dc2626" }}>
+        Check Out Why
+      </button>
     </div>
   );
 }
@@ -142,11 +223,19 @@ export default function FootballAppPhone() {
   const [view, setView] = useState<"list" | "detail">("list");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detailTab, setDetailTab] = useState<"events" | "standings">("events");
-  const [league, setLeague] = useState("All Leagues");
+  const [activeLeagues, setActiveLeagues] = useState<string[]>(LEAGUES);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [activeDate, setActiveDate] = useState("18 May");
 
   const match = MATCHES.find((m) => m.id === selectedId) ?? null;
-  const visibleMatches = league === "All Leagues" ? MATCHES : MATCHES.filter((m) => m.league === league);
+  const grouped = LEAGUES.filter((l) => activeLeagues.includes(l)).map((l) => ({
+    league: l,
+    matches: MATCHES.filter((m) => m.league === l),
+  }));
+
+  const toggleLeague = (l: string) => {
+    setActiveLeagues((prev) => (prev.includes(l) ? prev.filter((x) => x !== l) : [...prev, l]));
+  };
 
   const openDetail = (id: string) => {
     setSelectedId(id);
@@ -162,7 +251,7 @@ export default function FootballAppPhone() {
           width: "min(360px, 86vw)",
           height: "min(720px, 78vh)",
           borderColor: "#2a2018",
-          background: "#0b0b0f",
+          background: "#000",
           boxShadow: "0 30px 60px -20px rgba(58, 47, 39, 0.35)",
         }}
       >
@@ -178,95 +267,125 @@ export default function FootballAppPhone() {
 
         {view === "list" ? (
           <>
+            <div className="flex items-center gap-2 px-4 pb-2 pt-2">
+              <button type="button" className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white" style={{ background: "#2563eb" }}>
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <div className="flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-[12px] font-semibold text-white" style={{ background: "#2563eb" }}>
+                <Calendar className="h-3.5 w-3.5" /> Pick A Date
+              </div>
+              <button type="button" className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white" style={{ background: "#2563eb" }}>
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="flex gap-3 overflow-x-auto px-4 pb-2 text-center">
+              {DATES.map((d) => {
+                const [day, mon] = d.split(" ");
+                return (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => setActiveDate(d)}
+                    className="shrink-0"
+                    style={{ color: d === activeDate ? "#3b82f6" : "rgba(255,255,255,0.4)" }}
+                  >
+                    <div className="text-[15px] font-bold leading-tight">{day}</div>
+                    <div className="text-[11px] leading-tight">{mon}</div>
+                  </button>
+                );
+              })}
+            </div>
+
             <div className="px-4 pb-2 pt-2">
               <button
                 type="button"
                 onClick={() => setFilterOpen((v) => !v)}
-                className="flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-[13px] font-semibold text-white"
+                className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-[13px] font-semibold text-white"
                 style={{ background: "#2563eb" }}
               >
-                {league}
+                Select Leagues
                 <ChevronDown className={`h-4 w-4 transition ${filterOpen ? "rotate-180" : ""}`} />
               </button>
               {filterOpen && (
-                <div className="mt-1.5 overflow-hidden rounded-xl" style={{ background: "#15151c" }}>
+                <div className="mt-1.5 overflow-hidden rounded-xl" style={{ background: "#171a24" }}>
                   {LEAGUES.map((l) => (
                     <button
                       key={l}
                       type="button"
-                      onClick={() => {
-                        setLeague(l);
-                        setFilterOpen(false);
-                      }}
-                      className="block w-full px-3.5 py-2 text-left text-[12px] text-white/85 transition hover:bg-white/5"
-                      style={l === league ? { color: "#60a5fa" } : undefined}
+                      onClick={() => toggleLeague(l)}
+                      className="flex w-full items-center justify-between px-4 py-2.5 text-left text-[12px] text-white/85 transition hover:bg-white/5"
                     >
                       {l}
+                      <span
+                        className="grid h-4 w-4 place-items-center rounded border text-[9px]"
+                        style={{ borderColor: "rgba(255,255,255,0.3)", background: activeLeagues.includes(l) ? "#2563eb" : "transparent" }}
+                      >
+                        {activeLeagues.includes(l) && "✓"}
+                      </span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
 
-            <div className="flex-1 space-y-3 overflow-y-auto px-4 pb-4">
-              {visibleMatches.map((m) => (
-                <div key={m.id} className="rounded-2xl p-3.5" style={{ background: "#15151c" }}>
-                  <div className="mb-2 flex items-center justify-between text-[10px] font-semibold uppercase tracking-wide text-white/40">
-                    <span>{m.league}</span>
-                    <span>{m.date}</span>
+            <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-4 pt-1">
+              {grouped.map(({ league, matches }) => (
+                <div key={league}>
+                  <div className="mb-2 flex items-center gap-2">
+                    <Crest name={league} color="#374151" />
+                    <span className="text-[14px] font-bold text-white">{league}</span>
                   </div>
-                  <div className="mb-2 flex items-center justify-between text-[13px] text-white">
-                    <span className="max-w-[38%] truncate font-medium">{m.home}</span>
-                    <span className="font-hero font-bold" style={{ color: "#4ade80" }}>
-                      {m.homeGoals} - {m.awayGoals}
-                    </span>
-                    <span className="max-w-[38%] truncate text-right font-medium">{m.away}</span>
+                  <div className="flex flex-col gap-3">
+                    {matches.map((m) => (
+                      <MatchCard key={m.id} m={m} onDetail={openDetail} />
+                    ))}
                   </div>
-                  <div className="mb-2.5 flex justify-between text-[10px] text-white/50">
-                    <span>home {m.homeProb.toFixed(1)}%</span>
-                    <span>draw {m.drawProb.toFixed(1)}%</span>
-                    <span>away {m.awayProb.toFixed(1)}%</span>
-                  </div>
-                  <ProbBar home={m.homeProb} draw={m.drawProb} away={m.awayProb} />
-                  <button
-                    type="button"
-                    onClick={() => openDetail(m.id)}
-                    className="mt-3 w-full rounded-full py-2 text-[12px] font-semibold text-white"
-                    style={{ background: "#2563eb" }}
-                  >
-                    Detail
-                  </button>
                 </div>
               ))}
+              {grouped.length === 0 && <p className="pt-10 text-center text-[12px] text-white/40">No leagues selected.</p>}
             </div>
           </>
         ) : match ? (
           <div className="flex flex-1 flex-col overflow-hidden">
-            <div className="flex items-center gap-2 px-4 pb-2 pt-1">
-              <button type="button" onClick={() => setView("list")} className="flex items-center gap-1 text-[12px] font-medium" style={{ color: "#60a5fa" }}>
-                <ArrowLeft className="h-3.5 w-3.5" /> Back
+            <div className="flex items-center gap-2 px-4 pb-3 pt-1">
+              <button type="button" onClick={() => setView("list")} className="flex items-center gap-1 text-[13px] font-medium" style={{ color: "#3b82f6" }}>
+                <ArrowLeft className="h-4 w-4" /> Back
               </button>
-              <span className="mx-auto pr-8 text-[13px] font-semibold text-white">Match Detail</span>
+              <span className="mx-auto pr-10 text-[14px] font-bold text-white">Match Detail</span>
             </div>
 
-            <div className="mx-4 mb-3 rounded-2xl p-3.5" style={{ background: "#15151c" }}>
-              <div className="flex items-center justify-between text-[12px] text-white">
-                <span className="max-w-[38%] truncate">{match.home}</span>
-                <span className="font-hero font-bold" style={{ color: "#4ade80" }}>
+            <div className="mx-4 mb-3 rounded-2xl p-4" style={{ background: "#171a24" }}>
+              <div className="mb-2 flex items-center justify-between text-[10px] font-medium text-white/40">
+                <span>Home</span>
+                <span>Away</span>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  <Crest name={match.home} color={TEAM_COLORS[match.home] ?? "#374151"} />
+                  <span className="truncate text-[13px] font-semibold text-white">{match.home}</span>
+                </div>
+                <span className="font-hero shrink-0 px-2 text-[16px] font-bold" style={{ color: "#4ade80" }}>
                   {match.homeGoals} - {match.awayGoals}
                 </span>
-                <span className="max-w-[38%] truncate text-right">{match.away}</span>
+                <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+                  <span className="truncate text-right text-[13px] font-semibold text-white">{match.away}</span>
+                  <Crest name={match.away} color={TEAM_COLORS[match.away] ?? "#374151"} />
+                </div>
               </div>
+              <button type="button" className="mt-3 w-full rounded-xl py-2.5 text-[12px] font-bold text-white" style={{ background: "#dc2626" }}>
+                Check Out Why
+              </button>
             </div>
 
-            <div className="mx-4 mb-3 flex overflow-hidden rounded-xl" style={{ background: "#15151c" }}>
+            <div className="mx-4 mb-3 flex overflow-hidden rounded-xl" style={{ background: "#171a24" }}>
               {(["events", "standings"] as const).map((t) => (
                 <button
                   key={t}
                   type="button"
                   onClick={() => setDetailTab(t)}
-                  className="flex-1 py-2 text-[12px] font-semibold capitalize"
-                  style={{ background: detailTab === t ? "#2563eb" : "transparent", color: detailTab === t ? "#fff" : "rgba(255,255,255,0.5)" }}
+                  className="flex-1 py-2.5 text-[12px] font-semibold capitalize"
+                  style={{ background: detailTab === t ? "#374151" : "transparent", color: detailTab === t ? "#fff" : "rgba(255,255,255,0.4)" }}
                 >
                   {t}
                 </button>
@@ -275,48 +394,62 @@ export default function FootballAppPhone() {
 
             <div className="flex-1 overflow-y-auto px-4 pb-4">
               {detailTab === "events" ? (
-                <ul className="flex flex-col gap-2.5">
-                  {(EVENTS[match.id] ?? []).map((e, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-[12px] text-white/85">
-                      <span className="w-7 shrink-0 text-white/40">{e.minute}&apos;</span>
-                      <span>{eventIcon(e.type)}</span>
-                      <span>
-                        <span className="font-medium text-white">{e.player}</span>{" "}
-                        <span className="text-white/40">
-                          ({e.team} — {e.detail}
-                          {e.assist ? `, assist ${e.assist}` : ""})
-                        </span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="flex flex-col gap-4">
+                  {[1, 2].map((half) => {
+                    const halfEvents = (EVENTS[match.id] ?? []).filter((e) => (half === 1 ? e.minute <= 45 : e.minute > 45));
+                    if (halfEvents.length === 0) return null;
+                    return (
+                      <div key={half}>
+                        <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-white">{half === 1 ? "First Half" : "Second Half"}</p>
+                        <ul className="flex flex-col gap-2.5">
+                          {halfEvents.map((e, i) => (
+                            <li key={i} className="flex items-center gap-2.5 text-[12px] text-white/85">
+                              <span className="w-7 shrink-0 text-white/40">{e.minute}&apos;</span>
+                              {eventIcon(e.type)}
+                              <span className="min-w-0 flex-1">
+                                <span className="block truncate font-medium text-white">{e.player}</span>
+                                {e.assist && <span className="block truncate text-[10px] text-white/40">Assist: {e.assist}</span>}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
               ) : (
-                <table className="w-full text-left text-[11px] text-white/85">
-                  <thead>
-                    <tr className="text-white/40">
-                      <th className="pb-1.5 font-medium">#</th>
-                      <th className="pb-1.5 font-medium">Club</th>
-                      <th className="pb-1.5 text-right font-medium">P</th>
-                      <th className="pb-1.5 text-right font-medium">GD</th>
-                      <th className="pb-1.5 text-right font-medium">Pts</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(STANDINGS[match.league] ?? []).map((row) => {
-                      const [team, rank, points, played, , , , gd] = row;
-                      const isMatchTeam = team === match.home || team === match.away;
-                      return (
-                        <tr key={team} style={isMatchTeam ? { color: "#4ade80" } : undefined}>
-                          <td className="py-1">{rank}</td>
-                          <td className="truncate py-1 pr-2">{team}</td>
-                          <td className="py-1 text-right">{played}</td>
-                          <td className="py-1 text-right">{gd}</td>
-                          <td className="py-1 text-right font-semibold">{points}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                <div className="overflow-hidden rounded-xl">
+                  <table className="w-full text-left text-[11px] text-white/85">
+                    <thead>
+                      <tr style={{ background: "#1e2a4a" }} className="text-white">
+                        <th className="px-2 py-2 font-medium">#</th>
+                        <th className="px-2 py-2 font-medium">Club</th>
+                        <th className="px-2 py-2 text-right font-medium">P</th>
+                        <th className="px-2 py-2 text-right font-medium">GD</th>
+                        <th className="px-2 py-2 text-right font-medium">Pts</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(STANDINGS[match.league] ?? []).map((row, i) => {
+                        const [team, rank, points, played, , , , gd] = row;
+                        const isMatchTeam = team === match.home || team === match.away;
+                        return (
+                          <tr key={team} style={{ background: i < 4 ? "rgba(34,197,94,0.12)" : "#171a24" }}>
+                            <td className="px-2 py-2" style={isMatchTeam ? { color: "#4ade80" } : undefined}>
+                              {rank}
+                            </td>
+                            <td className="truncate px-2 py-2" style={isMatchTeam ? { color: "#4ade80" } : undefined}>
+                              {team}
+                            </td>
+                            <td className="px-2 py-2 text-right">{played}</td>
+                            <td className="px-2 py-2 text-right">{gd}</td>
+                            <td className="px-2 py-2 text-right font-semibold text-white">{points}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           </div>
@@ -324,8 +457,8 @@ export default function FootballAppPhone() {
       </div>
 
       <p className="max-w-sm text-center text-xs" style={{ color: "var(--text-faint)" }}>
-        A real, scrollable prototype — not a screenshot. Matches, scores, events, and standings above are
-        pulled straight from the project&apos;s own cached prediction and fixture data.
+        A real, scrollable prototype matching the actual app&apos;s design — matches, scores, events, and
+        standings come straight from the project&apos;s own cached prediction and fixture data.
       </p>
     </div>
   );
