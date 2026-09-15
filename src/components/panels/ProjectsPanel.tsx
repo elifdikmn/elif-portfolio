@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, type Variants, easeOut } from "framer-motion";
 import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, ChevronUp, Github } from "lucide-react";
 import ComputerMockup from "@/components/ComputerMockup";
-import AppShowcasePhone from "@/components/AppShowcasePhone";
+import FootballAppPhone from "@/components/FootballAppPhone";
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -44,7 +44,6 @@ function SubLabel({ children }: { children: React.ReactNode }) {
 
 type FlowStep = { label: string; detail: string };
 type Chart = { src: string; alt: string; caption: string };
-type AppScreen = { src: string; alt: string; caption: string };
 
 /* ---------------- Full project deep-dive ---------------- */
 function ProjectDeepDive({
@@ -60,7 +59,7 @@ function ProjectDeepDive({
   results,
   charts,
   moreCharts,
-  appScreens,
+  appDemo,
   dashboardUrl,
   dashboardAddress,
   githubUrl,
@@ -79,7 +78,7 @@ function ProjectDeepDive({
   results: string[];
   charts: Chart[];
   moreCharts?: Chart[];
-  appScreens?: AppScreen[];
+  appDemo?: React.ReactNode;
   dashboardUrl?: string;
   dashboardAddress?: string;
   githubUrl?: string;
@@ -243,10 +242,10 @@ function ProjectDeepDive({
         </div>
       )}
 
-      {appScreens && appScreens.length > 0 && (
+      {appDemo && (
         <div className="relative mt-10">
           <SubLabel>The app</SubLabel>
-          <AppShowcasePhone screens={appScreens} />
+          {appDemo}
         </div>
       )}
 
@@ -362,33 +361,7 @@ export default function ProjectsPanel({
               caption: "The sigmoid function — Logistic Regression, selected for the EPL and Turkish Süper Lig.",
             },
           ]}
-          appScreens={[
-            {
-              src: "/projects/football/app/home-finished-matches.png",
-              alt: "iOS app home page showing finished matches with win/draw/loss probability bars",
-              caption: "Home — Finished Matches",
-            },
-            {
-              src: "/projects/football/app/filter-leagues.png",
-              alt: "iOS app league filter menu",
-              caption: "Filter Leagues",
-            },
-            {
-              src: "/projects/football/app/detail-standings.png",
-              alt: "iOS app match detail page showing league standings",
-              caption: "Match Detail — Standings",
-            },
-            {
-              src: "/projects/football/app/detail-events.png",
-              alt: "iOS app match detail page showing a timeline of match events",
-              caption: "Match Detail — Events",
-            },
-            {
-              src: "/projects/football/app/live-matches.png",
-              alt: "iOS app live matches list with real-time win/draw/loss probabilities",
-              caption: "Live Matches",
-            },
-          ]}
+          appDemo={<FootballAppPhone />}
           githubUrl="https://github.com/elifdikmn/FootballMatchPrediction"
         />
 
