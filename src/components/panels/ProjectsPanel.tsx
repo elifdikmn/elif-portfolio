@@ -155,14 +155,14 @@ function ProjectDeepDive({
           {flow.map((step, i) => (
             <div key={step.label} className="flex items-stretch gap-3">
               <div
-                className="w-[180px] rounded-2xl border p-4"
+                className="w-[180px] shrink-0 overflow-hidden rounded-2xl border p-4"
                 style={{ borderColor: "var(--border)", background: "var(--bg-soft)" }}
               >
                 <p className="font-hero text-sm italic" style={{ color: "var(--accent-strong)" }}>
                   {String(i + 1).padStart(2, "0")}
                 </p>
-                <p className="mt-1 text-sm font-semibold">{step.label}</p>
-                <p className="mt-1 text-xs leading-snug" style={{ color: "var(--text-faint)" }}>
+                <p className="mt-1 break-words text-sm font-semibold">{step.label}</p>
+                <p className="mt-1 break-words text-xs leading-snug" style={{ color: "var(--text-faint)" }}>
                   {step.detail}
                 </p>
               </div>
@@ -283,10 +283,12 @@ export default function ProjectsPanel({
   onBack,
   onOpenGptCaseStudy,
   onOpenFootballCaseStudy,
+  onOpenOnlineAppointmentCaseStudy,
 }: {
   onBack: () => void;
   onOpenGptCaseStudy: () => void;
   onOpenFootballCaseStudy: () => void;
+  onOpenOnlineAppointmentCaseStudy: () => void;
 }) {
   return (
     <motion.div
@@ -313,13 +315,103 @@ export default function ProjectsPanel({
 
       <div className="flex flex-col gap-8">
         <GroupHeading
+          title="Experience"
+          subtitle="Built during internships, on real production data and real team codebases."
+        />
+
+        {/* ---------------- GPT Plugin Privacy ---------------- */}
+        <ProjectDeepDive
+          index="01"
+          tag="Data privacy · NLP · RAG"
+          title="GPT Plugin Privacy Risk Analysis & RAG Assistant"
+          description="What do GPT plugins actually collect — and would you ever find out from reading their privacy policy? A statistics + ML analysis of 12,811 real plugin parameters, turned into a Retrieval-Augmented Generation chatbot you can question yourself."
+          highlight="90.3% of audited parameters were never disclosed in the plugin's own privacy policy"
+          problem="GPT plugins (Actions) can request almost anything from a user, but there's no standard way to see what a plugin actually collects in aggregate, or whether its privacy policy is honest about it. This project set out to quantify that gap across thousands of real plugins instead of a handful of manual reads."
+          approach={[
+            "Sourced 12,811 parameter-level records from 4,592 real GPT plugins (Wu et al. 2025, IMC '25), labeled across 25 data categories.",
+            "Defined 4 categories as 'sensitive' using a GDPR/HIPAA-style 'special category data' definition, then ran a chi-square test on whether plugins document sensitive parameters less often.",
+            "Trained two independent classifiers (TF-IDF+LogReg vs. spaCy embeddings+LogReg) to predict a parameter's category from its name alone, and K-Means clustered plugins by their category mix.",
+            "Built a RAG chatbot on top: FAISS retrieval over three indices (records, findings, policy audit), Claude Haiku for phrasing, and a verified facts table that a post-hoc checker cross-references against every generated number.",
+          ]}
+          flow={[
+            { label: "EDA", detail: "Category distribution + sensitive-data taxonomy" },
+            { label: "Statistical test", detail: "Chi-square + Cramér's V on description-writing rates" },
+            { label: "Classification", detail: "TF-IDF+LogReg vs. spaCy embeddings, 25-class" },
+            { label: "Clustering", detail: "K-Means (K=2–10) profiled by category mix" },
+            { label: "RAG assistant", detail: "FAISS + Claude Haiku, grounded in a facts table" },
+          ]}
+          tools={["Python", "pandas", "NumPy", "scikit-learn", "spaCy", "FAISS", "sentence-transformers", "Anthropic Claude API", "FastAPI", "React"]}
+          results={[
+            "Only 7.3% of all 12,811 records (931) fall into a sensitive category — but 90.3% of a separate, audited sample were never disclosed in the plugin's actual privacy policy at all.",
+            "TF-IDF + Logistic Regression predicts a parameter's category from its name alone at 68.9% accuracy (46.8% macro-F1) on the 25-class problem.",
+            "Clustering surfaces functional groups (finance, travel, messaging) with sensitive-data share spread gradually from 0% to 16.1% — no clean 'risky vs. safe' split.",
+          ]}
+          charts={[
+            {
+              src: "/projects/gpt-privacy/rq1_category_distribution.png",
+              alt: "Bar chart of the 25 data categories requested by GPT plugins, sensitive ones highlighted",
+              caption: "All 25 data categories, sorted by record count — four sensitive categories highlighted.",
+            },
+            {
+              src: "/projects/gpt-privacy/rq3_confusion_matrix.png",
+              alt: "Confusion matrix for the category classifier",
+              caption: "Confusion matrix for the TF-IDF + Logistic Regression classifier.",
+            },
+          ]}
+          githubUrl="https://github.com/elifdikmn/DataPrivacy"
+        >
+          <button
+            type="button"
+            onClick={onOpenGptCaseStudy}
+            className="inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold transition hover:opacity-70"
+            style={{ borderColor: "var(--border)", color: "var(--accent-strong)" }}
+          >
+            Open the full 5-part case study <ArrowUpRight className="h-4 w-4" />
+          </button>
+        </ProjectDeepDive>
+
+        {/* ---------------- MNQ Tick Data ---------------- */}
+        <ProjectDeepDive
+          index="02"
+          tag="Quantitative finance · Time series"
+          title="MNQ & MES Tick Data Statistical Analysis"
+          description="A statistical breakdown of intraday futures market structure, built from tick-level data — how much price rotates each session, when volume spikes, whether one session's direction predicts the next, and how the Initial Balance range classifies a day's volatility regime."
+          highlight="NY Opening Hour rotations run 58–78% larger than the rest of the session, on both instruments"
+          problem="Most 'what usually happens during the trading day' advice is anecdotal. This project quantifies actual intraday futures market structure straight from tick data — rotation size by session, volume timing, cross-session directional edge, and volatility regime — for MNQ (Jun 23–Sep 7, 2025, 56 days) and MES (Aug 11–Sep 7, 2025, ~20 days)."
+          approach={[
+            "Resampled tick-level OHLCV into 1-min, 30-min, and 5-second bars per instrument (75,218 1-min bars / 881,393 5-second bars for MNQ alone).",
+            "Measured harmonic rotations (confirmed swing high-to-low moves) and 1-minute fractal pivots per session — Asia / London / NY, full session vs. opening hour — computing mean, median, P75, and P90.",
+            "Classified each day's Initial Balance (first 60 min after NYSE open) as Compressed / Normal / Expanded using ±1 standard deviation cutoffs, and tracked VPOC (Volume Point of Control) crossings per day type.",
+            "Computed conditional probabilities (e.g. P(NY up | London up)) and Pearson correlations for both returns and volatility across every session pair.",
+          ]}
+          flow={[
+            { label: "Data Collection", detail: "Tick-level OHLCV for MNQ & MES, resampled to 1-min/30-min/5s" },
+            { label: "Rotation Analysis", detail: "Harmonic swings + 1-min fractal pivots, per session" },
+            { label: "IB & VPOC Regime", detail: "Compressed / Normal / Expanded via ±1σ on Initial Balance range" },
+            { label: "Cross-Session Stats", detail: "Conditional probabilities + return/volatility correlations" },
+            { label: "Interactive Dashboard", detail: "Chart.js app for exploring every finding by session" },
+          ]}
+          tools={["Python", "pandas", "NumPy", "Tick-level OHLCV data", "Chart.js", "Correlation & conditional-probability analysis"]}
+          results={[
+            "NY Opening Hour rotations are the standout edge on both instruments: MNQ median 24.5 pts (78% larger than the full NY session's 13.75 pts); MES median 4.75 pts (58% larger than 3.00 pts).",
+            "80.4% of MNQ days classify as Normal Initial Balance (55–207 pt range, ~29 VPOC crosses/day) — the dominant regime, vs. only 5.4% Compressed and 14.3% Expanded.",
+            "Return correlations between sessions sit near zero (0.01–0.09) — one session's direction barely predicts the next. Volatility correlations are the real signal: Asia→London r=0.51, London→NY r=0.47 for MNQ.",
+            "09:30 (NYSE open) volume is ~40× the overnight baseline for MNQ and ~23× for MES — by a wide margin the single highest-liquidity minute of the day.",
+          ]}
+          charts={[]}
+          dashboardUrl="/projects/mnq/pareto-stat-dashboard.html"
+          dashboardAddress="pareto-stat.local/mnq-mes"
+          background="var(--bg-soft)"
+        />
+
+        <GroupHeading
           title="Personal projects"
           subtitle="Built on my own time — from a first idea to a working system, end to end."
         />
 
         {/* ---------------- Football Match Prediction ---------------- */}
         <ProjectDeepDive
-          index="01"
+          index="03"
           tag="Sports analytics · Classical ML"
           title="Football Match Prediction"
           description="A machine learning system that predicts Home Win / Draw / Away Win outcomes across eight major football leagues, evaluated strictly on matches the models had never seen."
@@ -381,7 +473,7 @@ export default function ProjectsPanel({
 
         {/* ---------------- SQL Job Market Analysis ---------------- */}
         <ProjectDeepDive
-          index="02"
+          index="04"
           tag="SQL · Job market analytics"
           title="Data Analyst Job Market Analysis"
           description="A SQL-only deep dive into 2023 remote Data Analyst job postings — no pandas, no notebooks, just CTEs, multi-table joins, and GROUP BY aggregations run directly in PostgreSQL."
@@ -422,7 +514,7 @@ export default function ProjectsPanel({
 
         {/* ---------------- Online Appointment System ---------------- */}
         <ProjectDeepDive
-          index="03"
+          index="05"
           tag="Software engineering · Mobile app"
           title="Online Appointment System"
           description="A mobile scheduling platform that lets university students book face-to-face meetings with professors — replacing email back-and-forth with real-time availability, instant-meeting requests, and calendar-based scheduling."
@@ -437,7 +529,7 @@ export default function ProjectsPanel({
           flow={[
             { label: "Requirements Analysis", detail: "Domain background, competing software, use-case priority list" },
             { label: "UML Design", detail: "Class, state, activity & sequence diagrams before any code" },
-            { label: "Database Schema", detail: "Student/Professor/Appointment/Notification relational model" },
+            { label: "Database Schema", detail: "Student / Professor / Appointment / Notification relational model" },
             { label: "Flutter Client", detail: "Cross-platform UI: login, calendar, instant meetings" },
             { label: "PHP + MySQL Backend", detail: "Scheduling, notifications, availability API" },
           ]}
@@ -459,19 +551,21 @@ export default function ProjectsPanel({
               caption: "Entity-relationship diagram — Student/Professor, Appointment, Notification, Instant Meeting.",
             },
           ]}
-          moreCharts={[
-            {
-              src: "/projects/online-appointment/class_diagram.png",
-              alt: "UML class diagram for the appointment system",
-              caption: "UML class diagram — User, Student, Professor, Appointment, Notification, Appointment Calendar.",
-            },
-          ]}
           githubUrl="https://github.com/elifdikmn/Online-Appointment-System"
-        />
+        >
+          <button
+            type="button"
+            onClick={onOpenOnlineAppointmentCaseStudy}
+            className="inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold transition hover:opacity-70"
+            style={{ borderColor: "var(--border)", color: "var(--accent-strong)" }}
+          >
+            Open the full case study <ArrowUpRight className="h-4 w-4" />
+          </button>
+        </ProjectDeepDive>
 
         {/* ---------------- Database Management System ---------------- */}
         <ProjectDeepDive
-          index="04"
+          index="06"
           tag="SQL · Database design"
           title="University Exam & Weekly Plan Management System"
           description="A relational database and PHP web app modeling a university's academic structure — faculties, departments, staff, courses, and exams — with role-based dashboards for Assistants, Secretaries, Department Heads, and Deans."
@@ -484,7 +578,7 @@ export default function ProjectsPanel({
             "Built and owned the full PHP interface layer: login/session handling, the assistant dashboard (view and self-assign courses, view weekly plan), and the head-of-department dashboard (full exam schedule + workload report).",
           ]}
           flow={[
-            { label: "Schema Design", detail: "6 tables, foreign keys across faculty/department/employee/courses/exam" },
+            { label: "Schema Design", detail: "6 tables, foreign keys across faculty / department / employee / courses / exam" },
             { label: "ER Modeling", detail: "Entity-relationship diagram for the full academic hierarchy" },
             { label: "Role-Based Auth", detail: "Session-gated PHP pages per employee title" },
             { label: "SQL Reporting", detail: "JOINs + GROUP BY for exam schedules & workload scoring" },
@@ -503,96 +597,6 @@ export default function ProjectsPanel({
             },
           ]}
           githubUrl="https://github.com/elifdikmn/Database-Management-Systems"
-          background="var(--bg-soft)"
-        />
-
-        <GroupHeading
-          title="Experience"
-          subtitle="Built during internships, on real production data and real team codebases."
-        />
-
-        {/* ---------------- GPT Plugin Privacy ---------------- */}
-        <ProjectDeepDive
-          index="05"
-          tag="Data privacy · NLP · RAG"
-          title="GPT Plugin Privacy Risk Analysis & RAG Assistant"
-          description="What do GPT plugins actually collect — and would you ever find out from reading their privacy policy? A statistics + ML analysis of 12,811 real plugin parameters, turned into a Retrieval-Augmented Generation chatbot you can question yourself."
-          highlight="90.3% of audited parameters were never disclosed in the plugin's own privacy policy"
-          problem="GPT plugins (Actions) can request almost anything from a user, but there's no standard way to see what a plugin actually collects in aggregate, or whether its privacy policy is honest about it. This project set out to quantify that gap across thousands of real plugins instead of a handful of manual reads."
-          approach={[
-            "Sourced 12,811 parameter-level records from 4,592 real GPT plugins (Wu et al. 2025, IMC '25), labeled across 25 data categories.",
-            "Defined 4 categories as 'sensitive' using a GDPR/HIPAA-style 'special category data' definition, then ran a chi-square test on whether plugins document sensitive parameters less often.",
-            "Trained two independent classifiers (TF-IDF+LogReg vs. spaCy embeddings+LogReg) to predict a parameter's category from its name alone, and K-Means clustered plugins by their category mix.",
-            "Built a RAG chatbot on top: FAISS retrieval over three indices (records, findings, policy audit), Claude Haiku for phrasing, and a verified facts table that a post-hoc checker cross-references against every generated number.",
-          ]}
-          flow={[
-            { label: "EDA", detail: "Category distribution + sensitive-data taxonomy" },
-            { label: "Statistical test", detail: "Chi-square + Cramér's V on description-writing rates" },
-            { label: "Classification", detail: "TF-IDF+LogReg vs. spaCy embeddings, 25-class" },
-            { label: "Clustering", detail: "K-Means (K=2–10) profiled by category mix" },
-            { label: "RAG assistant", detail: "FAISS + Claude Haiku, grounded in a facts table" },
-          ]}
-          tools={["Python", "pandas", "NumPy", "scikit-learn", "spaCy", "FAISS", "sentence-transformers", "Anthropic Claude API", "FastAPI", "React"]}
-          results={[
-            "Only 7.3% of all 12,811 records (931) fall into a sensitive category — but 90.3% of a separate, audited sample were never disclosed in the plugin's actual privacy policy at all.",
-            "TF-IDF + Logistic Regression predicts a parameter's category from its name alone at 68.9% accuracy (46.8% macro-F1) on the 25-class problem.",
-            "Clustering surfaces functional groups (finance, travel, messaging) with sensitive-data share spread gradually from 0% to 16.1% — no clean 'risky vs. safe' split.",
-          ]}
-          charts={[
-            {
-              src: "/projects/gpt-privacy/rq1_category_distribution.png",
-              alt: "Bar chart of the 25 data categories requested by GPT plugins, sensitive ones highlighted",
-              caption: "All 25 data categories, sorted by record count — four sensitive categories highlighted.",
-            },
-            {
-              src: "/projects/gpt-privacy/rq3_confusion_matrix.png",
-              alt: "Confusion matrix for the category classifier",
-              caption: "Confusion matrix for the TF-IDF + Logistic Regression classifier.",
-            },
-          ]}
-          githubUrl="https://github.com/elifdikmn/DataPrivacy"
-        >
-          <button
-            type="button"
-            onClick={onOpenGptCaseStudy}
-            className="inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold transition hover:opacity-70"
-            style={{ borderColor: "var(--border)", color: "var(--accent-strong)" }}
-          >
-            Open the full 5-part case study <ArrowUpRight className="h-4 w-4" />
-          </button>
-        </ProjectDeepDive>
-
-        {/* ---------------- MNQ Tick Data ---------------- */}
-        <ProjectDeepDive
-          index="06"
-          tag="Quantitative finance · Time series"
-          title="MNQ & MES Tick Data Statistical Analysis"
-          description="A statistical breakdown of intraday futures market structure, built from tick-level data — how much price rotates each session, when volume spikes, whether one session's direction predicts the next, and how the Initial Balance range classifies a day's volatility regime."
-          highlight="NY Opening Hour rotations run 58–78% larger than the rest of the session, on both instruments"
-          problem="Most 'what usually happens during the trading day' advice is anecdotal. This project quantifies actual intraday futures market structure straight from tick data — rotation size by session, volume timing, cross-session directional edge, and volatility regime — for MNQ (Jun 23–Sep 7, 2025, 56 days) and MES (Aug 11–Sep 7, 2025, ~20 days)."
-          approach={[
-            "Resampled tick-level OHLCV into 1-min, 30-min, and 5-second bars per instrument (75,218 1-min bars / 881,393 5-second bars for MNQ alone).",
-            "Measured harmonic rotations (confirmed swing high-to-low moves) and 1-minute fractal pivots per session — Asia / London / NY, full session vs. opening hour — computing mean, median, P75, and P90.",
-            "Classified each day's Initial Balance (first 60 min after NYSE open) as Compressed / Normal / Expanded using ±1 standard deviation cutoffs, and tracked VPOC (Volume Point of Control) crossings per day type.",
-            "Computed conditional probabilities (e.g. P(NY up | London up)) and Pearson correlations for both returns and volatility across every session pair.",
-          ]}
-          flow={[
-            { label: "Data Collection", detail: "Tick-level OHLCV for MNQ & MES, resampled to 1-min/30-min/5s" },
-            { label: "Rotation Analysis", detail: "Harmonic swings + 1-min fractal pivots, per session" },
-            { label: "IB & VPOC Regime", detail: "Compressed/Normal/Expanded via ±1σ on Initial Balance range" },
-            { label: "Cross-Session Stats", detail: "Conditional probabilities + return/volatility correlations" },
-            { label: "Interactive Dashboard", detail: "Chart.js app for exploring every finding by session" },
-          ]}
-          tools={["Python", "pandas", "NumPy", "Tick-level OHLCV data", "Chart.js", "Correlation & conditional-probability analysis"]}
-          results={[
-            "NY Opening Hour rotations are the standout edge on both instruments: MNQ median 24.5 pts (78% larger than the full NY session's 13.75 pts); MES median 4.75 pts (58% larger than 3.00 pts).",
-            "80.4% of MNQ days classify as Normal Initial Balance (55–207 pt range, ~29 VPOC crosses/day) — the dominant regime, vs. only 5.4% Compressed and 14.3% Expanded.",
-            "Return correlations between sessions sit near zero (0.01–0.09) — one session's direction barely predicts the next. Volatility correlations are the real signal: Asia→London r=0.51, London→NY r=0.47 for MNQ.",
-            "09:30 (NYSE open) volume is ~40× the overnight baseline for MNQ and ~23× for MES — by a wide margin the single highest-liquidity minute of the day.",
-          ]}
-          charts={[]}
-          dashboardUrl="/projects/mnq/pareto-stat-dashboard.html"
-          dashboardAddress="pareto-stat.local/mnq-mes"
           background="var(--bg-soft)"
         />
       </div>

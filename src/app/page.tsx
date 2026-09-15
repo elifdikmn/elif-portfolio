@@ -10,9 +10,17 @@ import ContactPanel from "@/components/panels/ContactPanel";
 import ProjectsPanel from "@/components/panels/ProjectsPanel";
 import GptPrivacyCaseStudy from "@/components/panels/GptPrivacyCaseStudy";
 import FootballCaseStudy from "@/components/panels/FootballCaseStudy";
+import OnlineAppointmentCaseStudy from "@/components/panels/OnlineAppointmentCaseStudy";
 import SkillGroups from "@/components/SkillGroups";
 
-type View = "list" | "about" | "contact" | "projects" | "project-gpt" | "project-football";
+type View =
+  | "list"
+  | "about"
+  | "contact"
+  | "projects"
+  | "project-gpt"
+  | "project-football"
+  | "project-online-appointment";
 
 /* ---------------- Intro ---------------- */
 function Intro() {
@@ -597,6 +605,7 @@ function OverlayMenu({
                   onBack={() => setView("list")}
                   onOpenGptCaseStudy={() => setView("project-gpt")}
                   onOpenFootballCaseStudy={() => setView("project-football")}
+                  onOpenOnlineAppointmentCaseStudy={() => setView("project-online-appointment")}
                 />
               )}
               {view === "project-gpt" && (
@@ -619,6 +628,17 @@ function OverlayMenu({
                   transition={{ duration: 0.4, ease: easeOut }}
                 >
                   <FootballCaseStudy onBack={() => setView("projects")} />
+                </motion.div>
+              )}
+              {view === "project-online-appointment" && (
+                <motion.div
+                  key="project-online-appointment"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4, ease: easeOut }}
+                >
+                  <OnlineAppointmentCaseStudy onBack={() => setView("projects")} />
                 </motion.div>
               )}
             </AnimatePresence>

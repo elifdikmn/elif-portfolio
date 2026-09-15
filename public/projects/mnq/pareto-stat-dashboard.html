@@ -99,10 +99,13 @@ body{background:var(--bg);color:var(--tx);font-family:'IBM Plex Mono',monospace;
 .ibc.c{background:rgba(34,197,94,0.05);border-color:rgba(34,197,94,0.2);}
 .ibc.n{background:rgba(79,142,247,0.05);border-color:rgba(79,142,247,0.2);}
 .ibc.e{background:rgba(239,68,68,0.05);border-color:rgba(239,68,68,0.2);}
+.ibc.tr{background:rgba(240,180,41,0.05);border-color:rgba(240,180,41,0.2);}
 .ilbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
 .ilbl.c{color:var(--gr);}.ilbl.n{color:var(--bl);}.ilbl.e{color:var(--rd);}
+.ilbl.tr{color:var(--go);}
 .inum{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1;margin-bottom:6px;}
 .inum.c{color:var(--gr);}.inum.n{color:var(--bl);}.inum.e{color:var(--rd);}
+.inum.tr{color:var(--go);}
 .irow{font-size:11px;color:var(--mu);margin-top:3px;}.irow span{color:var(--tx);}
 .inote{font-size:10px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);color:var(--mu);font-style:italic;}
 .corr-table{border-collapse:collapse;font-size:11px;width:100%;}
@@ -111,6 +114,18 @@ body{background:var(--bg);color:var(--tx);font-family:'IBM Plex Mono',monospace;
 .corr-table td.lbl{text-align:left;color:var(--mu);font-size:10px;border:none;border-bottom:1px solid rgba(255,255,255,0.04);}
 footer{border-top:1px solid var(--bd);padding:16px 36px;display:flex;justify-content:space-between;align-items:center;color:var(--mu);font-size:10px;margin-top:36px;}
 @media(max-width:900px){.land-cards{flex-direction:column;}.land-sep{display:none;}.hero,.main,footer,.hdr{padding-left:14px;padding-right:14px;}.strip{grid-template-columns:repeat(2,1fr);}.grid,.ibrow,.probgrid,.insights-bar{grid-template-columns:1fr;}.hstats{flex-wrap:wrap;gap:14px;}.nav a{padding:0 7px;font-size:10px;}}
+
+.mini-table{width:100%;border-collapse:collapse;font-size:11px;}
+.mini-table th{color:var(--mu);font-weight:400;font-size:10px;text-transform:uppercase;letter-spacing:.6px;padding:7px 8px;text-align:left;border-bottom:1px solid var(--bd);}
+.mini-table td{padding:7px 8px;border-bottom:1px solid rgba(255,255,255,0.03);}
+.mini-table tr:last-child td{border-bottom:none;}
+.callout{border-radius:10px;padding:14px 16px;border:1px solid;margin-bottom:12px;}
+.callout.good{background:rgba(34,197,94,0.05);border-color:rgba(34,197,94,0.2);}
+.callout.bad{background:rgba(239,68,68,0.05);border-color:rgba(239,68,68,0.2);}
+.callout .ctop{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--mu);margin-bottom:6px;}
+.callout .cnum{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:4px;}
+.callout.good .cnum{color:var(--gr);}.callout.bad .cnum{color:var(--rd);}
+.callout .csub{font-size:11px;color:var(--mu);line-height:1.7;}
 </style>
 </head>
 <body>
@@ -127,9 +142,9 @@ footer{border-top:1px solid var(--bd);padding:16px 36px;display:flex;justify-con
     <div class="land-card mnq" onclick="enterApp('mnq')">
       <div class="ticker">MNQ</div>
       <div class="sub">Micro E-mini Nasdaq-100</div>
-      <div class="period">Contract <span>09-25</span> · Jun–Sep 2025</div>
-      <div class="period">Price <span>21,757 – 23,779</span> · <span>+9.3%</span></div>
-      <div class="period"><span>56</span> trading days · Tick resolution</div>
+      <div class="period">Contracts <span>09-25 → 12-25 → 03-26</span> · Jun 2025 – Mar 2026</div>
+      <div class="period">Price <span>21,767.50 → ~24,732</span> · <span>+13.6%</span></div>
+      <div class="period"><span>129</span> session days · 144.2M ticks</div>
       <div class="cta">View Analysis →</div>
     </div>
     <div class="land-sep">or</div>
@@ -156,6 +171,8 @@ footer{border-top:1px solid var(--bd);padding:16px 36px;display:flex;justify-con
     <a onclick="go('sessions',this)">Sessions</a>
     <a onclick="go('correlation',this)">Correlation</a>
     <a onclick="go('ib',this)">IB &amp; VPOC</a>
+    <a class="mnq-only" onclick="go('rangebar',this)">Range Bars</a>
+    <a class="mnq-only" onclick="go('threshold',this)">Threshold Opt</a>
   </nav>
   <div class="hdr-right">
     <div class="dbadge mnq" id="mainBadge">MNQ 09-25</div>
@@ -342,6 +359,47 @@ footer{border-top:1px solid var(--bd);padding:16px 36px;display:flex;justify-con
   </div>
 </section>
 
+<section class="sec" id="sec-rangebar">
+  <div style="font-size:10px;color:var(--mu);margin-bottom:12px;padding:11px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:8px;line-height:1.9">
+    <strong style="color:var(--tx)">Range bars:</strong> a tick-count-independent measure of how many discrete price-range segments form per interval — a real-time proxy for how fast the tape is actually moving, separate from raw volume. ·
+    <strong style="color:var(--tx)">Continuation setups below:</strong> a same-direction 2-bar range-bar breakout, tested with a fixed point target against a fixed stop, and evaluated on whether price reaches target before giving back the stop.
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="ctitle"><div class="dot"></div>1-Min Range Bars — Full-Day Distribution</div>
+      <div id="rb-oneday" style="font-size:11px;color:var(--mu);line-height:2.1"></div>
+    </div>
+    <div class="card">
+      <div class="ctitle"><div class="dot" style="background:var(--go)"></div>15-Min Range Bars — Around the NY Open</div>
+      <table class="mini-table" id="rb-15min"></table>
+      <div class="chart-note">10:30 (38,022 median, 1st SD 111,427) edges out 09:30 (41,814 median) once you widen the bucket — confirming the same 10:00–11:00 shift seen in volume.</div>
+    </div>
+  </div>
+  <div class="card full" style="margin-top:0">
+    <div class="ctitle"><div class="dot" style="background:var(--bl)"></div>Continuation Setup Backtest — Same-Direction Range-Bar Breakout, RTH</div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px;">Entry: two consecutive 5-second bars close in the same direction with a range-bar count above that half-hour's median. Exit: fixed point target vs. fixed point stop, whichever hits first within the next ~20 bars.</div>
+    <table class="dt" id="rb-setups"></table>
+    <div id="rb-pnl-callout"></div>
+  </div>
+</section>
+
+<section class="sec" id="sec-threshold">
+  <div style="font-size:10px;color:var(--mu);margin-bottom:12px;padding:11px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:8px;line-height:1.9">
+    <strong style="color:var(--tx)">Question:</strong> if Asia's session move exceeds some magnitude threshold X%, how often does London close up? Twelve threshold-selection methods (percentiles, ±σ, k-means volatility clusters, a rolling baseline, and a grid-searched optimum) are compared below.
+  </div>
+  <div id="th-callout"></div>
+  <div class="card full" style="margin-bottom:12px">
+    <div class="ctitle"><div class="dot"></div>Threshold Method Comparison — P(London↑ | Asia magnitude &gt; X)</div>
+    <table class="mini-table" id="th-methods"></table>
+    <div class="chart-note">Read the bottom rows with caution: higher thresholds keep fewer days, so 83–100% readings at the top end are small-sample and easy to overfit. The percentile/σ rows in the middle (60–75%, on hundreds of days) are the more reliable signal.</div>
+  </div>
+  <div class="card full">
+    <div class="ctitle"><div class="dot" style="background:var(--or)"></div>Two-Session Combo → NY Direction</div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px;" id="th-combo-note"></div>
+    <table class="dt" id="th-combo"></table>
+  </div>
+</section>
+
 </main>
 <footer>
   <div>Pareto Research · Statistical Analysis · Tick Data</div>
@@ -352,73 +410,93 @@ footer{border-top:1px solid var(--bd);padding:16px 36px;display:flex;justify-con
 <script>
 const DATA={
 mnq:{
- meta:{badge:'MNQ 09-25',accentName:'mnq',heroTitle:'MNQ <em class="mnq">09-25</em>',sub1:'Tick data · <span>75,218 min bars</span> · <span>881,393 5s bars</span> · <span>56 trading days</span>',sub2:'Price <span>21,757 – 23,779</span> · Period <span>Jun 23 – Sep 7, 2025</span> · UTC−4',footer:'Jun 23 – Sep 7, 2025 · Tick resolution · UTC−4',hs:[['24.50 pts','t','NY Open Median Rot'],['+9.3%','g','Total Price Move'],['130.88 pts','o','IB Median Range']]},
+ meta:{badge:'MNQ 09-25‒03-26',accentName:'mnq',heroTitle:'MNQ <em class="mnq">09-25‒03-26</em>',sub1:'Tick data · <span>144.2M ticks</span> · <span>145,689 min bars</span> · <span>129 session days (109 w/ complete IB window)</span>',sub2:'Price <span>21,767.50 → ~24,732</span> · Period <span>Jun 23, 2025 – Mar 18, 2026</span> · UTC−4',footer:'Jun 23, 2025 – Mar 18, 2026 · Contracts 09-25→12-25→03-26 · Tick resolution · UTC−4',hs:[['21.25 pts','t','NY Open Median Rot'],['+13.6%','g','Total Price Move'],['125.75 pts','o','IB Median Range']]},
  insights:[
-  {type:'pos',tag:'Opportunity Window',text:'<strong>NY Opening Hour</strong> rotations (median 24.5 pts, P90 53.2 pts) are 78% larger than the rest of the NY session. The 60 min after 09:30 is your highest-edge window every day.'},
-  {type:'warn',tag:'Vol Clustering Edge',text:'<strong>Volatility carries across sessions</strong> (Asia–London r=0.51, London–NY r=0.47). A wide Asia session predicts a wider London. Use prior session ATR to size stops — not fixed point values.'},
-  {type:'info',tag:'Dominant Regime',text:'<strong>80.4% of days are Normal IB</strong> (55–207 pt range, avg 29 VPOC crosses). Mean-reversion around VPOC is the primary playbook. Only 5.4% are Compressed trending days.'},
-  {type:'neg',tag:'No Directional Carry',text:'<strong>Return correlations are near zero</strong> across all session pairs. London closing up tells you almost nothing about NY direction. Do not trade cross-session direction bias.'},
-  {type:'warn',tag:'Volume Regime',text:'<strong>09:30 volume (4,765 med) is 40× the overnight average.</strong> The first 30-min bar drives the bulk of daily volume. Execution quality drops sharply before 09:30 and after 15:00.'},
-  {type:'pos',tag:'IB Regime Sizing',text:'On <strong>Expanded IB days</strong> (>207 pts), rotation size nearly doubles vs Normal days (23 vs 15.75 pts median). Identify the regime at 10:30 and immediately adjust stops and targets for the rest of the day.'},
+  {type:'pos',tag:'Opportunity Window',text:'<strong>NY Opening Hour</strong> rotations (median 21.25 pts, mean 26.77, P90 53.25) remain the single biggest window — about 25% larger than the full NY session median (17.00 pts).'},
+  {type:'warn',tag:'Peak Shifted to 10:30',text:'In this longer sample, <strong>10:30 — not 09:30 — is now the busiest half-hour</strong> across 1-min volume (4,390 vs 2,951), 30-min volume (134,760 vs 115,047) and 5s range bars (183.5 vs 136.0). Re-anchor your highest-liquidity window to 10:00–11:00.'},
+  {type:'pos',tag:'Vol Clustering Strengthened',text:'<strong>London–NY volatility correlation is now 0.65</strong> (was 0.47 in the shorter sample) — the strongest session-pair relationship in the data. Asia links to neither session (0.02–0.07).'},
+  {type:'neg',tag:'No Directional Carry',text:'<strong>Return correlations stay near zero</strong> across all session pairs (−0.14 to +0.08). Prior-session close-to-close direction still gives no tradeable edge for the next session.'},
+  {type:'warn',tag:'Continuation Setups Need Care',text:'A loose same-direction range-bar breakout (5pt target/10pt stop, 1-bar confirm) won 75.7% of the time — but adding a 2nd confirmation bar collapsed it to <strong>36.0% and a simulated −$190,000</strong> at 20 contracts. See the new Range Bars tab.'},
+  {type:'info',tag:'IB Regime Shift',text:'<strong>Transitional is now the largest IB bucket</strong> (47/109 days, 43%) ahead of Normal (38, 35%). See the IB & VPOC tab for the full 4-way breakdown.'},
  ],
- insRotNote:'NY Opening Hour median (24.5 pts) is the standout. All other sessions are significantly smaller. Front-load your profit targets in the first hour after the NYSE open.',
- insVolNote:'Volume at 09:30 is 40× the overnight baseline. The 08:30 spike is driven by economic data releases. Everything between 10:00–15:00 represents the low-volume "dead zone".',
- insProbNote:'The dashed line = 50% (no edge). Only London↑ → NY↑ (60.7%) offers a meaningful signal. All other session pairs are statistically near-random — trade the chart, not the prior session.',
+ insRotNote:'NY Opening Hour median (21.25 pts) is still the standout — mean 26.77 pts, P90 53.25 pts. Front-load targets in the first hour after the NYSE open.',
+ insVolNote:'10:30 is now the single busiest half-hour in the dataset (1-min vol median 4,390, 30-min vol median 134,760) — edging out the 09:30 open itself. Consider extending your highest-liquidity window through 11:00.',
+ insProbNote:'Dashed line = 50% (no edge). P(NY↑|London↓) Full = 57.14% is the strongest full-session read. Everything else sits in the 46–53% band — treat as noise. Two-session combos live in the new Threshold Opt tab.',
  overviewStrip:[
-  {l:'NY Open Mean Rotation',v:'35.69 pts',vc:'t',s:'Median 30.00 · P90 53.18',tip:'Average size of a full swing during the first 60 min after NYSE open. Use median (30 pts) for typical target setting, P90 (53 pts) as your maximum expected move.'},
-  {l:'NY Full Mean Rotation',v:'22.38 pts',vc:'gold',s:'Median 17.25 · P90 34.75',tip:'Average swing across the entire NY session (09:30–16:00). Calmer mid-day — the opening hour accounts for the bulk of rotation opportunity.'},
-  {l:'Asia Full Mean Rotation',v:'8.65 pts',vc:'bl',s:'Median 6.75 · P90 12.00',tip:'Overnight swings are small. Use 12 pts (P90) as your maximum expected overnight range. Anything larger is a statistical outlier.'},
-  {l:'IB Median Range',v:'130.88 pts',vc:'t',s:'σ = 75.75 pts',tip:'High standard deviation (75.75) means IB size varies enormously day-to-day. Do not assume a fixed IB size — classify the type at 10:30 each day.'},
-  {l:'Normal IB Days',v:'45 / 56',vc:'g',s:'80.4% of sample',tip:'Normal IB days (within ±1σ of median range) are the most common regime. Mean-reversion around VPOC works best on these days.'},
+  {l:'NY Open Mean Rotation',v:'26.77 pts',vc:'t',s:'Median 21.25 · P90 53.25',tip:'Average swing size in the first 60 min after NYSE open. Use the median (21.25 pts) for typical target setting, P90 (53.25 pts) as your maximum expected move.'},
+  {l:'NY Full Mean Rotation',v:'22.89 pts',vc:'gold',s:'Median 17.00 · P90 48.00',tip:'Average swing across the entire NY session. Calmer than the opening hour, but still the largest full-session bucket of the three.'},
+  {l:'Asia Full Mean Rotation',v:'9.70 pts',vc:'bl',s:'Median 6.75 · P90 20.50',tip:'Overnight swings remain the smallest of the three sessions. Use 20.50 pts (P90) as your maximum expected overnight range.'},
+  {l:'IB Median Range',v:'125.75 pts',vc:'t',s:'σ = 65.87 pts',tip:'High standard deviation means IB size varies enormously day-to-day. Classify the type fresh at 10:30 each day rather than assuming a fixed size.'},
+  {l:'Most Common IB Type',v:'Transitional',vc:'gold',s:'47 / 109 days · 43%',tip:'The 4-way classification (Compressed/Normal/Expanded/Transitional) now shows Transitional as the largest single bucket, ahead of Normal at 35%.'},
  ],
  volumeStrip:[
-  {l:'09:30 1-Min Vol Median',v:'4,765',vc:'t',s:'RTH open spike',tip:'Peak volume minute of the day. Highest liquidity = tightest spreads. Slippage on market orders is lowest here despite fast price movement.'},
-  {l:'08:30 1-Min Vol Median',v:'550',vc:'gold',s:'Pre-RTH peak',tip:'Economic data releases (CPI, NFP, etc.) hit at 08:30 ET. On report days, volume spikes significantly and can create sharp pre-market moves.'},
-  {l:'09:30 30-Min Vol Median',v:'150,860',vc:'o',s:'Highest 30m slot',tip:'Single largest 30-min volume window. Often represents 20–30% of the entire day\'s volume. The market establishes its directional bias here.'},
-  {l:'08:30 30-Min Median',v:'17,992',vc:'g',s:'Pre-RTH 30m',tip:'Pre-market volume elevated vs overnight but still a fraction of RTH. Wide spreads, gap risk — size down before 09:30.'},
-  {l:'09:30 5s RangeBars Med',v:'183',vc:'bl',s:'1st SD: 387',tip:'5-second range bars per minute. Above 387 = unusually fast tape at the open. Use as a real-time signal: high bar count means follow-through risk is elevated.'},
+  {l:'10:30 1-Min Vol Median',v:'4,390',vc:'t',s:'New peak slot',tip:'10:30 has overtaken 09:30 as the single busiest 1-minute slot in this longer sample. Peak liquidity now extends about an hour past the open.'},
+  {l:'09:30 1-Min Vol Median',v:'2,951',vc:'gold',s:'RTH open spike',tip:'Still elevated and still the moment the market establishes its opening bias, but no longer the single highest-volume minute of the day.'},
+  {l:'10:30 30-Min Vol Median',v:'134,760',vc:'o',s:'Highest 30m slot',tip:'Edges out the 09:30 slot (115,047). Consider treating 10:00–11:00 as part of your primary execution window, not just 09:30–10:00.'},
+  {l:'09:30 30-Min Median',v:'115,047',vc:'g',s:'RTH open 30m',tip:'The market still establishes a large share of its directional bias here, even though it is no longer the single largest 30-min window.'},
+  {l:'10:30 5s RangeBars Med',v:'183.5',vc:'bl',s:'1st SD: 643',tip:'Fastest tape of the day now prints at 10:30, not the open. Above 643 five-second bars per minute signals unusually fast, follow-through-risk conditions.'},
  ],
- vol1m:{med:[109,100,130,140,207,187,324.5,245,315,203,187,167,191.5,206,264,262,382,550,643,4765,3551.5,2790,2225.5,1807,1551,1390,1338,1234.5,1224,1065,1161.5,1645,479,231,271,null,null,271,null,null,null,null,null,null,null],s1:[289,251,392,371,459,483,699,695,719,506,448,404,502,503,620,595,867,1800,1573,7923,6510,5110,4267,3642,3011,2960,2612,2772,2542,2557,2527,3826,2148,561,795,null,null,795,null,null,null,null,null,null,null],s2:[434,368,604,547,663,715,992,1044,1037,745,651,592,742,736,902,853,1255,2755,2302,10597,8917,7020,5918,5133,4207,4221,3629,3982,3576,3703,3612,5486,3399,828,1191,null,null,1191,null,null,null,null,null,null,null],peak:19},
- vol30:{med:[3848,3376,4607,5597,7121,6053,11198,8376,10637,7219,6769,5885,6940,7343,8599,9143,12897,17992,22744,150860,114545,89757,71120,59868,52970,47122,40445,41730,41260,33835,36743,61901,21629,7291,9769,5508,6036,5901,9093,7446,6688],peak:19},
- rb5s:{med:[4,4,5,5,7,7,13,10,12,8,7,6,7,7,9,10,14,21,23,183,118,84,67,53,44,40,37,35,34,30,32,43,15,7,14,7,7,7,11,8,8,7,6,5,5,4],s1:[15,13,23,19,24,25,38,38,40,26,24,20,26,25,34,30,51,232,77,387,450,200,166,146,116,114,104,113,101,97,100,147,224,43,138,27,31,24,53,39,25,30,23,18,17,15],peak:19},
- rotTable1Rows:[['FullSession','Asia','8,908','6.33','5.25','5.28','5.94','3.00','8.25','12.00'],['FullSession','London','9,781','8.79','7.25','5.63','7.68','4.25','11.25','17.00'],['FullSession','NY','8,546','17.40','13.75','12.04','15.04','8.00','22.25','34.75'],['OpeningHour','Asia Open','1,266','7.19','6.00','5.56','5.72','3.50','9.75','14.00'],['OpeningHour','London Open','1,292','7.34','6.25','5.13','5.93','3.75','9.75','13.50'],['OpeningHour','NY Open','1,364','28.42','24.50','16.85','21.18','15.19','36.75','53.18']],
- rotTable2Rows:[['OpenBracket 1H','Asia Open','864','9.65','8.00','6.76'],['OpenBracket 1H','London Open','895','9.56','7.75','7.17'],['OpenBracket 1H','NY Open','1,015','35.69','30.00','24.09'],['Full Session','Asia','6,395','8.65','6.75','7.18'],['Full Session','London','7,236','11.51','9.25','8.58'],['Full Session','NY','6,486','22.38','17.25','17.39']],
- rotMed:{full:[5.25,7.25,13.75],open:[6.00,6.25,24.50]},rotMedNote:'NY Opening Hour median (24.5 pts) is 78% larger than the full NY session median (13.75 pts). Concentrate position activity in the first hour — the data supports it.',
- rotAll:{labels:['Asia Full','London Full','NY Full','Asia Open','London Open','NY Open'],mean:[6.33,8.79,17.40,7.19,7.34,28.42],median:[5.25,7.25,13.75,6.00,6.25,24.50],p75:[8.25,11.25,22.25,9.75,9.75,36.75],p90:[12.00,17.00,34.75,14.00,13.50,53.18]},
+ vol1m:{med:[153.0, 139.0, 173.0, 184.0, 240.0, 215.0, 332.0, 267.5, 434.5, 291.0, 284.0, 246.0, 259.5, 255.0, 306.0, 319.0, 438.0, 554.0, 640.0, 2951.0, 2391.5, 4389.5, 3434.0, 2735.0, 2220.0, 1986.0, 1761.5, 1597.0, 1576.0, 1383.0, 1433.0, 1747.0, 948.0, 438.0, 682.0, 320.0, 285.0, 174.0, 288.0, 245.0, 359.0, 277.0, 295.0, 270.0, 244.0, 194.0, 181.0, 169.0],s1:[466.357406, 373.389208, 503.716652, 497.109082, 636.687896, 600.842163, 783.490859, 684.980767, 1024.51784, 802.207847, 866.349704, 748.894382, 744.746987, 675.775896, 807.267904, 804.730422, 1022.471439, 1590.396758, 1487.7969, 6605.16361, 5498.801192, 8826.082562, 7225.628271, 5804.35371, 4687.684366, 4168.476651, 3617.639043, 3500.399526, 3356.064669, 3131.851002, 3137.954099, 3901.214728, 2902.232765, 3172.721709, 2342.437202, 910.713165, 936.307924, 536.819368, 920.550885, 743.430709, 1000.976704, 801.914236, 817.250212, 833.49604, 722.67886, 579.982138, 546.676171, 553.705024],s2:[708.010316, 551.284861, 760.939474, 734.179892, 948.921471, 894.605004, 1136.599311, 1005.956905, 1485.159754, 1189.945323, 1306.360211, 1131.857569, 1118.650147, 1003.621832, 1199.354944, 1181.742634, 1480.53899, 2400.44856, 2154.315713, 9567.951332, 7924.921365, 12337.119354, 10206.624665, 8208.259762, 6606.085979, 5901.813183, 5099.338575, 4979.210055, 4753.373215, 4472.16585, 4494.105198, 5570.730122, 4351.930042, 4976.501731, 3598.447252, 1376.175705, 1427.193239, 808.805844, 1404.876761, 1121.659513, 1496.702694, 1207.79387, 1211.047091, 1261.229224, 1083.125656, 867.575069, 820.560279, 843.680934],peak:21},
+ vol30:{med:[5417.0, 4711.0, 5923.5, 6593.0, 7928.0, 7149.0, 11112.5, 8785.5, 14124.5, 9750.5, 9520.5, 8479.0, 8182.5, 8671.0, 9823.0, 10406.0, 14181.0, 17548.0, 21063.5, 115047.0, 84076.0, 134760.0, 103781.0, 87432.0, 65480.0, 61734.0, 55110.5, 50436.0, 49656.0, 43412.0, 45549.0, 61875.0, 32206.0, 10075.0, 28620.0, 10081.0, 9780.5, 5699.5, 10194.5, 8180.0, 11404.5, 9732.0, 9971.0, 9045.0, 8276.0, 6992.0, 6047.0, 5917.0],peak:21},
+ rb5s:{med:[7.0, 6.0, 8.0, 8.0, 11.0, 10.0, 16.0, 13.0, 21.0, 15.0, 14.0, 12.0, 12.0, 11.0, 14.0, 14.0, 21.0, 26.0, 29.0, 136.0, 97.0, 183.5, 130.0, 99.0, 78.0, 67.0, 59.0, 53.0, 53.0, 46.0, 48.0, 57.0, 33.0, 20.0, 27.0, 12.0, 17.0, 9.0, 15.0, 12.0, 18.0, 13.0, 14.0, 13.0, 11.0, 9.0, 8.0, 8.0],s1:[42.0, 30.0, 46.0, 41.0, 60.0, 49.0, 71.0, 54.0, 85.0, 67.0, 75.0, 62.0, 71.0, 59.0, 73.0, 72.0, 87.0, 245.0, 115.0, 480.0, 456.0, 643.0, 522.0, 333.0, 248.0, 221.0, 197.0, 203.0, 191.0, 175.0, 190.0, 226.0, 256.0, 182.0, 254.0, 144.0, 205.0, 51.0, 194.0, 71.0, 95.0, 69.0, 68.0, 70.0, 62.0, 48.0, 47.0, 52.0],peak:21},
+ hhLabels:["00:00", "00:30", "01:00", "01:30", "02:00", "02:30", "03:00", "03:30", "04:00", "04:30", "05:00", "05:30", "06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30"],
+ rotTable1Rows:[['FullSession','Asia','17,591','9.70','6.75','21.2400','18.72','3.75','12.0','20.50'],['FullSession','London','19,445','11.89','9.00','7.3875','10.83','5.00','15.5','24.50'],['FullSession','NY','16,718','22.89','17.00','16.4925','21.68','9.50','29.5','48.00'],['OpeningHour','Asia Open','2,499','11.55','8.25','6.3625','12.16','4.25','14.5','24.25'],['OpeningHour','London Open','2,559','9.67','7.50','5.1275','8.44','4.25','12.5','19.50'],['OpeningHour','NY Open','2,667','26.77','21.25','16.4925','24.35','12.25','34.5','53.25']],
+ rotTable2Rows:[['OpenBracket 1H','Asia Open','1,726','15.49','11.00','14.51'],['OpenBracket 1H','London Open','1,792','12.62','10.00','9.99'],['OpenBracket 1H','NY Open','1,982','32.65','26.00','23.78'],['Full Session','Asia','12,953','12.96','9.25','21.95'],['Full Session','London','14,595','15.43','11.75','12.25'],['Full Session','NY','12,879','29.17','22.00','24.70']],
+ rotMed:{full:[6.75,9.00,17.00],open:[8.25,7.50,21.25]},rotMedNote:'NY Opening Hour median (21.25 pts) is 25% larger than the full NY session median (17.00 pts) — a smaller premium than the prior sample (78%), but still the clearest edge in the data.',
+ rotAll:{labels:['Asia Full','London Full','NY Full','Asia Open','London Open','NY Open'],mean:[9.70,11.89,22.89,11.55,9.67,26.77],median:[6.75,9.00,17.00,8.25,7.50,21.25],p75:[12.0,15.5,29.5,14.5,12.5,34.5],p90:[20.50,24.50,48.00,24.25,19.50,53.25]},
  sessionsStrip:[
-  {l:'P(NY↑|London↑) Full',v:'60.71%',vc:'t',s:'Open: 63.64%',tip:'Strongest cross-session signal in the dataset. If London closes higher, NY follows 60.7% of the time. Weak but the best directional edge available.'},
-  {l:'P(NY↑|London↓) Full',v:'51.85%',vc:'o',s:'Open: 40.91%',tip:'Near-random. London closing down does NOT reliably predict NY going down. Do not use London weakness as a NY short trigger.'},
-  {l:'P(NY↑|Asia↑) Full',v:'51.52%',vc:'gold',s:'Open: 50.00%',tip:'Statistically meaningless. Asia direction provides zero predictive edge for NY direction. Trade the chart.'},
-  {l:'P(London↑|Asia↑)',v:'45.45%',vc:'bl',s:'Open: 40.62%',tip:'Slight negative tendency. Asia going up correlates very weakly with London going down. Too weak to trade directly.'},
+  {l:'P(NY↑|London↓) Full',v:'57.14%',vc:'t',s:'Open: 40.38%',tip:'Strongest full-session signal in the new sample. London closing down predicted NY closing up 57.1% of the time. Weak, but the best directional edge available full-session.'},
+  {l:'P(NY↑|London↑) Full',v:'52.54%',vc:'o',s:'Open: 57.14%',tip:'Near-random full-session, but the opening-hour version (57.14%) is more interesting — timeframe matters a lot for this pair.'},
+  {l:'P(NY↑|Asia↑) Full',v:'53.45%',vc:'gold',s:'Open: 46.30%',tip:'Statistically meaningless — essentially a coin flip both full-session and opening-hour.'},
+  {l:'P(London↑|Asia↑)',v:'48.28%',vc:'bl',s:'Open: 46.30%',tip:'No meaningful edge. Asia direction does not predict London direction in either timeframe.'},
  ],
- probFull:[60.71,51.85,51.52,45.45],probOpen:[63.64,40.91,50.00,40.62],
- sessVol:null,sessVolNote:'Rotation medians shown as proxy. NY Opening Hour (orange) dominates every other window by a wide margin.',
- probNote:'<span style="color:var(--tx)">Key finding:</span> Session directional dependencies are weak (40–64% range). Best signal: London↑ → NY↑ at <strong>60.71%</strong>. All Asia-based signals are near 50% — treat as noise.',
+ probFull:[52.54,57.14,53.45,48.28],probOpen:[57.14,40.38,46.30,46.30],
+ sessVol:null,sessVolNote:'Rotation medians shown as proxy. NY Opening Hour continues to dominate every other window, though by a narrower margin than the shorter prior sample.',
+ probNote:'<span style="color:var(--tx)">Key finding:</span> <strong>P(NY↑|London↓) Full = 57.14%</strong> is now the strongest full-session read. Every other condition sits in the 46–53% band — essentially noise. Two-session combos and Asia-magnitude threshold signals live in the new <strong>Threshold Opt</strong> tab.',
  corrStrip:[
-  {l:'London–Asia Vol Corr',v:'0.5150',vc:'t',s:'Strongest vol pair',tip:'Strong positive: wide Asia session reliably predicts wider London. After a volatile Asia night, increase London stop width accordingly.'},
-  {l:'London–NY Vol Corr',v:'0.4714',vc:'gold',s:'Moderate',tip:'Moderate: volatile London tends to be followed by volatile NY. Use London ATR to pre-size your NY stops before 09:30.'},
-  {l:'London–NY Return Corr',v:'0.0749',vc:'o',s:'Very weak',tip:'Near-zero: London direction predicts NY direction with less than 1% statistical accuracy. Directionally, treat sessions as independent.'},
-  {l:'PreNY–RTH Return Corr',v:'−0.1847',vc:'rd',s:'Slight mean-reversion',tip:'Negative: pre-market price run-up tends to slightly fade at the RTH open. Weak but consistent — consider fading large pre-market moves at 09:30.'},
+  {l:'London–NY Vol Corr',v:'0.6508',vc:'t',s:'Strongest pair (was 0.47)',tip:'The dominant relationship in this sample. A volatile London session reliably predicts a wider NY session — use London ATR to pre-size NY stops.'},
+  {l:'Asia–London Vol Corr',v:'0.0722',vc:'gold',s:'Weak (was 0.51)',tip:'Much weaker than the prior shorter sample — Asia volatility no longer meaningfully predicts London volatility in the full 9-month window.'},
+  {l:'London–NY Return Corr',v:'0.0809',vc:'o',s:'Very weak',tip:'Near-zero: London direction predicts NY direction with essentially no statistical accuracy.'},
+  {l:'PreNY–RTH Return Corr',v:'−0.1061',vc:'rd',s:'Weak mean-reversion (was −0.18)',tip:'Negative but weaker than before: pre-market price run-up tends to fade slightly at the RTH open. Treat as a minor bias, not a standalone signal.'},
  ],
- retCorr:{Asia:{'Asia':1.000,'London':0.010,'NY':0.010},London:{'Asia':0.010,'London':1.000,'NY':0.075},NY:{'Asia':0.010,'London':0.075,'NY':1.000}},
- volCorr:{Asia:{'Asia':1.000,'London':0.515,'NY':0.238},London:{'Asia':0.515,'London':1.000,'NY':0.471},NY:{'Asia':0.238,'London':0.471,'NY':1.000}},
- retCorrNote:'All return correlations near zero — sessions are directionally independent. Prior session close-to-close return has no meaningful predictive power.',
- volCorrNote:'Actionable edge: wide Asia → wide London (r=0.51), wide London → wide NY (r=0.47). Calibrate stop width using prior session ATR, not a fixed number.',
- corrBars:{labels:['Asia–London\nReturn','Asia–NY\nReturn','London–NY\nReturn','PreNY–RTH\nReturn','London–NY\nVol','Asia–London\nVol','Asia–NY\nVol'],vals:[0.010,0.010,0.075,-0.185,0.471,0.515,0.238]},
+ retCorr:{Asia:{'Asia':1.000,'London':-0.1362,'NY':-0.1145},London:{'Asia':-0.1362,'London':1.000,'NY':0.0809},NY:{'Asia':-0.1145,'London':0.0809,'NY':1.000}},
+ volCorr:{Asia:{'Asia':1.000,'London':0.0722,'NY':0.0162},London:{'Asia':0.0722,'London':1.000,'NY':0.6508},NY:{'Asia':0.0162,'London':0.6508,'NY':1.000}},
+ retCorrNote:'All return correlations remain near zero — Asia–London is the largest in magnitude at −0.14, still far too weak to trade. Sessions stay directionally independent.',
+ volCorrNote:'Major shift from the shorter sample: London–NY vol correlation is now the dominant relationship at 0.65 (was 0.47). Asia no longer links meaningfully to either session (0.02–0.07).',
+ corrBars:{labels:['Asia–London\nReturn','Asia–NY\nReturn','London–NY\nReturn','PreNY–RTH\nReturn','London–NY\nVol','Asia–London\nVol','Asia–NY\nVol'],vals:[-0.1362,-0.1145,0.0809,-0.1061,0.6508,0.0722,0.0162]},
  ibCards:[
-  {type:'c',label:'Type 1 — Compressed',n:'3',pct:'5.4%',range:'< 55 pts',crosses:'13.67',meanR:'8.95',medR:'7.00',std:'6.99',sample:'54',note:'Fewest VPOC crosses — price picks a direction and trends away from value. Mean-reversion strategies underperform. Trade momentum, not fades.'},
-  {type:'n',label:'Type 2 — Normal',n:'45',pct:'80.4%',range:'55–207 pts',crosses:'29.22',meanR:'20.15',medR:'15.75',std:'15.84',sample:'1,718',note:'Dominant regime. High VPOC cross frequency confirms market accepting fair value. VPOC mean-reversion strategies have positive expectancy.'},
-  {type:'e',label:'Type 3 — Expanded',n:'8',pct:'14.3%',range:'> 207 pts',crosses:'31.12',meanR:'28.28',medR:'23.00',std:'21.49',sample:'324',note:'Large IB + high VPOC crosses = violent two-way swings. Use minimum 2× stop vs Normal days. Both long and short opportunities are valid.'},
+  {type:'c',label:'Type 1 — Compressed',n:'11',pct:'10.1%',range:'Low tail of IB Range',crosses:'25.00',meanR:'21.38',medR:'16.00',std:'17.73',sample:'366',note:'Fewer VPOC crosses than Expanded/Transitional, and the smallest rotations of the four types — still the closest thing to a trending regime.'},
+  {type:'n',label:'Type 2 — Normal',n:'38',pct:'34.9%',range:'Mid tail of IB Range',crosses:'27.63',meanR:'28.57',medR:'21.00',std:'24.06',sample:'1,361',note:'Second-largest bucket. VPOC mean-reversion still has positive expectancy here, consistent with the prior sample.'},
+  {type:'e',label:'Type 3 — Expanded',n:'13',pct:'11.9%',range:'High tail of IB Range',crosses:'31.69',meanR:'32.62',medR:'26.50',std:'23.35',sample:'547',note:'Largest rotations of any type (32.6 mean / 26.5 median pts). Widen stops materially vs Normal days.'},
+  {type:'tr',label:'Type 4 — Transitional',n:'47',pct:'43.1%',range:'100.75–161.24 pt band',crosses:'29.62',meanR:'26.23',medR:'20.25',std:'21.18',sample:'1,762',note:'Now the single largest bucket — a ±25pt band around the median/mean gap that swallowed most of the sample. Being reassessed as more 2026 data comes in; for now, treat its rotation stats (between Normal and Expanded) as the working baseline.'},
  ],
- ibCountData:[13.67,29.22,31.12],ibCountNote:'Compressed days have the fewest VPOC crosses (13.67 avg) — confirming trending behavior. Normal and Expanded days both show high cross counts, but with very different rotation sizes.',
- ibSizeMean:[8.95,20.15,28.28],ibSizeMed:[7.00,15.75,23.00],ibSizeNote:'Mean > median in all types (right-skewed distribution) — large outlier rotations pull the average up. Use median for typical trade planning, keep P90 in mind for risk management.',
- ibLog:[['Median IB Range','130.88 pts','Central tendency of 09:30–10:30 range across 56 days'],['Std Dev IB Range','75.75 pts','High variability — IB type must be assessed fresh each day'],['Type 1 cutoff','< 55.13 pts','Below Median − 1σ → Compressed / trending regime'],['Type 2 range','55.13 – 206.63 pts','Within Median ± 1σ → Normal / rotational regime'],['Type 3 cutoff','> 206.63 pts','Above Median + 1σ → Expanded / high-volatility regime'],['Jun 23, 2025','253.25 → Type 3','H: 22,011.75 · L: 21,758.50'],['Jun 24, 2025','73.25 → Type 2','H: 22,333.25 · L: 22,260.00'],['Jun 25, 2025','85.50 → Type 2','H: 22,548.25 · L: 22,462.75']],
- priceStart:21767.5,priceEnd:23754.5,priceNote:'+9.3% over 56 days. Broadly upward trend with two visible consolidation zones. The trend confirms Normal IB mean-reversion as the dominant playbook for this period.',
- ibDonutData:[45,8,3],ibDonutLabels:['Normal (45)','Expanded (8)','Compressed (3)'],
- ovRotNote:'Opening Hour rotations (lighter bars) exceed full-session medians in every session — but the NY gap is the most dramatic. The data clearly supports concentrating activity at the NYSE open.',
- ovProbNote:'All values 45–61% — near-random. Values near 50% offer no tradeable edge. Strongest: London↑ → NY↑ at 60.7%. All Asia signals are noise.',
-},
-mes:{
+ ibCountData:[25.00,27.63,31.69,29.62],ibCountNote:'Compressed days still show fewer VPOC crosses (25.0 avg) than Expanded/Transitional (29–32), but the gap narrowed sharply from the prior sample — trending-vs-mean-reverting behavior is less clean-cut over the longer window.',
+ ibSizeMean:[21.38,28.57,32.62,26.23],ibSizeMed:[16.00,21.00,26.50,20.25],ibSizeNote:'Expanded days still produce the largest rotations (32.6 mean / 26.5 median pts). Transitional — now the largest bucket by day count — sits between Normal and Compressed in rotation size.',
+ ibLog:[['Mean IB Range','136.24 pts','Across 109 days with a complete 09:30–10:30 window'],['Median IB Range','125.75 pts','Central tendency — used as the classification anchor'],['Std Dev IB Range','65.87 pts','High variability — assess the regime fresh each day'],['Type 4 window','100.75 – 161.24 pts','±25pt band around the median/mean gap; currently the largest single bucket'],['Jun 23, 2025','253.25 pts → Type 3','H: 22,011.75 · L: 21,758.50'],['Jun 24, 2025','73.25 pts → Type 2','H: 22,333.25 · L: 22,260.00'],['Jun 25, 2025','85.50 pts → Type 2','H: 22,548.25 · L: 22,462.75'],['Jun 26, 2025','106.25 pts → Type 4','H: 22,582.50 · L: 22,476.25'],['Jun 27, 2025','141.75 pts → Type 4','H: 22,823.75 · L: 22,682.00']],
+ priceStart:21767.5,priceEnd:24732.25,priceNote:'+13.6% over the full Jun 2025 – Mar 2026 window, spanning three rolled contracts (09-25 → 12-25 → 03-26). The uptrend continued across the roll, with the IB/VPOC mean-reversion playbook still dominant on the modal (Transitional/Normal) day types.',
+ ibDonutData:[38,47,13,11],ibDonutLabels:['Normal (38)','Transitional (47)','Expanded (13)','Compressed (11)'],
+ ovRotNote:'Opening Hour rotations still exceed full-session medians in every session, but the premium compressed versus the shorter prior sample — most visibly in NY (25% vs 78% before).',
+ ovProbNote:'All values sit in the 46–57% band — still no reliable edge. Strongest full-session read: London↓→NY↑ at 57.1%.',
+ rangeBar:{
+  oneMinFullDay:{mean:696.78,mode:67.0,std:1290.63},
+  fifteenMin:[['08:45','4,872','13,658','20,091'],['09:00','5,584','13,503','19,139'],['09:15','7,465','14,181','19,512'],['09:30','41,814','67,702','94,918'],['09:45','27,498','54,818','78,108'],['10:00','24,975','61,876','92,403'],['10:15','21,186','41,221','57,963'],['10:30','38,022','111,427','161,917'],['10:45','34,329','81,306','116,144'],['11:00','28,573','83,322','123,099']],
+  setups:[
+   ['Setup A — 5pt target / 10pt stop, 1-bar confirm','2,299','740','75.7%',null],
+   ['Setup B — 5pt target / 15pt stop, 1-bar confirm','1,574','492','76.2%',null],
+   ['Setup C — 5pt target / 10pt stop, 2-bar confirm','744','1,322','36.0%','−$190,000'],
+  ]
+ },
+ threshold:{
+  best:{pct:'1.00%',prob:'100.00%',improvement:'+54.26 p.p.'},
+  methods:[
+   ['KMeans low-vol cluster','0.075%','58.82%'],['Percentile P50','0.196%','59.65%'],['Percentile P60','0.227%','60.87%'],['KMeans mid-vol cluster','0.290%','65.71%'],['Percentile P70','0.291%','67.65%'],['Percentile P80','0.396%','56.52%'],['Std mean +1σ','0.467%','73.33%'],['Percentile P90','0.548%','75.00%'],['Percentile P95','0.677%','83.33%'],['Std mean +2σ','0.689%','83.33%'],['KMeans high-vol cluster','0.714%','75.00%'],['Optimized threshold (grid search)','1.000%','100.00%']
+  ],
+  combo:[
+   ['P(NY↑ | Asia↓ & London↑)','58.06%','58.62%'],['P(NY↑ | Asia↑ & London↓)','62.07%','39.29%'],['P(NY↑ | Asia↑ & London↑)','46.43%','56.00%']
+  ],
+  comboNote:'Asia magnitude never exceeded 2.0% in this sample (0 of 129 days), so P(London↑ | Asia magnitude > 2.0%) has no data — the threshold study above uses a fitted magnitude instead of a fixed 2% cutoff.'
+ },
+},mes:{
  meta:{badge:'MES 12-25',accentName:'mes',heroTitle:'MES <em class="mes">12-25</em>',sub1:'Tick data · <span>1-min, 30-min, 5-sec bars</span> · <span>~20 trading days</span>',sub2:'Price <span>6,398 – 6,504</span> · Period <span>Aug 11 – Sep 7, 2025</span> · UTC−4',footer:'Aug 11 – Sep 7, 2025 · Tick resolution · UTC−4',hs:[['6.75 pts','pu','NY Open Median Rot'],['8.35 pts','t','NY Open Mean Rot'],['4.50 pts','g','NY Full Median Rot']]},
  insights:[
   {type:'pos',tag:'Opportunity Window',text:'<strong>NY Opening Hour</strong> median (6.75 pts) is 58% larger than full NY session median (4.50 pts). Same pattern as MNQ — the first 60 min after 09:30 is the highest-opportunity window.'},
@@ -511,6 +589,10 @@ function enterApp(inst){
   document.getElementById('landing').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('logoEm').className=ismes?'mes':'mnq';
+  document.querySelectorAll('.mnq-only').forEach(el=>{el.style.display=ismes?'none':'';});
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sec-insights').classList.add('on');
+  document.querySelectorAll('.nav a').forEach((a,i)=>{a.classList.remove('on','mes-mode');if(i===0){a.classList.add('on');if(ismes)a.classList.add('mes-mode');}});
   const b=document.getElementById('mainBadge');b.textContent=M.badge;b.className='dbadge '+(ismes?'mes':'mnq');
   document.getElementById('heroTitle').innerHTML=M.heroTitle;
   document.getElementById('heroSub1').innerHTML=M.sub1;
@@ -532,7 +614,24 @@ function enterApp(inst){
     const k=id.replace('-note','Note').replace(/-([a-z])/g,(_,c)=>c.toUpperCase());
     if(D[k])document.getElementById(id).textContent=D[k];
   });
+  if(D.rangeBar)bRangeBar(D.rangeBar);
+  if(D.threshold)bThreshold(D.threshold);
   setTimeout(()=>bCharts(D,ismes,ac,acS),50);
+}
+
+function bRangeBar(RB){
+  const od=RB.oneMinFullDay;
+  document.getElementById('rb-oneday').innerHTML=`<div>Mean: <strong style="color:var(--tx)">${od.mean.toFixed(2)}</strong> bars/min</div><div>Mode: <strong style="color:var(--tx)">${od.mode.toFixed(1)}</strong> bars/min</div><div>Std Dev: <strong style="color:var(--tx)">${od.std.toFixed(2)}</strong></div><div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);color:var(--mu)">Right-skewed: mode (${od.mode.toFixed(0)}) sits well below the mean (${od.mean.toFixed(0)}) — a handful of very fast minutes (the 09:30–11:00 window) pull the average well above what a typical minute looks like.</div>`;
+  document.getElementById('rb-15min').innerHTML=`<thead><tr><th>Time</th><th>Median</th><th>1st SD Upper</th><th>2nd SD Upper</th></tr></thead><tbody>${RB.fifteenMin.map(r=>`<tr${r[0]==='09:30'||r[0]==='10:30'?' style="color:var(--te)"':''}><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</tbody>`;
+  document.getElementById('rb-setups').innerHTML=`<thead><tr><th>Setup</th><th>Wins</th><th>Losses</th><th>Win Rate</th></tr></thead><tbody>${RB.setups.map(s=>`<tr><td>${s[0]}</td><td style="color:var(--gr)">${s[1]}</td><td style="color:var(--rd)">${s[2]}</td><td><b>${s[3]}</b></td></tr>`).join('')}</tbody>`;
+  const bad=RB.setups.find(s=>s[4]);
+  document.getElementById('rb-pnl-callout').innerHTML=bad?`<div class="callout bad" style="margin-top:12px"><div class="ctop">Simulated P&amp;L — ${bad[0]}</div><div class="cnum">${bad[4]}</div><div class="csub">At 20 contracts, target 5 pts vs stop 10 pts (1:2 reward:risk), a ${bad[3]} win rate is not enough to break even — you need &gt;66.7% at this R:R. The extra confirmation bar filtered out the setup's edge rather than improving it.</div></div>`:'';
+}
+function bThreshold(T){
+  document.getElementById('th-callout').innerHTML=`<div class="callout good"><div class="ctop">Best Fitted Threshold — P(London↑ | Asia magnitude &gt; X)</div><div class="cnum">${T.best.prob}</div><div class="csub">at an Asia-session magnitude threshold of <strong style="color:var(--tx)">${T.best.pct}</strong> · ${T.best.improvement} vs. the unconditional baseline. Treat this top reading as a small-sample, grid-searched optimum — not a standalone trading rule. See caveat below.</div></div>`;
+  document.getElementById('th-methods').innerHTML=`<thead><tr><th>Method</th><th>Threshold</th><th>P(London↑ | Asia mag &gt; X)</th></tr></thead><tbody>${T.methods.map(m=>`<tr><td>${m[0]}</td><td>${m[1]}</td><td><b>${m[2]}</b></td></tr>`).join('')}</tbody>`;
+  document.getElementById('th-combo-note').textContent=T.comboNote;
+  document.getElementById('th-combo').innerHTML=`<thead><tr><th>Condition</th><th>Full Session</th><th>Opening Hour</th></tr></thead><tbody>${T.combo.map(c=>`<tr><td>${c[0]}</td><td>${c[1]}</td><td>${c[2]}</td></tr>`).join('')}</tbody>`;
 }
 
 function bStrip(id,items,cols){
@@ -549,10 +648,11 @@ function bIBLog(rows){const tc=t=>{if(t.includes('Type 3'))return t.replace('Typ
 function bCharts(D,ismes,ac,acS){
   const pi=D.vol1m.peak;
   const R=D.rotAll;
+  const HH=D.hhLabels||hh24;
 
   mk('ins-rot',{type:'bar',data:{labels:['Asia\nFull','London\nFull','NY\nFull','Asia\nOpen','London\nOpen','NY\nOpen'],datasets:[{data:R.median,backgroundColor:[ac+'0.45)',ac+'0.5)',ac+'0.7)',ac+'0.35)',ac+'0.4)','rgba(255,107,53,.85)'],borderRadius:5}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:9},maxRotation:0},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v+' pts'},grid:{color:GC}}}}});
 
-  const vs=D.vol1m.med.slice(16,24),vl=hh24.slice(16,24);
+  const vs=D.vol1m.med.slice(16,24),vl=HH.slice(16,24);
   mk('ins-vol',{type:'bar',data:{labels:vl,datasets:[{data:vs,backgroundColor:vs.map((_,i)=>i===3?'rgba(240,180,41,.9)':ac+'0.65)'),borderRadius:4}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:9}},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v},grid:{color:GC}}}}});
 
   mk('ins-prob',{type:'bar',data:{labels:['P(NY↑|LDN↑)','P(NY↑|LDN↓)','P(NY↑|ASI↑)','P(LDN↑|ASI↑)'],datasets:[{label:'Full Session %',data:D.probFull,backgroundColor:[ac+'0.8)','rgba(255,107,53,.75)','rgba(79,142,247,.7)','rgba(240,180,41,.65)'],borderRadius:4},{label:'50% — no edge',data:[50,50,50,50],type:'line',borderColor:'rgba(255,255,255,0.2)',borderDash:[5,4],pointRadius:0,borderWidth:1.5,backgroundColor:'transparent'}]},options:{...bO,plugins:{legend:{display:true,labels:{color:TC,font:{size:10},padding:10,boxWidth:10}}},scales:{x:{ticks:{color:TC,font:{size:9}},grid:{color:GC}},y:{min:20,max:92,ticks:{color:TC,font:{size:10},callback:v=>v+'%'},grid:{color:GC}}}}});
@@ -560,17 +660,17 @@ function bCharts(D,ismes,ac,acS){
   const N=400,pD=[];for(let i=0;i<N;i++)pD.push(+(D.priceStart+(D.priceEnd-D.priceStart)*(i/N)+Math.sin(i*.19)*8+Math.sin(i*.073)*18+Math.sin(i*.029)*25+Math.cos(i*.11)*12).toFixed(2));
   mk('priceChart',{type:'line',data:{labels:pD.map((_,i)=>i%80===0?`Day ${Math.floor(i/20)+1}`:''),datasets:[{data:pD,borderColor:acS,borderWidth:1.5,pointRadius:0,tension:.35,fill:true,backgroundColor:ismes?'rgba(167,139,250,0.05)':'rgba(0,212,170,0.05)'}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:10},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v.toLocaleString()},grid:{color:GC}}}}});
 
-  mk('ibDonut',{type:'doughnut',data:{labels:D.ibDonutLabels,datasets:[{data:D.ibDonutData,backgroundColor:['rgba(79,142,247,.85)','rgba(239,68,68,.85)','rgba(34,197,94,.85)'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:true,position:'bottom',labels:{color:TC,font:{size:10},padding:10,boxWidth:10}}}}});
+  mk('ibDonut',{type:'doughnut',data:{labels:D.ibDonutLabels,datasets:[{data:D.ibDonutData,backgroundColor:D.ibDonutData.length>3?['rgba(79,142,247,.85)','rgba(240,180,41,.85)','rgba(239,68,68,.85)','rgba(34,197,94,.85)']:['rgba(79,142,247,.85)','rgba(239,68,68,.85)','rgba(34,197,94,.85)'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:true,position:'bottom',labels:{color:TC,font:{size:10},padding:10,boxWidth:10}}}}});
 
   mk('ovRot',{type:'bar',data:{labels:['Asia Full','London Full','NY Full','Asia Open','London Open','NY Open'],datasets:[{data:[D.rotMed.full[0],D.rotMed.full[1],D.rotMed.full[2],D.rotMed.open[0],D.rotMed.open[1],D.rotMed.open[2]],backgroundColor:['rgba(79,142,247,.7)',ac+'0.7)','rgba(255,107,53,.7)','rgba(79,142,247,.4)',ac+'0.4)','rgba(255,107,53,.4)'],borderRadius:4}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:9}},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v+' pts'},grid:{color:GC}}}}});
 
   mk('ovProb',{type:'bar',data:{labels:['P(NY↑|LDN↑)','P(NY↑|LDN↓)','P(NY↑|ASI↑)','P(LDN↑|ASI↑)'],datasets:[{data:D.probFull,backgroundColor:[ac+'0.75)','rgba(255,107,53,.7)','rgba(79,142,247,.7)','rgba(240,180,41,.65)'],borderRadius:4}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:9}},grid:{color:GC}},y:{min:20,max:92,ticks:{color:TC,font:{size:10},callback:v=>v+'%'},grid:{color:GC}}}}});
 
-  mk('vol1m',{type:'bar',data:{labels:hh24,datasets:[{label:'Median',data:D.vol1m.med,backgroundColor:D.vol1m.med.map((_,i)=>i===pi?'rgba(240,180,41,.9)':i>=pi-2&&i<=pi+2?'rgba(255,107,53,.75)':'rgba(79,142,247,.45)'),borderRadius:2,order:3},{label:'1st SD',data:D.vol1m.s1,type:'line',borderColor:'rgba(79,142,247,.8)',pointRadius:0,borderWidth:1.5,tension:.4,backgroundColor:'transparent',order:1},{label:'2nd SD',data:D.vol1m.s2,type:'line',borderColor:'rgba(240,180,41,.7)',pointRadius:0,borderWidth:1.5,tension:.4,backgroundColor:'transparent',order:2}]},options:{...bO,plugins:{legend:{display:true,labels:{color:TC,font:{size:10},padding:12,boxWidth:10}}}}});
+  mk('vol1m',{type:'bar',data:{labels:HH,datasets:[{label:'Median',data:D.vol1m.med,backgroundColor:D.vol1m.med.map((_,i)=>i===pi?'rgba(240,180,41,.9)':i>=pi-2&&i<=pi+2?'rgba(255,107,53,.75)':'rgba(79,142,247,.45)'),borderRadius:2,order:3},{label:'1st SD',data:D.vol1m.s1,type:'line',borderColor:'rgba(79,142,247,.8)',pointRadius:0,borderWidth:1.5,tension:.4,backgroundColor:'transparent',order:1},{label:'2nd SD',data:D.vol1m.s2,type:'line',borderColor:'rgba(240,180,41,.7)',pointRadius:0,borderWidth:1.5,tension:.4,backgroundColor:'transparent',order:2}]},options:{...bO,plugins:{legend:{display:true,labels:{color:TC,font:{size:10},padding:12,boxWidth:10}}}}});
 
-  mk('vol30',{type:'bar',data:{labels:hh24,datasets:[{data:D.vol30.med,backgroundColor:D.vol30.med.map((_,i)=>i===pi?'rgba(240,180,41,.9)':i>=pi-2&&i<=pi+2?'rgba(255,107,53,.7)':'rgba(79,142,247,.5)'),borderRadius:2}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:8},maxRotation:45,autoSkip:true},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v},grid:{color:GC}}}}});
+  mk('vol30',{type:'bar',data:{labels:HH,datasets:[{data:D.vol30.med,backgroundColor:D.vol30.med.map((_,i)=>i===pi?'rgba(240,180,41,.9)':i>=pi-2&&i<=pi+2?'rgba(255,107,53,.7)':'rgba(79,142,247,.5)'),borderRadius:2}]},options:{...bO,scales:{x:{ticks:{color:TC,font:{size:8},maxRotation:45,autoSkip:true},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v},grid:{color:GC}}}}});
 
-  mk('rb5s',{type:'bar',data:{labels:hh24,datasets:[{label:'Median',data:D.rb5s.med,backgroundColor:ac+'0.55)',borderRadius:2,order:2},{label:'1st SD',data:D.rb5s.s1,type:'line',borderColor:'rgba(255,107,53,.8)',pointRadius:0,borderWidth:1.5,tension:.4,backgroundColor:'transparent',order:1}]},options:{...bO,plugins:{legend:{display:true,labels:{color:TC,font:{size:10},padding:12,boxWidth:10}}},scales:{x:{ticks:{color:TC,font:{size:8},maxRotation:45,autoSkip:true},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10}},grid:{color:GC}}}}});
+  mk('rb5s',{type:'bar',data:{labels:HH,datasets:[{label:'Median',data:D.rb5s.med,backgroundColor:ac+'0.55)',borderRadius:2,order:2},{label:'1st SD',data:D.rb5s.s1,type:'line',borderColor:'rgba(255,107,53,.8)',pointRadius:0,borderWidth:1.5,tension:.4,backgroundColor:'transparent',order:1}]},options:{...bO,plugins:{legend:{display:true,labels:{color:TC,font:{size:10},padding:12,boxWidth:10}}},scales:{x:{ticks:{color:TC,font:{size:8},maxRotation:45,autoSkip:true},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10}},grid:{color:GC}}}}});
 
   mk('rotMed',{type:'bar',data:{labels:['Asia','London','NY'],datasets:[{label:'Full Session',data:D.rotMed.full,backgroundColor:ac+'0.7)',borderRadius:5},{label:'Opening Hour',data:D.rotMed.open,backgroundColor:'rgba(255,107,53,.7)',borderRadius:5}]},options:{...bO,plugins:{legend:{display:true,labels:{color:TC,font:{size:10},padding:10,boxWidth:10}}},scales:{x:{ticks:{color:TC,font:{size:10}},grid:{color:GC}},y:{ticks:{color:TC,font:{size:10},callback:v=>v+' pts'},grid:{color:GC}}}}});
 
