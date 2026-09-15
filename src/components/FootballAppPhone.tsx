@@ -6,13 +6,18 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 type Screen = { src: string; alt: string; caption: string };
 type Hotspot = { top: number; left: number; width: number; height: number; target: number; label: string };
 
-// Real iOS app screenshots from the FootballMatchPrediction thesis report — not recreations.
+// Real iOS app screenshots from the FootballMatchPrediction thesis report, except where noted below.
 const SCREENS: Screen[] = [
   { src: "/projects/football/app/home-finished-matches.png", alt: "iOS app home page showing finished matches with win/draw/loss probability bars", caption: "Home — Finished Matches" },
   { src: "/projects/football/app/filter-leagues.png", alt: "iOS app league filter menu with checkboxes", caption: "Filter Leagues" },
   { src: "/projects/football/app/detail-standings.png", alt: "iOS app match detail page showing league standings", caption: "Match Detail — Standings" },
   { src: "/projects/football/app/detail-events.png", alt: "iOS app match detail page showing a timeline of match events", caption: "Match Detail — Events" },
   { src: "/projects/football/app/live-matches.png", alt: "iOS app live matches list with real-time win/draw/loss probabilities", caption: "Live Matches" },
+  {
+    src: "/projects/football/app/check-out-why.png",
+    alt: "Recreated Check Out Why screen showing the top model features behind a prediction, since the original was never captured",
+    caption: "Check Out Why (recreated — never screenshotted)",
+  },
 ];
 
 // Approximate real-button locations within each screenshot (% of the 1179x2556 image),
@@ -22,6 +27,7 @@ const HOTSPOTS: Record<number, Hotspot[]> = {
   0: [
     { top: 30.5, left: 4, width: 92, height: 4, target: 1, label: "Select Leagues" },
     { top: 43.5, left: 79, width: 12, height: 3, target: 2, label: "Detail (Everton vs Southampton)" },
+    { top: 65, left: 30, width: 38, height: 4, target: 5, label: "Check Out Why (Everton vs Southampton)" },
     { top: 72, left: 79, width: 12, height: 3, target: 2, label: "Detail (West Ham vs Nottm Forest)" },
   ],
   1: [{ top: 30.5, left: 4, width: 92, height: 4, target: 0, label: "Collapse Select Leagues" }],
@@ -34,6 +40,10 @@ const HOTSPOTS: Record<number, Hotspot[]> = {
     { top: 34.5, left: 50, width: 46, height: 3.5, target: 2, label: "Standings tab" },
   ],
   4: [],
+  5: [
+    { top: 3, left: 3, width: 10, height: 5, target: 0, label: "Back" },
+    { top: 79, left: 6, width: 88, height: 5, target: 0, label: "Back to Matches" },
+  ],
 };
 
 export default function FootballAppPhone() {
@@ -118,8 +128,10 @@ export default function FootballAppPhone() {
       </div>
 
       <p className="max-w-sm text-center text-xs" style={{ color: "var(--text-faint)" }}>
-        Real screenshots from the actual iOS app. Scroll inside the screen to see the rest of it, and tap
-        the visible buttons (Select Leagues, Detail, Back, Events/Standings) to navigate like in the real app.
+        Real screenshots from the actual iOS app — except &ldquo;Check Out Why,&rdquo; which was never captured
+        before submission, so it&apos;s recreated here from the model&apos;s real feature-importance data. Scroll
+        inside the screen to see the rest of it, and tap the visible buttons (Select Leagues, Detail, Check Out
+        Why, Back, Events/Standings) to navigate like in the real app.
       </p>
     </div>
   );
