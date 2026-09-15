@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { motion, type Variants, easeOut } from "framer-motion";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Github } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, ChevronUp, Github } from "lucide-react";
 import ComputerMockup from "@/components/ComputerMockup";
+import AppShowcasePhone from "@/components/AppShowcasePhone";
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -42,6 +44,7 @@ function SubLabel({ children }: { children: React.ReactNode }) {
 
 type FlowStep = { label: string; detail: string };
 type Chart = { src: string; alt: string; caption: string };
+type AppScreen = { src: string; alt: string; caption: string };
 
 /* ---------------- Full project deep-dive ---------------- */
 function ProjectDeepDive({
@@ -56,6 +59,8 @@ function ProjectDeepDive({
   tools,
   results,
   charts,
+  moreCharts,
+  appScreens,
   dashboardUrl,
   dashboardAddress,
   githubUrl,
@@ -73,12 +78,15 @@ function ProjectDeepDive({
   tools: string[];
   results: string[];
   charts: Chart[];
+  moreCharts?: Chart[];
+  appScreens?: AppScreen[];
   dashboardUrl?: string;
   dashboardAddress?: string;
   githubUrl?: string;
   background?: string;
   children?: React.ReactNode;
 }) {
+  const [showMore, setShowMore] = useState(false);
   return (
     <motion.article
       variants={cardReveal}
@@ -209,6 +217,39 @@ function ProjectDeepDive({
         </div>
       )}
 
+      {moreCharts && moreCharts.length > 0 && (
+        <div className="relative mt-10">
+          <button
+            type="button"
+            onClick={() => setShowMore((v) => !v)}
+            className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-wide transition hover:opacity-70"
+            style={{ borderColor: "var(--border)", color: "var(--accent-strong)", background: "var(--surface)" }}
+          >
+            {showMore ? "Hide" : "Show"} more visualizations from the project
+            {showMore ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          </button>
+          {showMore && (
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              {moreCharts.map((c) => (
+                <figure key={c.src} className="overflow-hidden rounded-xl border bg-white" style={{ borderColor: "var(--border)" }}>
+                  <img src={c.src} alt={c.alt} className="w-full object-contain" />
+                  <figcaption className="px-3 py-2 text-xs" style={{ color: "var(--text-faint)" }}>
+                    {c.caption}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {appScreens && appScreens.length > 0 && (
+        <div className="relative mt-10">
+          <SubLabel>The app</SubLabel>
+          <AppShowcasePhone screens={appScreens} />
+        </div>
+      )}
+
       {githubUrl && (
         <div className="relative mt-10 flex flex-wrap items-center gap-3">
           <a
@@ -285,6 +326,7 @@ export default function ProjectsPanel({
             "57.5% accuracy and 54.3% macro-F1 on 153 real matches the models had never seen (future-match test).",
             "67.8% accuracy and 65.7% macro-F1 for the live in-play model, using half-time and live-odds features.",
             "Random Forest won on macro-F1 in 6 of 8 leagues; Logistic Regression was selected for the English Premier League and Turkish Süper Lig; XGBoost underperformed on the Draw class and was dropped from the final deployment.",
+            "The iOS app includes a \"Check Out Why\" explainability view, surfacing the top features behind each individual prediction instead of a black-box percentage.",
           ]}
           charts={[
             {
@@ -296,6 +338,55 @@ export default function ProjectsPanel({
               src: "/projects/football/feature_importance.png",
               alt: "Feature importance ranking for the match prediction model",
               caption: "Feature importance — market-implied probabilities and xG differentials dominate.",
+            },
+          ]}
+          moreCharts={[
+            {
+              src: "/projects/football/live_feature_importance.png",
+              alt: "Feature importance ranking for the live in-play match prediction model",
+              caption: "Live-match model feature importance — half-time result code and score dominate.",
+            },
+            {
+              src: "/projects/football/system_architecture.png",
+              alt: "System architecture pipeline diagram, from web scraping to prediction",
+              caption: "End-to-end pipeline: web scraping → data collection → preprocessing → feature engineering → ML → prediction.",
+            },
+            {
+              src: "/projects/football/random_forest_illustration.png",
+              alt: "Illustration of how a Random Forest classifier aggregates multiple decision trees",
+              caption: "Random Forest — the model selected for 6 of 8 leagues.",
+            },
+            {
+              src: "/projects/football/logistic_regression_sigmoid.png",
+              alt: "Sigmoid function curve used in logistic regression",
+              caption: "The sigmoid function — Logistic Regression, selected for the EPL and Turkish Süper Lig.",
+            },
+          ]}
+          appScreens={[
+            {
+              src: "/projects/football/app/home-finished-matches.png",
+              alt: "iOS app home page showing finished matches with win/draw/loss probability bars",
+              caption: "Home — Finished Matches",
+            },
+            {
+              src: "/projects/football/app/filter-leagues.png",
+              alt: "iOS app league filter menu",
+              caption: "Filter Leagues",
+            },
+            {
+              src: "/projects/football/app/detail-standings.png",
+              alt: "iOS app match detail page showing league standings",
+              caption: "Match Detail — Standings",
+            },
+            {
+              src: "/projects/football/app/detail-events.png",
+              alt: "iOS app match detail page showing a timeline of match events",
+              caption: "Match Detail — Events",
+            },
+            {
+              src: "/projects/football/app/live-matches.png",
+              alt: "iOS app live matches list with real-time win/draw/loss probabilities",
+              caption: "Live Matches",
             },
           ]}
           githubUrl="https://github.com/elifdikmn/FootballMatchPrediction"
