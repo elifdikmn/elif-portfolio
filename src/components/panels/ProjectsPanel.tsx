@@ -351,6 +351,15 @@ export default function ProjectsPanel({
           >
             Open the full case study <ArrowUpRight className="h-4 w-4" />
           </button>
+          <a
+            href="/projects/football/FootballMatchPrediction-Thesis.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold transition hover:opacity-70"
+            style={{ borderColor: "var(--border)", color: "var(--accent-strong)" }}
+          >
+            Read the paper <ArrowUpRight className="h-4 w-4" />
+          </a>
         </ProjectDeepDive>
 
         {/* ---------------- MNQ Tick Data ---------------- */}
