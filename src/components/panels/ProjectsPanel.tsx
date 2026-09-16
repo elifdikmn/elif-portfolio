@@ -173,7 +173,7 @@ export default function ProjectsPanel({
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <SectionTag>Data privacy · NLP · RAG</SectionTag>
             <a
-              href="https://github.com/elifdikmn/DataPrivacy"
+              href="https://github.com/elifdikmn/GPTDataPrivacy"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-sm font-semibold transition hover:opacity-70"
@@ -195,7 +195,7 @@ export default function ProjectsPanel({
 
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatPill value="7.3%" label="Sensitive data" />
-            <StatPill value="68.9%" label="Model accuracy" />
+            <StatPill value="76.2%" label="Model accuracy" />
             <StatPill value="90.3%" label="Never disclosed" />
             <StatPill value="12,811" label="Records analyzed" />
           </div>
