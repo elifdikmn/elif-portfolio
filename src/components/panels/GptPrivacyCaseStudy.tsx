@@ -12,7 +12,7 @@ const fadeUp: Variants = {
 
 function SectionShell({
   index,
-  total = 6,
+  total = 5,
   eyebrow,
   title,
   children,
@@ -68,6 +68,22 @@ function Stat({ value, label }: { value: string; label: string }) {
   );
 }
 
+function MiniStat({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="min-w-0 text-center sm:text-left">
+      <p
+        className="font-hero truncate text-xl font-bold leading-tight sm:text-2xl md:text-3xl"
+        style={{ color: "var(--accent-strong)" }}
+      >
+        {value}
+      </p>
+      <p className="mt-1 text-xs leading-snug sm:text-sm" style={{ color: "var(--text-soft)" }}>
+        {label}
+      </p>
+    </div>
+  );
+}
+
 function Chart({ src, alt, caption }: { src: string; alt: string; caption?: string }) {
   return (
     <figure className="overflow-hidden rounded-2xl border bg-white" style={{ borderColor: "var(--border)" }}>
@@ -93,7 +109,7 @@ export default function GptPrivacyCaseStudy({ onBack }: { onBack: () => void }) 
           Back to projects
         </button>
         <a
-          href="https://github.com/elifdikmn/DataPrivacy"
+          href="https://github.com/elifdikmn/GPTDataPrivacy"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition hover:opacity-70"
@@ -162,10 +178,10 @@ export default function GptPrivacyCaseStudy({ onBack }: { onBack: () => void }) 
                 — 12,811 parameter-level records collected by 4,592 unique GPT plugins (Actions), each labeled
                 with one of 25 <code>main_data_type</code> categories.
               </p>
-              <div className="grid grid-cols-3 gap-3">
-                <Stat value="12,811" label="parameter records" />
-                <Stat value="4,592" label="unique plugins" />
-                <Stat value="25" label="data categories" />
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                <MiniStat value="12,811" label="parameter records" />
+                <MiniStat value="4,592" label="unique plugins" />
+                <MiniStat value="25" label="data categories" />
               </div>
               <p className="mt-6 text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
                 Four of those 25 categories — Security credentials, Personal information, Health information,
@@ -207,21 +223,23 @@ export default function GptPrivacyCaseStudy({ onBack }: { onBack: () => void }) 
             </div>
             <div className="flex flex-col gap-3">
               <span className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--accent-strong)" }}>
-                Step 3 — Two classification models
+                Step 3 — Classification, then validated
               </span>
               <p className="text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
-                TF-IDF + Logistic Regression as the baseline vs. spaCy word-embedding vectors + Logistic
-                Regression, on the identical train/test split (10,248 / 2,563 records).
+                TF-IDF + Logistic Regression baseline vs. spaCy word-embedding vectors, then a held-out
+                validation split selects a stronger word + character, class-balanced model — confirmed with
+                2,000-resample bootstrap confidence intervals.
               </p>
-              <Chart src={`${CHART_BASE}/rq3_model_comparison.png`} alt="Model comparison bar chart" />
+              <Chart src={`${CHART_BASE}/rq3_validation_confidence_intervals.png`} alt="Confidence-interval chart comparing baseline and validated model" />
             </div>
             <div className="flex flex-col gap-3">
               <span className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--accent-strong)" }}>
                 Step 4 — Clustering
               </span>
               <p className="text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
-                Plugins profiled by the proportion of each category they collect, then K-Means clustered — K
-                chosen by silhouette score across K=2 to K=10.
+                Plugins profiled by the proportion of each category they collect (deduplicated
+                parameter-plugin pairs), then K-Means clustered — K chosen by silhouette score across K=2 to
+                K=10.
               </p>
               <Chart src={`${CHART_BASE}/rq4_silhouette_scores.png`} alt="Silhouette score chart used to choose K" />
             </div>
@@ -279,15 +297,19 @@ export default function GptPrivacyCaseStudy({ onBack }: { onBack: () => void }) 
                 <p className="mb-2 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--text-faint)" }}>
                   RQ3 — Predicting category from text
                 </p>
-                <Stat value="68.9%" label="accuracy · 46.8% macro-F1 — TF-IDF + Logistic Regression, 25-class problem" />
+                <Stat value="76.2%" label="validated accuracy · 64.2% macro-F1 (95% CI) — up from a 68.9% / 46.8% baseline" />
                 <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
-                  The embedding-based model trails on overall accuracy (54.9%) but wins on very-low-sample
-                  classes. Both models fall back on &ldquo;Other&rdquo; a lot when uncertain — visible as the
-                  bright column in the confusion matrix.
+                  A held-out validation split selects a word + character, class-balanced model over the
+                  original word-only baseline and a spaCy-embedding comparison — a confirmed +7.3-point
+                  accuracy gain (bootstrap 95% CI clear of zero). Sensitive-category recall improves the
+                  most: Finance information alone goes from 14.3% to 64.3%. Both models still fall back on
+                  &ldquo;Other&rdquo; a lot when uncertain — visible as the bright column in the confusion
+                  matrix below.
                 </p>
                 <p className="mt-3 text-xs" style={{ color: "var(--text-faint)" }}>
                   Aside: of the 276 Security credentials records, only 18 are literally typed
-                  &ldquo;Password&rdquo; — spanning 50 plugin instances, mostly database and SMPP credentials.
+                  &ldquo;Password&rdquo; — spanning 35 distinct parameter-plugin pairs across 29 plugins,
+                  mostly database and SMPP credentials.
                 </p>
               </div>
               <Chart
@@ -303,12 +325,13 @@ export default function GptPrivacyCaseStudy({ onBack }: { onBack: () => void }) 
                 <p className="mb-2 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--text-faint)" }}>
                   RQ4 — Clustering
                 </p>
-                <Stat value="0%–16.1%" label="sensitive-data share spread gradually across 10 clusters — no clean binary split" />
+                <Stat value="0%–35.1%" label="sensitive-data share spread gradually across 10 clusters — no clean binary split" />
                 <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
-                  Clustering surfaces functional groups (finance, travel, messaging, general-purpose)
-                  instead of a tidy &ldquo;risky vs. safe&rdquo; divide. The two highest-share clusters (1 and
-                  8) cover 974 plugins — about 32% of eligible plugins — which is a different ranking from
-                  the two largest clusters by plugin count.
+                  Clustering (on 30,478 deduplicated parameter-plugin pairs) surfaces functional groups —
+                  personal info &amp; messaging, security credentials &amp; app usage, general-purpose —
+                  instead of a tidy &ldquo;risky vs. safe&rdquo; divide. The two highest-share clusters (2 and
+                  1) cover 360 plugins — about 12.1% of eligible plugins — which is a very different ranking
+                  from the two largest clusters by plugin count (about 69.8% combined).
                 </p>
               </div>
               <div className="lg:order-1">
@@ -370,45 +393,10 @@ export default function GptPrivacyCaseStudy({ onBack }: { onBack: () => void }) 
           <p className="mx-auto mb-8 max-w-[60ch] text-center text-base leading-relaxed" style={{ color: "var(--text-soft)" }}>
             The real project pairs this analysis with a Retrieval-Augmented Generation chatbot — FAISS
             retrieval over the notebooks&apos; findings, Claude Haiku for phrasing, and a verified facts table
-            so numbers are copied, never invented. Below is an interactive demo of that interface.
+            where every number in the answer is inserted from that table by code, never typed by the model.
+            Below is an interactive demo of that interface.
           </p>
           <ChatDemoPhone />
-        </SectionShell>
-
-        {/* 06 — Limitations & Takeaways */}
-        <SectionShell index="06" eyebrow="Limitations & takeaways" title="What this project is honest about">
-          <div className="grid gap-8 md:grid-cols-2">
-            <div>
-              <p className="mb-3 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--accent-strong)" }}>
-                Limitations
-              </p>
-              <ul className="flex flex-col gap-3 text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
-                <li>
-                  The RAG chatbot&apos;s <em>text</em> has occasionally mixed up numeric details (e.g. attributing
-                  one category&apos;s F1 score to a similar one) — the charts themselves are always the real,
-                  static notebook output.
-                </li>
-                <li>
-                  The embedding model uses spaCy vectors instead of sentence-transformers, because
-                  Hugging Face access was blocked by the analysis environment&apos;s network policy.
-                </li>
-                <li>Clustering is directionally useful but not sharply separated — silhouette scores of 0.17–0.25 across all tested K.</li>
-                <li>The &ldquo;Other&rdquo; reclassification was never validated against ground truth — it&apos;s a review-priority signal, not a verified relabeling.</li>
-                <li>The privacy-policy audit (RQ6) uses a separate, smaller sample with its own labeling taxonomy — not directly comparable to the main dataset.</li>
-              </ul>
-            </div>
-            <div>
-              <p className="mb-3 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--accent-strong)" }}>
-                What shows this is more than a toy project
-              </p>
-              <ul className="flex flex-col gap-3 text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
-                <li>A <code>project_facts.json</code> grounding table forces the LLM to copy verified numbers rather than recall or recompute them.</li>
-                <li>A post-hoc checker (<code>facts.verify_answer_numbers</code>) flags any generated number that doesn&apos;t appear in that table.</li>
-                <li>Three independent FAISS indices (records, findings, policy audit) are merged so small high-value findings don&apos;t get drowned out by 12,811 raw records.</li>
-                <li>Classical ML (TF-IDF + LogReg, 68.9% accuracy) was chosen deliberately over the source paper&apos;s 92.83%-accuracy GPT-4o classifier, to keep the pipeline local, free, and reproducible without an LLM API dependency.</li>
-              </ul>
-            </div>
-          </div>
         </SectionShell>
       </div>
     </div>

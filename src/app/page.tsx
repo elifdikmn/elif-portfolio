@@ -1,15 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, AnimatePresence, easeOut, easeInOut } from "framer-motion";
+import { Mail, Github, Linkedin } from "lucide-react";
 import { SquareMenuButton, Typewriter, WavyHoverText } from "@/components/ui";
 import MenuList from "@/components/panels/MenuList";
 import AboutPanel from "@/components/panels/AboutPanel";
 import ContactPanel from "@/components/panels/ContactPanel";
 import ProjectsPanel from "@/components/panels/ProjectsPanel";
 import GptPrivacyCaseStudy from "@/components/panels/GptPrivacyCaseStudy";
+import FootballCaseStudy from "@/components/panels/FootballCaseStudy";
+import OnlineAppointmentCaseStudy from "@/components/panels/OnlineAppointmentCaseStudy";
+import SkillGroups from "@/components/SkillGroups";
+import ScrollToTopButton from "@/components/ScrollToTopButton";
 
-type View = "list" | "about" | "contact" | "projects" | "project-gpt";
+type View =
+  | "list"
+  | "about"
+  | "contact"
+  | "projects"
+  | "project-gpt"
+  | "project-football"
+  | "project-online-appointment";
 
 /* ---------------- Intro ---------------- */
 function Intro() {
@@ -68,6 +80,7 @@ export default function Page() {
   const [hoveringButton, setHoveringButton] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [overlayView, setOverlayView] = useState<View>("list");
+  const [projectScrollTarget, setProjectScrollTarget] = useState<string | null>(null);
 
   const prefersReducedMotion = useReducedMotion();
   const [windowSize, setWindowSize] = useState({ w: 0, h: 0 });
@@ -99,6 +112,13 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     if (prefersReducedMotion) {
       setIntroDone(true);
       return;
@@ -121,7 +141,8 @@ export default function Page() {
     setOverlayView("about");
     setMenuOpen(true);
   };
-  const openProjectsOverlay = () => {
+  const openProjectsOverlay = (projectId?: string) => {
+    setProjectScrollTarget(projectId ?? null);
     setOverlayView("projects");
     setMenuOpen(true);
   };
@@ -215,7 +236,7 @@ export default function Page() {
             <div className="mt-2 flex flex-wrap items-center justify-center font-hero gap-6 sm:gap-8 text-lg md:text-xl">
               <button
                 type="button"
-                onClick={openProjectsOverlay}
+                onClick={() => openProjectsOverlay()}
                 onMouseEnter={() => setHoveringButton(true)}
                 onMouseLeave={() => setHoveringButton(false)}
                 className="group inline-flex items-center gap-3 opacity-0 animate-[fadeInUp_0.6s_1.8s_forwards]"
@@ -238,7 +259,13 @@ export default function Page() {
               </button>
             </div>
           </section>
+
+          <HomeProjectsPreview onOpenProjects={openProjectsOverlay} />
+          <HomeSkillsPreview />
+          <HomeContact email={EMAIL} github={GITHUB_URL} linkedin={LINKEDIN_URL} />
         </motion.div>
+
+        {!menuOpen && <ScrollToTopButton />}
 
         <OverlayMenu
           open={menuOpen}
@@ -248,6 +275,7 @@ export default function Page() {
           email={EMAIL}
           github={GITHUB_URL}
           linkedin={LINKEDIN_URL}
+          scrollToProjectId={projectScrollTarget}
         />
 
         <style jsx global>{`
@@ -297,6 +325,135 @@ export default function Page() {
   );
 }
 
+/* ---------------- Home projects preview ---------------- */
+function HomeProjectsPreview({ onOpenProjects }: { onOpenProjects: (projectId?: string) => void }) {
+  const previews = [
+    { id: "football", tag: "Sports analytics", title: "Football Match Prediction", stat: "67.8% live-model accuracy" },
+    { id: "mnq", tag: "Quantitative finance", title: "MNQ Tick Data Analysis", stat: "NY Opening Hour rotations run 58–78% larger" },
+    { id: "gpt-privacy", tag: "Data privacy · RAG", title: "GPT Plugin Privacy Risk Analysis", stat: "12,811 records analyzed" },
+    { id: "sql-job-market", tag: "SQL · job market", title: "Data Analyst Job Market Analysis", stat: "$184K–$256K salary range" },
+  ];
+
+  return (
+    <section aria-label="Selected work" className="relative z-20 mx-auto max-w-screen-xl px-4 py-16 sm:px-6 sm:py-20">
+      <p className="font-hero mb-2 text-lg italic" style={{ color: "var(--accent-strong)" }}>
+        Selected work
+      </p>
+      <h2 className="font-hero mb-3 text-[clamp(28px,4vw,40px)] font-semibold tracking-tight">Projects</h2>
+      <p className="mb-10 max-w-[60ch] text-base" style={{ color: "var(--text-soft)" }}>
+        A few of the projects I&apos;ve built — the problem I was chasing, how I approached it, and what
+        actually came out of it.
+      </p>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        {previews.map((p, i) => (
+          <motion.button
+            key={p.title}
+            type="button"
+            onClick={() => onOpenProjects(p.id)}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5, ease: easeOut, delay: i * 0.06 }}
+            className="rounded-2xl border p-5 text-left transition hover:-translate-y-0.5"
+            style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+          >
+            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-faint)" }}>
+              {p.tag}
+            </p>
+            <h3 className="font-hero mt-1.5 text-lg font-semibold">{p.title}</h3>
+            <p className="mt-2 text-sm font-medium" style={{ color: "var(--accent-strong)" }}>
+              {p.stat}
+            </p>
+          </motion.button>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={() => onOpenProjects()}
+        className="mt-8 text-sm font-semibold transition hover:opacity-70"
+        style={{ color: "var(--accent-strong)" }}
+      >
+        View all projects →
+      </button>
+    </section>
+  );
+}
+
+/* ---------------- Home skills preview ---------------- */
+function HomeSkillsPreview() {
+  return (
+    <section aria-label="Skills" className="relative z-20 mx-auto max-w-screen-xl px-4 py-16 sm:px-6 sm:py-20">
+      <p className="font-hero mb-2 text-lg italic" style={{ color: "var(--accent-strong)" }}>
+        Toolbox
+      </p>
+      <h2 className="font-hero mb-3 text-[clamp(28px,4vw,40px)] font-semibold tracking-tight">Skills &amp; Tools</h2>
+      <p className="mb-10 max-w-[60ch] text-base" style={{ color: "var(--text-soft)" }}>
+        What I&apos;ve actually used to ship the projects on this site — not an aspirational list.
+      </p>
+
+      <SkillGroups />
+    </section>
+  );
+}
+
+/* ---------------- Home contact preview ---------------- */
+function HomeContact({ email, github, linkedin }: { email: string; github: string; linkedin: string }) {
+  const links = [
+    { href: email, label: "eelifddikmen@gmail.com", sub: "Email", Icon: Mail, external: false },
+    { href: linkedin, label: "linkedin.com/in/elifdikmen", sub: "LinkedIn", Icon: Linkedin, external: true },
+    { href: github, label: "github.com/elifdikmn", sub: "GitHub", Icon: Github, external: true },
+  ];
+
+  return (
+    <section
+      aria-label="Contact"
+      className="relative z-20 border-y py-16 sm:py-20"
+      style={{ borderColor: "var(--border)", background: "var(--bg-soft)" }}
+    >
+      <div className="mx-auto max-w-screen-xl px-4 sm:px-6">
+        <p className="font-hero mb-2 text-lg italic" style={{ color: "var(--accent-strong)" }}>
+          Say hello
+        </p>
+        <h2 className="font-hero mb-10 text-[clamp(28px,4vw,40px)] font-semibold tracking-tight">Let&apos;s talk</h2>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          {links.map(({ href, label, sub, Icon, external }, i) => (
+            <motion.a
+              key={sub}
+              href={href}
+              target={external ? "_blank" : undefined}
+              rel={external ? "noopener noreferrer" : undefined}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.5, ease: easeOut, delay: i * 0.08 }}
+              className="flex items-center gap-3 rounded-2xl border p-5 no-underline transition hover:-translate-y-0.5"
+              style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+            >
+              <span
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full"
+                style={{ background: "var(--accent-soft)", color: "var(--accent-strong)" }}
+              >
+                <Icon className="h-4 w-4" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-faint)" }}>
+                  {sub}
+                </span>
+                <span className="block truncate text-sm font-semibold" style={{ color: "var(--text)" }}>
+                  {label}
+                </span>
+              </span>
+            </motion.a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ---------------- Overlay + Panels ---------------- */
 function OverlayMenu({
   open,
@@ -306,6 +463,7 @@ function OverlayMenu({
   email,
   github,
   linkedin,
+  scrollToProjectId,
 }: {
   open: boolean;
   onClose: () => void;
@@ -314,6 +472,7 @@ function OverlayMenu({
   email: string;
   github: string;
   linkedin: string;
+  scrollToProjectId?: string | null;
 }) {
   useEffect(() => {
     const el = document.documentElement;
@@ -322,24 +481,31 @@ function OverlayMenu({
     return () => el.classList.remove("overflow-hidden");
   }, [open]);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (open) scrollRef.current?.scrollTo({ top: 0 });
+  }, [open, view]);
+
   const containerClass =
     view === "list"
       ? "relative z-[66] mx-auto w-full max-w-6xl px-4 sm:px-6 pt-[clamp(10vh,12vh,16vh)]"
       : "relative z-[66] w-full max-w-none px-4 sm:px-8 md:px-16 pt-[clamp(8vh,10vh,14vh)]";
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          className="fixed inset-0 z-[65] flex overflow-y-auto overflow-x-hidden backdrop-blur-sm"
-          style={{ background: "color-mix(in srgb, var(--bg) 92%, transparent)" }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <motion.div className="absolute inset-0" onClick={view === "list" ? onClose : undefined} />
+    <>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            ref={scrollRef}
+            className="fixed inset-0 z-[65] flex overflow-y-auto overflow-x-hidden backdrop-blur-sm"
+            style={{ background: "color-mix(in srgb, var(--bg) 92%, transparent)" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div className="absolute inset-0" onClick={view === "list" ? onClose : undefined} />
 
-          <div className={containerClass}>
+            <div className={containerClass}>
             <AnimatePresence mode="wait">
               {view === "list" && (
                 <MenuList
@@ -350,12 +516,19 @@ function OverlayMenu({
                   onClose={onClose}
                 />
               )}
-              {view === "about" && <AboutPanel key="about" onBack={() => setView("list")} />}
+              {view === "about" && <AboutPanel key="about" onBack={onClose} />}
               {view === "contact" && (
-                <ContactPanel key="contact" email={email} github={github} linkedin={linkedin} onBack={() => setView("list")} />
+                <ContactPanel key="contact" email={email} github={github} linkedin={linkedin} onBack={onClose} />
               )}
               {view === "projects" && (
-                <ProjectsPanel key="projects" onBack={() => setView("list")} onOpenGptCaseStudy={() => setView("project-gpt")} />
+                <ProjectsPanel
+                  key="projects"
+                  onBack={onClose}
+                  onOpenGptCaseStudy={() => setView("project-gpt")}
+                  onOpenFootballCaseStudy={() => setView("project-football")}
+                  onOpenOnlineAppointmentCaseStudy={() => setView("project-online-appointment")}
+                  scrollToId={scrollToProjectId}
+                />
               )}
               {view === "project-gpt" && (
                 <motion.div
@@ -368,11 +541,36 @@ function OverlayMenu({
                   <GptPrivacyCaseStudy onBack={() => setView("projects")} />
                 </motion.div>
               )}
+              {view === "project-football" && (
+                <motion.div
+                  key="project-football"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4, ease: easeOut }}
+                >
+                  <FootballCaseStudy onBack={() => setView("projects")} />
+                </motion.div>
+              )}
+              {view === "project-online-appointment" && (
+                <motion.div
+                  key="project-online-appointment"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4, ease: easeOut }}
+                >
+                  <OnlineAppointmentCaseStudy onBack={() => setView("projects")} />
+                </motion.div>
+              )}
             </AnimatePresence>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {open && view !== "list" && <ScrollToTopButton target={scrollRef} />}
+    </>
   );
 }
 
