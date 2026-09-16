@@ -357,8 +357,8 @@ export default function ProjectsPanel({
           tools={["Python", "pandas", "NumPy", "scikit-learn", "spaCy", "FAISS", "sentence-transformers", "Anthropic Claude API", "FastAPI", "React"]}
           results={[
             "Only 7.3% of all 12,811 records (931) fall into a sensitive category — but 90.3% of a separate, audited sample were never disclosed in the plugin's actual privacy policy at all.",
-            "TF-IDF + Logistic Regression predicts a parameter's category from its name alone at 68.9% accuracy (46.8% macro-F1) on the 25-class problem.",
-            "Clustering surfaces functional groups (finance, travel, messaging) with sensitive-data share spread gradually from 0% to 16.1% — no clean 'risky vs. safe' split.",
+            "A word-only baseline predicts a parameter's category at 68.9% accuracy; a validated word + character model selected on a held-out split reaches 76.2% accuracy (64.2% macro-F1, 95% CI), confirmed with bootstrap confidence intervals.",
+            "Clustering surfaces functional groups (personal info, security credentials, general-purpose) with sensitive-data share spread gradually from 0% to 35.1% — no clean 'risky vs. safe' split.",
           ]}
           charts={[
             {
@@ -372,7 +372,7 @@ export default function ProjectsPanel({
               caption: "Confusion matrix for the TF-IDF + Logistic Regression classifier.",
             },
           ]}
-          githubUrl="https://github.com/elifdikmn/DataPrivacy"
+          githubUrl="https://github.com/elifdikmn/GPTDataPrivacy"
         >
           <button
             type="button"
