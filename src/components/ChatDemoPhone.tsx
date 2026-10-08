@@ -50,27 +50,29 @@ const PALETTE: Record<Theme, Record<string, string>> = {
   },
 };
 
-// Friendly chip label -> canonical query answered in gptPrivacyContent.ts.
-// Matches the live app's full General/Researcher question set (7 + 7) — every
-// chip here has a real grounded answer sourced from project_facts.json.
+// Chip text = the exact question answered in gptPrivacyContent.ts — the direct/precise
+// phrasing, not a softened paraphrase (the live app's own General chips use a friendlier
+// label than their lookup query; per feedback, this demo shows the real question instead).
+// Matches the live app's full General/Researcher question count (7 + 7) — every chip
+// here has a real grounded answer sourced from project_facts.json.
 const GENERAL_CHIPS = [
-  { label: "What information can GPT Actions ask for?", query: "What data are collected by GPT Actions?" },
-  { label: "How much of that information is sensitive?", query: "What percentage of collected data is sensitive?" },
-  { label: "Which sensitive details appear most often?", query: "Which sensitive data types appear most often?" },
-  { label: "Are sensitive requests explained as often as other requests?", query: "Do plugins write descriptions less often for sensitive parameters?" },
-  { label: "Where do password requests appear?", query: "Which parameters collect passwords?" },
-  { label: "Do privacy policies explain what these tools ask for?", query: "Do plugins disclose what they collect in their privacy policies?" },
-  { label: "Are the sensitive requests also missing from privacy policies?", query: "Are sensitive parameters also the undisclosed ones?" },
+  "What data are collected by GPT Actions?",
+  "What percentage of collected data is sensitive?",
+  "Which sensitive data types appear most often?",
+  "Do plugins write descriptions less often for sensitive parameters?",
+  "Which parameters collect passwords?",
+  "Do plugins disclose what they collect in their privacy policies?",
+  "Are sensitive parameters also the undisclosed ones?",
 ];
 
 const RESEARCHER_CHIPS = [
-  { label: "What are the model performance confidence intervals?", query: "What are the model performance confidence intervals?" },
-  { label: "How accurately can a parameter's category be predicted from its name?", query: "How accurately can a parameter's category be predicted from its name?" },
-  { label: "Which words predict sensitive categories?", query: "Which words predict sensitive categories?" },
-  { label: "Do natural risky vs. safe clusters emerge among plugins?", query: "Do natural risky vs. safe clusters emerge among plugins?" },
-  { label: "Which plugin clusters have the highest sensitive-data share?", query: "Which plugin clusters have the highest sensitive-data share?" },
-  { label: "Can mislabeled \"Other\" records be identified automatically?", query: "Can mislabeled \"Other\" records be identified automatically?" },
-  { label: "Are there hidden sensitive parameters mislabeled as \"Other\"?", query: "Are there hidden sensitive parameters mislabeled as \"Other\"?" },
+  "What are the model performance confidence intervals?",
+  "How accurately can a parameter's category be predicted from its name?",
+  "Which words predict sensitive categories?",
+  "Do natural risky vs. safe clusters emerge among plugins?",
+  "Which plugin clusters have the highest sensitive-data share?",
+  "Can mislabeled \"Other\" records be identified automatically?",
+  "Are there hidden sensitive parameters mislabeled as \"Other\"?",
 ];
 
 function TypingDots({ color }: { color: string }) {
@@ -107,15 +109,15 @@ export default function ChatDemoPhone() {
     });
   };
 
-  const ask = (query: string, displayLabel: string) => {
-    if (!query.trim() || typing) return;
-    setMessages((prev) => [...prev, { role: "user", text: displayLabel }]);
+  const ask = (question: string) => {
+    if (!question.trim() || typing) return;
+    setMessages((prev) => [...prev, { role: "user", text: question }]);
     setInput("");
     setTyping(true);
     scrollToBottom();
 
     window.setTimeout(() => {
-      const match = chatSuggestions.find((s) => s.q === query) ?? findChatAnswer(query);
+      const match = chatSuggestions.find((s) => s.q === question) ?? findChatAnswer(question);
       const reply: ChatMessage = match
         ? { role: "assistant", text: match.a, chart: match.chart, chartAlt: match.chartAlt }
         : {
@@ -219,16 +221,16 @@ export default function ChatDemoPhone() {
           className="flex max-h-[104px] flex-wrap justify-center gap-1.5 overflow-y-auto px-3 py-2.5"
           style={{ borderBottom: `1px solid ${c.border}` }}
         >
-          {chips.map((s) => (
+          {chips.map((q) => (
             <button
-              key={s.label}
+              key={q}
               type="button"
-              onClick={() => ask(s.query, s.label)}
+              onClick={() => ask(q)}
               disabled={typing}
               className="rounded-full px-2.5 py-1 text-left text-[10.5px] leading-snug transition disabled:opacity-50"
               style={{ border: `1px solid ${c.border}`, background: c.card, color: c.textPrimary }}
             >
-              {s.label}
+              {q}
             </button>
           ))}
         </div>
@@ -308,7 +310,7 @@ export default function ChatDemoPhone() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            ask(input, input);
+            ask(input);
           }}
           className="flex items-center gap-2 px-3 py-3"
           style={{ borderTop: `1px solid ${c.border}` }}
