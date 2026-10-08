@@ -36,9 +36,9 @@ export const chatSuggestions: {
   },
   {
     q: "How accurately can a parameter's category be predicted from its name?",
-    a: "A TF-IDF + Logistic Regression model reaches 68.9% accuracy and 46.8% macro-F1 on the 25-class problem. A spaCy word-embedding model trails on overall accuracy (54.9%) but wins on very-low-sample classes. Both models default to 'Other' a lot when unsure.",
-    chart: `${CHART_BASE}/rq3_confusion_matrix.png`,
-    chartAlt: "Confusion matrix heatmap for the TF-IDF + Logistic Regression category classifier",
+    a: "The selected model is a word+character-balanced text classifier: 76.2% accuracy and 64.2% macro-F1 on the 25-class problem — beating the TF-IDF + Logistic Regression baseline (68.9% / 46.8%) by +7.3 and +17.5 points. The gain is concentrated where it matters most: recall on the four sensitive categories jumps from 14–76% under the baseline to 64–95% under the selected model. An earlier spaCy word-embedding variant trailed both at 54.8% accuracy / 42.5% macro-F1 and was dropped.",
+    chart: `${CHART_BASE}/rq3_model_comparison.png`,
+    chartAlt: "Grouped bar chart comparing accuracy, macro-F1 and weighted-F1 across the TF-IDF baseline, the dropped spaCy-embedding variant, and the selected word+character-balanced model",
   },
   {
     q: "Which words predict sensitive categories?",

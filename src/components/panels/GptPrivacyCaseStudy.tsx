@@ -207,13 +207,17 @@ export default function GptPrivacyCaseStudy({ onBack }: { onBack: () => void }) 
             </div>
             <div className="flex flex-col gap-3">
               <span className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--accent-strong)" }}>
-                Step 3 — Two classification models
+                Step 3 — Three classification models
               </span>
               <p className="text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
-                TF-IDF + Logistic Regression as the baseline vs. spaCy word-embedding vectors + Logistic
-                Regression, on the identical train/test split (10,248 / 2,563 records).
+                TF-IDF + Logistic Regression as the baseline, a spaCy word-embedding variant, and a
+                word+character-balanced classifier (selected) — all on the identical train/test split
+                (10,248 / 2,563 records).
               </p>
-              <Chart src={`${CHART_BASE}/rq3_model_comparison.png`} alt="Model comparison bar chart" />
+              <Chart
+                src={`${CHART_BASE}/rq3_model_comparison.png`}
+                alt="Grouped bar chart comparing accuracy, macro-F1 and weighted-F1 across all three models"
+              />
             </div>
             <div className="flex flex-col gap-3">
               <span className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--accent-strong)" }}>
@@ -279,11 +283,12 @@ export default function GptPrivacyCaseStudy({ onBack }: { onBack: () => void }) 
                 <p className="mb-2 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--text-faint)" }}>
                   RQ3 — Predicting category from text
                 </p>
-                <Stat value="68.9%" label="accuracy · 46.8% macro-F1 — TF-IDF + Logistic Regression, 25-class problem" />
+                <Stat value="76.2%" label="accuracy · 64.2% macro-F1 — word+char-balanced model (selected), 25-class problem" />
                 <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
-                  The embedding-based model trails on overall accuracy (54.9%) but wins on very-low-sample
-                  classes. Both models fall back on &ldquo;Other&rdquo; a lot when uncertain — visible as the
-                  bright column in the confusion matrix.
+                  That beats the TF-IDF baseline (68.9% / 46.8%) by +7.3 and +17.5 points, and an earlier
+                  spaCy word-embedding variant (54.8% / 42.5%, since dropped) by even more. The gain is
+                  concentrated where it matters most: recall on the four sensitive categories jumps from
+                  14–76% under the baseline to 64–95% under the selected model.
                 </p>
                 <p className="mt-3 text-xs" style={{ color: "var(--text-faint)" }}>
                   Aside: of the 276 Security credentials records, only 18 are literally typed
@@ -292,8 +297,8 @@ export default function GptPrivacyCaseStudy({ onBack }: { onBack: () => void }) 
               </div>
               <Chart
                 src={`${CHART_BASE}/rq3_confusion_matrix.png`}
-                alt="Confusion matrix for the category classifier"
-                caption="Row-normalized confusion matrix — the bright 'Other' column shows where the model hedges."
+                alt="Confusion matrix for the TF-IDF baseline category classifier"
+                caption="Row-normalized confusion matrix for the TF-IDF baseline — the bright 'Other' column shows where it hedges when uncertain."
               />
             </div>
 
