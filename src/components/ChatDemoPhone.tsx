@@ -50,10 +50,9 @@ const PALETTE: Record<Theme, Record<string, string>> = {
   },
 };
 
-// Friendly chip label -> canonical query already answered in gptPrivacyContent.ts.
-// Only questions with a real grounded answer are listed here; the live app has a
-// few more chips (confidence intervals, two Other/undisclosed cross-questions) that
-// don't have a canned answer yet, so they're left out rather than faked.
+// Friendly chip label -> canonical query answered in gptPrivacyContent.ts.
+// Matches the live app's full General/Researcher question set (7 + 7) — every
+// chip here has a real grounded answer sourced from project_facts.json.
 const GENERAL_CHIPS = [
   { label: "What information can GPT Actions ask for?", query: "What data are collected by GPT Actions?" },
   { label: "How much of that information is sensitive?", query: "What percentage of collected data is sensitive?" },
@@ -61,14 +60,17 @@ const GENERAL_CHIPS = [
   { label: "Are sensitive requests explained as often as other requests?", query: "Do plugins write descriptions less often for sensitive parameters?" },
   { label: "Where do password requests appear?", query: "Which parameters collect passwords?" },
   { label: "Do privacy policies explain what these tools ask for?", query: "Do plugins disclose what they collect in their privacy policies?" },
+  { label: "Are the sensitive requests also missing from privacy policies?", query: "Are sensitive parameters also the undisclosed ones?" },
 ];
 
 const RESEARCHER_CHIPS = [
+  { label: "What are the model performance confidence intervals?", query: "What are the model performance confidence intervals?" },
   { label: "How accurately can a parameter's category be predicted from its name?", query: "How accurately can a parameter's category be predicted from its name?" },
   { label: "Which words predict sensitive categories?", query: "Which words predict sensitive categories?" },
   { label: "Do natural risky vs. safe clusters emerge among plugins?", query: "Do natural risky vs. safe clusters emerge among plugins?" },
   { label: "Which plugin clusters have the highest sensitive-data share?", query: "Which plugin clusters have the highest sensitive-data share?" },
   { label: "Can mislabeled \"Other\" records be identified automatically?", query: "Can mislabeled \"Other\" records be identified automatically?" },
+  { label: "Are there hidden sensitive parameters mislabeled as \"Other\"?", query: "Are there hidden sensitive parameters mislabeled as \"Other\"?" },
 ];
 
 function TypingDots({ color }: { color: string }) {
@@ -211,9 +213,13 @@ export default function ChatDemoPhone() {
           </div>
         </div>
 
-        {/* Suggestion chips */}
-        <div className="flex flex-wrap justify-center gap-1.5 px-3 py-2.5" style={{ borderBottom: `1px solid ${c.border}` }}>
-          {chips.slice(0, 6).map((s) => (
+        {/* Suggestion chips — own scroll so Researcher's full 14-chip set (vs. General's 7)
+            can't crowd out the chat area inside the phone's fixed height. */}
+        <div
+          className="flex max-h-[104px] flex-wrap justify-center gap-1.5 overflow-y-auto px-3 py-2.5"
+          style={{ borderBottom: `1px solid ${c.border}` }}
+        >
+          {chips.map((s) => (
             <button
               key={s.label}
               type="button"

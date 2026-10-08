@@ -76,6 +76,20 @@ export const chatSuggestions: {
     chart: `${CHART_BASE}/rq6_policy_disclosure.png`,
     chartAlt: "Bar chart of privacy policy disclosure status for 308 audited parameters",
   },
+  {
+    q: "What are the model performance confidence intervals?",
+    a: "With 95% confidence intervals from a class-stratified paired bootstrap (2,000 resamples, n=2,563 test records): the baseline TF-IDF + Logistic Regression model scores 68.9% accuracy [67.3%, 70.7%] and 46.8% macro-F1 [42.8%, 49.6%]. The selected word-char-balanced model scores 76.2% accuracy [74.6%, 77.8%] and 64.2% macro-F1 [60.8%, 67.8%] — a paired gain of +7.3 points accuracy [+5.7, +8.8] and +17.5 points macro-F1 [+13.6, +22.3], so the improvement holds up and isn't just noise.",
+  },
+  {
+    q: "Are sensitive parameters also the undisclosed ones?",
+    a: "In a small hand-mapped sub-sample — 20 of the 308 audited parameters that map onto a sensitive category — 18 are undisclosed: 90.0% (Wilson 95% CI [69.9%, 97.2%]), essentially identical to the 90.3% undisclosed rate across all 308. Being sensitive doesn't make a plugin more or less likely to disclose it. The 20 break down as 16 Personal information, 3 Finance information, 1 Security credentials — small enough that this is suggestive, not conclusive.",
+  },
+  {
+    q: "Are there hidden sensitive parameters mislabeled as \"Other\"?",
+    a: "Of the 3,544 'Other' records, 411 (11.6%) clear the 0.5 confidence threshold for reclassification. Of those, 7 get flagged into a sensitive category: 4 Security credentials, 3 Personal information. These are model flags, not verified relabels — a review-priority signal for where to look first, not confirmed mislabeling.",
+    chart: `${CHART_BASE}/rq5_other_confidence_distribution.png`,
+    chartAlt: "Histogram of model confidence scores for reclassifying Other records, with a threshold line at 0.5",
+  },
 ];
 
 export function findChatAnswer(question: string) {
@@ -96,6 +110,9 @@ export function findChatAnswer(question: string) {
     { keywords: ["other", "mislabel", "reclassif"], index: 8 },
     { keywords: ["password"], index: 9 },
     { keywords: ["disclos", "privacy polic"], index: 10 },
+    { keywords: ["confidence interval"], index: 11 },
+    { keywords: ["undisclosed ones", "also undisclosed", "also the undisclosed"], index: 12 },
+    { keywords: ["hidden sensitive", "mislabeled as"], index: 13 },
   ];
   for (const { keywords, index } of keywordSets) {
     if (keywords.some((k) => q.includes(k))) return chatSuggestions[index];
