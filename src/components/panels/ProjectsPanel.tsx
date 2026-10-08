@@ -424,10 +424,45 @@ export default function ProjectsPanel({
           subtitle="Built on my own time — from a first idea to a working system, end to end."
         />
 
+        {/* ---------------- Strawberry Smart-Pallet Intelligence ---------------- */}
+        <ProjectDeepDive
+          id="cold-chain"
+          index="03"
+          tag="Cold-chain · Time series · Machine learning"
+          title="Strawberry Smart-Pallet Intelligence"
+          description="An exploratory machine learning analysis of six real strawberry shipments, using up to nine temperature loggers per shipment to forecast future temperature peaks, evaluate excursion warnings, and study smart-pallet sensor placement."
+          highlight="Placement beat count: three top-position loggers captured 98.2% of hot time and all 8 observed excursion events"
+          problem="Cold-chain monitoring systems need to detect warming early without covering every pallet with sensors. This project asks whether temperature history can forecast future risk, whether a simple alarm provides useful warning, and where a limited number of sensors should be placed."
+          approach={[
+            "Resampled multi-sensor shipment data to a leak-safe 10-minute grid using only information available at each timestamp.",
+            "Compared persistence with Random Forest models for predicting the maximum pallet temperature 30, 60, and 120 minutes ahead.",
+            "Evaluated sustained-excursion alarms with an event-level state machine rather than relying only on row-level classification metrics.",
+            "Tested every sensor subset for 1, 2, 3, 5, and 9 loggers to separate the effect of sensor placement from sensor count.",
+          ]}
+          flow={[
+            { label: "Data Preparation", detail: "Six shipments, up to nine loggers, 10-minute grid" },
+            { label: "Forecasting", detail: "30/60/120-minute future-peak regression" },
+            { label: "Validation", detail: "Leave-one-shipment-out evaluation" },
+            { label: "Early Warning", detail: "Event-level alarm state machine" },
+            { label: "Sensor Placement", detail: "All logger subsets and named layouts" },
+          ]}
+          tools={["Python", "pandas", "NumPy", "scikit-learn", "Random Forest", "Matplotlib", "JupyterLab"]}
+          results={[
+            "RF-V3 achieved shipment-macro RMSE of 0.197°F, 0.262°F, and 0.324°F at 30, 60, and 120 minutes, compared with persistence at 0.236°F, 0.324°F, and 0.432°F.",
+            "At a 39.0°F threshold, none of the eight excursion events were completely uncovered, although only three received a fresh alarm within the preceding 120 minutes.",
+            "The three Top loggers captured 98.2% of hot time and all eight events; the median random three-logger subset captured 27.7%.",
+            "The findings remain exploratory: the dataset contains only six shipments and eight merged excursion events, and most model improvements are smaller than the loggers' nominal accuracy.",
+          ]}
+          charts={[]}
+          dashboardUrl="/projects/cold-chain/strawberry_dashboard.html"
+          dashboardAddress="smart-pallet.local/strawberry-cold-chain"
+          githubUrl="https://github.com/elifdikmn/cold-chain-smart-pallet-temperature-prediction"
+        />
+
         {/* ---------------- Football Match Prediction ---------------- */}
         <ProjectDeepDive
           id="football"
-          index="03"
+          index="04"
           tag="Sports analytics · Classical ML"
           title="Football Match Prediction"
           description="A machine learning system that predicts Home Win / Draw / Away Win outcomes across eight major football leagues, evaluated strictly on matches the models had never seen."
@@ -467,6 +502,7 @@ export default function ProjectsPanel({
             },
           ]}
           githubUrl="https://github.com/elifdikmn/FootballMatchPrediction"
+          background="var(--bg-soft)"
         >
           <button
             type="button"
@@ -490,7 +526,7 @@ export default function ProjectsPanel({
         {/* ---------------- SQL Job Market Analysis ---------------- */}
         <ProjectDeepDive
           id="sql-job-market"
-          index="04"
+          index="05"
           tag="SQL · Job market analytics"
           title="Data Analyst Job Market Analysis"
           description="A SQL-only deep dive into 2023 remote Data Analyst job postings — no pandas, no notebooks, just CTEs, multi-table joins, and GROUP BY aggregations run directly in PostgreSQL."
@@ -526,13 +562,12 @@ export default function ProjectsPanel({
             },
           ]}
           githubUrl="https://github.com/elifdikmn/SQL_Analyze_Job"
-          background="var(--bg-soft)"
         />
 
         {/* ---------------- Online Appointment System ---------------- */}
         <ProjectDeepDive
           id="online-appointment"
-          index="05"
+          index="06"
           tag="Software engineering · Mobile app"
           title="Online Appointment System"
           description="A mobile scheduling platform that lets university students book face-to-face meetings with professors — replacing email back-and-forth with real-time availability, instant-meeting requests, and calendar-based scheduling."
@@ -570,6 +605,7 @@ export default function ProjectsPanel({
             },
           ]}
           githubUrl="https://github.com/elifdikmn/Online-Appointment-System"
+          background="var(--bg-soft)"
         >
           <button
             type="button"
@@ -584,7 +620,7 @@ export default function ProjectsPanel({
         {/* ---------------- Database Management System ---------------- */}
         <ProjectDeepDive
           id="database-management"
-          index="06"
+          index="07"
           tag="SQL · Database design"
           title="University Exam & Weekly Plan Management System"
           description="A relational database and PHP web app modeling a university's academic structure — faculties, departments, staff, courses, and exams — with role-based dashboards for Assistants, Secretaries, Department Heads, and Deans."
@@ -616,7 +652,6 @@ export default function ProjectsPanel({
             },
           ]}
           githubUrl="https://github.com/elifdikmn/Database-Management-Systems"
-          background="var(--bg-soft)"
         />
       </div>
     </motion.div>

@@ -329,9 +329,9 @@ export default function Page() {
 function HomeProjectsPreview({ onOpenProjects }: { onOpenProjects: (projectId?: string) => void }) {
   const previews = [
     { id: "football", tag: "Sports analytics", title: "Football Match Prediction", stat: "67.8% live-model accuracy" },
-    { id: "mnq", tag: "Quantitative finance", title: "MNQ Tick Data Analysis", stat: "NY Opening Hour rotations run 58–78% larger" },
+    { id: "cold-chain", tag: "Cold-chain · Time series ML", title: "Strawberry Smart-Pallet Intelligence", stat: "3 top-position sensors captured 98.2% of hot time" },
     { id: "gpt-privacy", tag: "Data privacy · RAG", title: "GPT Plugin Privacy Risk Analysis", stat: "12,811 records analyzed" },
-    { id: "sql-job-market", tag: "SQL · job market", title: "Data Analyst Job Market Analysis", stat: "$184K–$256K salary range" },
+    { id: "mnq", tag: "Quantitative finance", title: "MNQ Tick Data Analysis", stat: "NY Opening Hour rotations run 58–78% larger" },
   ];
 
   return (
