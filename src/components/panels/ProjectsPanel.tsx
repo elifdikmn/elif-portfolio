@@ -140,11 +140,58 @@ export default function ProjectsPanel({
           </p>
         </motion.article>
 
-        {/* ---------------- MNQ Tick Data ---------------- */}
+        {/* ---------------- Cold Chain Smart-Pallet Temperature ---------------- */}
         <motion.article
           variants={item}
           className="overflow-hidden rounded-[1.75rem] border p-6 sm:p-8"
           style={{ borderColor: "var(--border)", background: "var(--bg-soft)" }}
+        >
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <SectionTag>Cold chain logistics · Time series</SectionTag>
+            <a
+              href="https://github.com/elifdikmn/cold-chain-smart-pallet-temperature-prediction"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold transition hover:opacity-70"
+              style={{ color: "var(--accent-strong)" }}
+            >
+              <Github className="h-4 w-4" /> View repository <ArrowUpRight className="h-3.5 w-3.5" />
+            </a>
+          </div>
+
+          <h3 className="font-hero text-2xl font-semibold sm:text-3xl">Strawberry Smart-Pallet Intelligence</h3>
+          <p className="mt-3 max-w-[70ch] text-[15px] leading-relaxed sm:text-base" style={{ color: "var(--text-soft)" }}>
+            Six real US strawberry shipments, each tracked by up to nine temperature loggers (front/middle/rear
+            pallet × top/middle/bottom level) on a 10-minute grid. I built future-peak temperature regressors
+            validated with leave-one-shipment-out cross-validation, a threshold-based excursion alarm evaluated
+            event by event, and an exhaustive sweep over every subset of the nine loggers to isolate how much
+            sensor count and placement actually matter.
+          </p>
+
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatPill value="98.2%" label="Hot time seen by the 3 Top loggers" />
+            <StatPill value="27.7%" label="Hot time, median random 3-logger set" />
+            <StatPill value="0.20–0.32°F" label="RF-V3 RMSE · 30–120 min (LOGO)" />
+            <StatPill value="6" label="Shipments · up to 9 loggers each" />
+          </div>
+
+          <p className="mt-5 text-sm leading-relaxed" style={{ color: "var(--text-soft)" }}>
+            <strong style={{ color: "var(--text)" }}>Methodology:</strong> built 10-minute analysis windows and
+            future-peak labels from the raw loggers (Abdella, Brecht &amp; Uysal&apos;s strawberry cold-chain
+            dataset), then compared a lean 16-feature dynamics-only Random Forest against a 49-feature full model
+            under leave-one-shipment-out validation — the lean model won on shipment-macro RMSE and survived a
+            window-boundary stress test that broke the full model. Sudden mid-shipment warming jumps (+1.5 to
+            +2.4°F in 30 minutes) showed no reliable early signal in temperature history alone. Six shipments and
+            eight warming events is a small, exploratory sample, and the write-up says so plainly rather than
+            oversell a production-ready system.
+          </p>
+        </motion.article>
+
+        {/* ---------------- MNQ Tick Data ---------------- */}
+        <motion.article
+          variants={item}
+          className="overflow-hidden rounded-[1.75rem] border p-6 sm:p-8"
+          style={{ borderColor: "var(--border)", background: "var(--surface)" }}
         >
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <SectionTag>Quantitative finance · Time series</SectionTag>
@@ -168,7 +215,7 @@ export default function ProjectsPanel({
         <motion.article
           variants={item}
           className="overflow-hidden rounded-[1.75rem] border p-6 sm:p-8"
-          style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+          style={{ borderColor: "var(--border)", background: "var(--bg-soft)" }}
         >
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <SectionTag>Data privacy · NLP · RAG</SectionTag>
