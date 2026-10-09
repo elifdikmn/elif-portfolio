@@ -36,11 +36,52 @@ const COLORS = {
 
 const leagues = ["Premier League", "Bundesliga", "La Liga", "Serie A", "Ligue 1", "Süper Lig"];
 
-const fixtures = [
-  { league: "Premier League", home: "Arsenal", away: "Manchester City", homeCode: "ARS", awayCode: "MCI", homePct: 48.7, drawPct: 25.1, awayPct: 26.2, status: "20:00" },
-  { league: "Premier League", home: "Chelsea", away: "Nottingham Forest", homeCode: "CHE", awayCode: "NFO", homePct: 55.4, drawPct: 24.8, awayPct: 19.8, status: "FULL TIME", score: "2 – 1" },
-  { league: "La Liga", home: "Real Madrid", away: "Real Sociedad", homeCode: "RMA", awayCode: "RSO", homePct: 61.2, drawPct: 22.3, awayPct: 16.5, status: "21:00" },
+type Fixture = {
+  league: string;
+  home: string;
+  away: string;
+  homeCode: string;
+  awayCode: string;
+  homePct: number;
+  drawPct: number;
+  awayPct: number;
+  status: string;
+  score?: string;
+};
+
+const FIXTURES_BY_DAY: Fixture[][] = [
+  [
+    { league: "Premier League", home: "Liverpool", away: "Chelsea", homeCode: "LIV", awayCode: "CHE", homePct: 51.8, drawPct: 25.6, awayPct: 22.6, status: "FULL TIME", score: "2 – 2" },
+    { league: "La Liga", home: "Barcelona", away: "Sevilla", homeCode: "BAR", awayCode: "SEV", homePct: 64.1, drawPct: 21.4, awayPct: 14.5, status: "FULL TIME", score: "3 – 1" },
+  ],
+  [
+    { league: "Bundesliga", home: "Dortmund", away: "Leverkusen", homeCode: "BVB", awayCode: "B04", homePct: 42.3, drawPct: 27.8, awayPct: 29.9, status: "FULL TIME", score: "1 – 0" },
+    { league: "Süper Lig", home: "Galatasaray", away: "Trabzonspor", homeCode: "GS", awayCode: "TS", homePct: 59.6, drawPct: 24.1, awayPct: 16.3, status: "FULL TIME", score: "2 – 0" },
+  ],
+  [
+    { league: "Premier League", home: "Arsenal", away: "Manchester City", homeCode: "ARS", awayCode: "MCI", homePct: 48.7, drawPct: 25.1, awayPct: 26.2, status: "FULL TIME", score: "2 – 1" },
+    { league: "La Liga", home: "Real Madrid", away: "Real Sociedad", homeCode: "RMA", awayCode: "RSO", homePct: 61.2, drawPct: 22.3, awayPct: 16.5, status: "FULL TIME", score: "1 – 1" },
+  ],
+  [
+    { league: "Premier League", home: "Chelsea", away: "Nottingham Forest", homeCode: "CHE", awayCode: "NFO", homePct: 55.4, drawPct: 24.8, awayPct: 19.8, status: "FULL TIME", score: "2 – 1" },
+    { league: "Premier League", home: "Arsenal", away: "Manchester City", homeCode: "ARS", awayCode: "MCI", homePct: 48.7, drawPct: 25.1, awayPct: 26.2, status: "20:00" },
+    { league: "La Liga", home: "Real Madrid", away: "Real Sociedad", homeCode: "RMA", awayCode: "RSO", homePct: 61.2, drawPct: 22.3, awayPct: 16.5, status: "21:00" },
+  ],
+  [
+    { league: "Premier League", home: "Liverpool", away: "Tottenham", homeCode: "LIV", awayCode: "TOT", homePct: 54.6, drawPct: 24.0, awayPct: 21.4, status: "15:00" },
+    { league: "La Liga", home: "Barcelona", away: "Valencia", homeCode: "BAR", awayCode: "VAL", homePct: 66.8, drawPct: 20.1, awayPct: 13.1, status: "20:00" },
+  ],
+  [
+    { league: "Bundesliga", home: "Bayern Munich", away: "Dortmund", homeCode: "FCB", awayCode: "BVB", homePct: 57.3, drawPct: 23.9, awayPct: 18.8, status: "17:30" },
+    { league: "Serie A", home: "Juventus", away: "Inter Milan", homeCode: "JUV", awayCode: "INT", homePct: 35.2, drawPct: 29.8, awayPct: 35.0, status: "19:45" },
+  ],
+  [
+    { league: "Süper Lig", home: "Galatasaray", away: "Fenerbahçe", homeCode: "GS", awayCode: "FB", homePct: 41.7, drawPct: 28.2, awayPct: 30.1, status: "18:00" },
+    { league: "Ligue 1", home: "PSG", away: "Monaco", homeCode: "PSG", awayCode: "ASM", homePct: 62.4, drawPct: 21.7, awayPct: 15.9, status: "20:00" },
+  ],
 ];
+
+const fixtures = FIXTURES_BY_DAY[3];
 
 function Crest({ code, tone = COLORS.red }: { code: string; tone?: string }) {
   return (
@@ -71,11 +112,12 @@ function ProbabilityBar({ home, draw, away }: { home: number; draw: number; away
   );
 }
 
-function FixtureCard({ fixture, onDetails, onPrediction }: { fixture: (typeof fixtures)[number]; onDetails: () => void; onPrediction: () => void }) {
+function FixtureCard({ fixture, onDetails, onPrediction }: { fixture: Fixture; onDetails: () => void; onPrediction: () => void }) {
+  const isFinished = fixture.status === "FULL TIME";
   return (
     <div className="rounded-2xl border p-3.5" style={{ borderColor: COLORS.line, background: COLORS.cardAlt }}>
       <div className="flex items-center justify-between gap-2 text-[10px] font-bold" style={{ color: COLORS.muted }}>
-        <span className="flex items-center gap-1.5"><i className="h-1.5 w-1.5 rounded-full" style={{ background: fixture.status === "FULL TIME" ? COLORS.green : COLORS.faint }} />{fixture.status}</span>
+        <span className="flex items-center gap-1.5"><i className="h-1.5 w-1.5 rounded-full" style={{ background: isFinished ? COLORS.green : COLORS.faint }} />{fixture.status}</span>
         <button type="button" onClick={onDetails} className="flex min-h-8 items-center gap-1 text-white">Match details <ChevronRight className="h-3 w-3" /></button>
       </div>
       <div className="mt-2 grid grid-cols-[1fr_58px_1fr] items-start gap-2 text-center">
@@ -85,7 +127,7 @@ function FixtureCard({ fixture, onDetails, onPrediction }: { fixture: (typeof fi
       </div>
       <div className="mt-3"><ProbabilityBar home={fixture.homePct} draw={fixture.drawPct} away={fixture.awayPct} /></div>
       <button type="button" onClick={onPrediction} className="mt-3 flex min-h-9 w-full items-center gap-2 border-t pt-2.5 text-left text-[11px] font-semibold" style={{ borderColor: COLORS.line }}>
-        <BarChart3 className="h-3.5 w-3.5" style={{ color: COLORS.red }} /> Show Prediction <ArrowUpRight className="ml-auto h-3.5 w-3.5" style={{ color: COLORS.faint }} />
+        <BarChart3 className="h-3.5 w-3.5" style={{ color: COLORS.red }} /> {isFinished ? "View Saved Prediction" : "Show Prediction"} <ArrowUpRight className="ml-auto h-3.5 w-3.5" style={{ color: COLORS.faint }} />
       </button>
     </div>
   );
@@ -94,6 +136,9 @@ function FixtureCard({ fixture, onDetails, onPrediction }: { fixture: (typeof fi
 function FixturesScreen({ onNavigate }: { onNavigate: (screen: Screen) => void }) {
   const [day, setDay] = useState(3);
   const days = ["M", "T", "W", "T", "F", "S", "S"];
+  const visibleFixtures = FIXTURES_BY_DAY[day];
+  const visibleLeagues = leagues.filter((league) => visibleFixtures.some((fixture) => fixture.league === league));
+  const dateMode = day < 3 ? "Past results" : day === 3 ? "Today" : "Upcoming predictions";
   return (
     <div className="pb-20">
       <header className="sticky top-0 z-10 flex h-12 items-center justify-between border-b px-4" style={{ background: COLORS.card, borderColor: COLORS.line }}>
@@ -101,7 +146,10 @@ function FixturesScreen({ onNavigate }: { onNavigate: (screen: Screen) => void }
         <button type="button" aria-label="Filter leagues" onClick={() => onNavigate("filter")} className="grid h-8 w-8 place-items-center"><Filter className="h-4 w-4" /></button>
       </header>
       <div className="m-3 rounded-2xl p-3" style={{ background: "#11151C" }}>
-        <button type="button" className="flex min-h-8 items-center gap-2 text-[12px] font-bold"><CalendarDays className="h-4 w-4" /> October 2026 <ChevronRight className="h-3 w-3 rotate-90" /></button>
+        <div className="flex items-center justify-between gap-2">
+          <button type="button" className="flex min-h-8 items-center gap-2 text-[12px] font-bold"><CalendarDays className="h-4 w-4" /> October 2026 <ChevronRight className="h-3 w-3 rotate-90" /></button>
+          {day !== 3 && <button type="button" onClick={() => setDay(3)} className="rounded-full border px-2.5 py-1 text-[9px] font-bold" style={{ color: COLORS.red, borderColor: COLORS.red }}>Today</button>}
+        </div>
         <div className="mt-2 flex items-center gap-1">
           <button type="button" onClick={() => setDay(Math.max(0, day - 1))} className="grid h-11 w-6 place-items-center"><ChevronLeft className="h-3.5 w-3.5" /></button>
           {days.map((label, i) => (
@@ -113,10 +161,23 @@ function FixturesScreen({ onNavigate }: { onNavigate: (screen: Screen) => void }
         </div>
       </div>
       <div className="space-y-3 px-3">
-        <div className="flex items-center gap-2 pt-1"><Trophy className="h-4 w-4" style={{ color: COLORS.yellow }} /><span className="text-xs font-semibold">Premier League</span><span className="ml-auto text-[10px]" style={{ color: COLORS.faint }}>2 matches</span></div>
-        {fixtures.slice(0, 2).map((fixture) => <FixtureCard key={fixture.home} fixture={fixture} onDetails={() => onNavigate("detail")} onPrediction={() => onNavigate("prediction")} />)}
-        <div className="flex items-center gap-2 pt-2"><Trophy className="h-4 w-4" style={{ color: COLORS.red }} /><span className="text-xs font-semibold">La Liga</span><span className="ml-auto text-[10px]" style={{ color: COLORS.faint }}>1 match</span></div>
-        <FixtureCard fixture={fixtures[2]} onDetails={() => onNavigate("detail")} onPrediction={() => onNavigate("prediction")} />
+        <div className="flex items-center justify-between rounded-xl border px-3 py-2" style={{ color: COLORS.muted, borderColor: COLORS.line, background: COLORS.card }}>
+          <span className="text-[9px] font-bold uppercase tracking-[0.16em]">{dateMode}</span>
+          <span className="text-[10px]">Oct {5 + day} · {visibleFixtures.length} matches</span>
+        </div>
+        {visibleLeagues.map((league, leagueIndex) => {
+          const leagueFixtures = visibleFixtures.filter((fixture) => fixture.league === league);
+          return (
+            <div key={league} className="space-y-3">
+              <div className="flex items-center gap-2 pt-1">
+                <Trophy className="h-4 w-4" style={{ color: leagueIndex % 2 === 0 ? COLORS.yellow : COLORS.red }} />
+                <span className="text-xs font-semibold">{league}</span>
+                <span className="ml-auto text-[10px]" style={{ color: COLORS.faint }}>{leagueFixtures.length} {leagueFixtures.length === 1 ? "match" : "matches"}</span>
+              </div>
+              {leagueFixtures.map((fixture) => <FixtureCard key={`${fixture.home}-${fixture.away}`} fixture={fixture} onDetails={() => onNavigate("detail")} onPrediction={() => onNavigate("prediction")} />)}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
