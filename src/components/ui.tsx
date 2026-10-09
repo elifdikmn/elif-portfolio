@@ -118,15 +118,15 @@ export function SquareMenuButton({
 }: {
   open: boolean;
   onToggle: () => void;
-  onHoverChange: (v: boolean) => void;
+  onHoverChange?: (v: boolean) => void;
 }) {
   return (
     <button
       aria-label={open ? "Close menu" : "Open menu"}
       aria-expanded={open}
       onClick={onToggle}
-      onMouseEnter={() => onHoverChange(true)}
-      onMouseLeave={() => onHoverChange(false)}
+      onMouseEnter={() => onHoverChange?.(true)}
+      onMouseLeave={() => onHoverChange?.(false)}
       className="group relative grid h-11 w-11 sm:h-12 sm:w-12 md:h-16 md:w-16 place-items-center rounded-full transition-colors"
       style={{ color: "var(--text)" }}
     >

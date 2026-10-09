@@ -77,14 +77,11 @@ function LoaderBars({ size = "medium" }: { size?: "medium" | "large" }) {
 export default function Page() {
   const [mouse, setMouse] = useState({ x: 0.5, y: 0.5 });
   const [introDone, setIntroDone] = useState(false);
-  const [hoveringButton, setHoveringButton] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [overlayView, setOverlayView] = useState<View>("list");
   const [projectScrollTarget, setProjectScrollTarget] = useState<string | null>(null);
 
   const prefersReducedMotion = useReducedMotion();
-  const [windowSize, setWindowSize] = useState({ w: 0, h: 0 });
-
   useEffect(() => {
     let frame = 0;
     const onMove = (e: MouseEvent) => {
@@ -102,13 +99,6 @@ export default function Page() {
       window.removeEventListener("mousemove", onMove);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, []);
-
-  useEffect(() => {
-    const handleResize = () => setWindowSize({ w: window.innerWidth, h: window.innerHeight });
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
@@ -155,7 +145,7 @@ export default function Page() {
         className="relative min-h-screen overflow-hidden"
         style={{ background: "var(--bg)", color: "var(--text)" }}
       >
-        <BgFX mouse={mouse} windowSize={windowSize} hoveringButton={hoveringButton} />
+        <BgFX mouse={mouse} />
 
         <header className="absolute top-6 right-6 sm:top-8 sm:right-8 md:top-10 md:right-10 z-[70]">
           <SquareMenuButton
@@ -168,7 +158,6 @@ export default function Page() {
                 setMenuOpen(false);
               }
             }}
-            onHoverChange={setHoveringButton}
           />
         </header>
 
@@ -214,9 +203,9 @@ export default function Page() {
               style={{ color: "var(--text-soft)" }}
             >
               I&apos;m a Master of Science in Analytics student at Georgia Tech, specializing in Computational
-              Data Analysis. Based in Philadelphia, PA, I spend my days turning messy datasets into stories
-              worth telling — fueled by an amount of coffee I&apos;d rather not put a number on. Take a look
-              around, and thanks for stopping by.
+              Data Analysis. Based in Philadelphia, I like working on projects that combine machine learning,
+              software, and real-world data. Here you&apos;ll find work ranging from football prediction to data
+              privacy and cold-chain analytics.
             </motion.p>
 
             <motion.div
@@ -237,8 +226,6 @@ export default function Page() {
               <button
                 type="button"
                 onClick={() => openProjectsOverlay()}
-                onMouseEnter={() => setHoveringButton(true)}
-                onMouseLeave={() => setHoveringButton(false)}
                 className="group inline-flex items-center gap-3 opacity-0 animate-[fadeInUp_0.6s_1.8s_forwards]"
                 style={{ color: "var(--text)" }}
               >
@@ -249,8 +236,6 @@ export default function Page() {
               <button
                 type="button"
                 onClick={openAboutOverlay}
-                onMouseEnter={() => setHoveringButton(true)}
-                onMouseLeave={() => setHoveringButton(false)}
                 className="group inline-flex items-center gap-3 opacity-0 animate-[fadeInUp_0.6s_2s_forwards]"
                 style={{ color: "var(--text)" }}
               >
@@ -575,31 +560,9 @@ function OverlayMenu({
 }
 
 /* ---------------- Background FX (soft & warm) ---------------- */
-function BgFX({
-  mouse,
-  windowSize,
-  hoveringButton,
-}: {
-  mouse: { x: number; y: number };
-  windowSize: { w: number; h: number };
-  hoveringButton: boolean;
-}) {
+function BgFX({ mouse }: { mouse: { x: number; y: number } }) {
   return (
     <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-      {windowSize.w > 0 && windowSize.h > 0 && (
-        <motion.div
-          className="pointer-events-none fixed top-0 left-0 z-50 rounded-full border-2"
-          style={{ width: 36, height: 36, borderColor: "var(--accent)" }}
-          animate={{
-            x: mouse.x * windowSize.w - 18,
-            y: mouse.y * windowSize.h - 18,
-            scale: hoveringButton ? 1 : 0.5,
-            backgroundColor: hoveringButton ? "var(--accent-soft-2)" : "transparent",
-          }}
-          transition={{ type: "spring", stiffness: 200, damping: 25 }}
-        />
-      )}
-
       <div
         className="absolute inset-0 opacity-70"
         style={{
