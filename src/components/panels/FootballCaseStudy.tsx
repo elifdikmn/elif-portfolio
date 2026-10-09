@@ -284,11 +284,11 @@ export default function FootballCaseStudy({ onBack }: { onBack: () => void }) {
           </div>
         </SectionShell>
 
-        {/* 05 — Try it yourself */}
-        <SectionShell index="05" eyebrow="Try it yourself" title="The app" tone="surface">
+        {/* 05 — Product experience */}
+        <SectionShell index="05" eyebrow="Product experience" title="The current iOS interface" tone="surface">
           <p className="mx-auto mb-8 max-w-[60ch] text-center text-base leading-relaxed" style={{ color: "var(--text-soft)" }}>
-            Real screenshots from the actual iOS app — scroll and tap through it below, from browsing
-            finished matches to live in-play predictions.
+            An interactive browser recreation of the current SwiftUI app: browse fixtures, filter leagues,
+            inspect events and standings, and open the evidence behind a prediction.
           </p>
           <FootballAppPhone />
         </SectionShell>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, type Variants, easeOut } from "framer-motion";
 import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, ChevronUp, Github } from "lucide-react";
 import ComputerMockup from "@/components/ComputerMockup";
+import FootballAppPhone from "@/components/FootballAppPhone";
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -489,18 +490,8 @@ export default function ProjectsPanel({
             "Random Forest won on macro-F1 in 6 of 8 leagues; Logistic Regression was selected for the English Premier League and Turkish Süper Lig; XGBoost underperformed on the Draw class and was dropped from the final deployment.",
             "The iOS app includes a \"Check Out Why\" explainability view, surfacing the top features behind each individual prediction instead of a black-box percentage.",
           ]}
-          charts={[
-            {
-              src: "/projects/football/confusion_matrix_all_leagues.png",
-              alt: "Confusion matrix of match outcome predictions across all leagues",
-              caption: "Confusion matrix, all leagues combined — “Draw” remains the hardest class.",
-            },
-            {
-              src: "/projects/football/feature_importance.png",
-              alt: "Feature importance ranking for the match prediction model",
-              caption: "Feature importance — market-implied probabilities and xG differentials dominate.",
-            },
-          ]}
+          charts={[]}
+          appDemo={<FootballAppPhone />}
           githubUrl="https://github.com/elifdikmn/FootballMatchPrediction"
           background="var(--bg-soft)"
         >
